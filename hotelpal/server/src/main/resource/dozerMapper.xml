@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net"
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		  xsi:schemaLocation="http://dozer.sourceforge.net http://dozer.sourceforge.net/schema/beanmapping.xsd">
+
+	<mapping wildcard="false" type="one-way">
+		<class-a>com.hotelpal.service.common.mo.WXUserInfoMO</class-a>
+		<class-b>com.hotelpal.service.common.po.WXUserInfoPO</class-b>
+
+		<field>
+			<a>subscribe</a>
+			<b>subscribe</b>
+		</field>
+		<field>
+			<a>openid</a>
+			<b>openId</b>
+		</field>
+		<field>
+			<a>nickname</a>
+			<b>nickname</b>
+		</field>
+		<field>
+			<a>sex</a>
+			<b>sex</b>
+		</field>
+		<field>
+			<a>city</a>
+			<b>city</b>
+		</field>
+		<field>
+			<a>country</a>
+			<b>country</b>
+		</field>
+		<field>
+			<a>province</a>
+			<b>province</b>
+		</field>
+		<field>
+			<a>language</a>
+			<b>language</b>
+		</field>
+		<field>
+			<a>headimgurl</a>
+			<b>headImgUrl</b>
+		</field>
+		<field>
+			<a>subscribe_time</a>
+			<b>subscribeTime</b>
+		</field>
+		<field>
+			<a>unionid</a>
+			<b>unionId</b>
+		</field>
+		<field>
+			<a>remark</a>
+			<b>remark</b>
+		</field>
+		<field>
+			<a>groupid</a>
+			<b>groupId</b>
+		</field>
+		<field>
+			<a>subscribe_scene</a>
+			<b>subscribeScene</b>
+		</field>
+	</mapping>
+
+</mappings>

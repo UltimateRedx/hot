@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.2.xsd"
+	   default-lazy-init="false">
+
+	<!--<context:property-placeholder location="classpath*:spring/dao.properties,classpath*:applicationContext.properties"/>-->
+	<bean id="propertyConfigurer" class="com.hotelpal.service.web.handler.PropertyHolder">
+		<property name="locations">
+			<list>
+				<value>classpath*:*.properties</value>
+			</list>
+		</property>
+	</bean>
+	<import resource="classpath*:/spring/*.xml"/>
+
+	<context:component-scan base-package="com.hotelpal.service.basic"/>
+	<context:component-scan base-package="com.hotelpal.service.service"/>
+	<context:component-scan base-package="com.hotelpal.service.web"/>
+	<!--<bean id="poolTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
+		<!--&lt;!&ndash; 线程池维护线程的最少数量 &ndash;&gt;-->
+		<!--<property name="corePoolSize" value="2" />-->
+		<!--&lt;!&ndash; 允许的空闲时间 &ndash;&gt;-->
+		<!--<property name="keepAliveSeconds" value="120" />-->
+		<!--&lt;!&ndash; 线程池维护线程的最大数量 &ndash;&gt;-->
+		<!--<property name="maxPoolSize" value="100" />-->
+		<!--&lt;!&ndash; 缓存队列 &ndash;&gt;-->
+		<!--<property name="queueCapacity" value="20" />-->
+	<!--</bean>-->
+
+</beans>

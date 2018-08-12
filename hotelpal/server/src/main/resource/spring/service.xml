@@ -15,7 +15,6 @@
 		</constructor-arg>
 	</bean>
 
-	<bean class="com.hotelpal.service.service.spring.StartupTrigger" init-method="contentInitializer"/>
 	<bean class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler"/>
 
 	<!--<aop:aspectj-autoproxy proxy-target-class="true" expose-proxy="true"/>-->
@@ -24,6 +23,8 @@
 	<bean id="taskClass" class="com.hotelpal.service.service.parterner.wx.MsgPushService"/>
 	<bean id="liveChatService" class="com.hotelpal.service.service.live.LiveChatService" destroy-method="destroyTasks"/>
 	<bean class="com.hotelpal.service.service.spring.SpringTaskScheduler" destroy-method="destroyAllTasks"/>
+
+	<bean class="com.hotelpal.service.service.spring.StartupTrigger" init-method="contentInitializer"/>
 	<task:scheduled-tasks>
 		<task:scheduled ref="taskClass" method="pushCourseOpenMsg" cron="0 0 8 * * ?"/>
 		<task:scheduled ref="taskClass" method="pushLessonPublishMsg" cron="0 0 8 * * ?"/>

@@ -11,7 +11,7 @@
 
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-		<property name="url" value="jdbc:mysql://rm-bp1kim38xs3r8ie9ebo.mysql.rds.aliyuncs.com:3306/hotelpal?useUnicode=true&amp;serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;characterEncoding=UTF-8" />
+		<property name="url" value="jdbc:mysql://rm-bp1kim38xs3r8ie9e.mysql.rds.aliyuncs.com:3306/hotelpal?useUnicode=true&amp;serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;characterEncoding=UTF-8" />
 		<property name="username" value="root" />
 		<property name="password" value="Hotelpal@rds" />
 		<property name="defaultAutoCommit" value="true"/>

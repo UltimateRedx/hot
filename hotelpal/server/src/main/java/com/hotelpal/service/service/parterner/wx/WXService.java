@@ -18,7 +18,6 @@ import com.hotelpal.service.common.utils.HttpPostUtils;
 import com.hotelpal.service.common.utils.StringUtils;
 import com.hotelpal.service.common.utils.XMLUtils;
 import com.hotelpal.service.web.handler.PropertyHolder;
-import com.sun.java.browser.plugin2.DOM;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.dom4j.Document;

@@ -3,6 +3,7 @@ package com.hotelpal.service.web.controller.liveCourseController.admin;
 import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.po.live.LiveCoursePO;
 import com.hotelpal.service.common.so.live.LiveCourseSO;
+import com.hotelpal.service.common.vo.AdminLiveCourseVO;
 import com.hotelpal.service.common.vo.LiveCourseCurveVO;
 import com.hotelpal.service.common.vo.LiveCourseStatisticsVO;
 import com.hotelpal.service.common.vo.PackVO;
@@ -43,10 +44,10 @@ public class AdminLiveCourseController extends BaseController {
 	
 	@RequestMapping(value = "/getLiveCoursePageList")
 	@ResponseBody
-	public PackVO<LiveCoursePO> getPageList(@RequestBody LiveCourseSO so) {
-		List<LiveCoursePO> poList = liveCourseService.getPageList(so);
-		PackVO<LiveCoursePO> res = new PackVO<>();
-		res.setVoList(poList);
+	public PackVO getPageList(@RequestBody LiveCourseSO so) {
+		List<AdminLiveCourseVO> voList = liveCourseService.getPageList(so);
+		PackVO<AdminLiveCourseVO> res = new PackVO<>();
+		res.setVoList(voList);
 		res.setPageInfo(so);
 		return res;
 	}
@@ -102,5 +103,16 @@ public class AdminLiveCourseController extends BaseController {
 		pack.setVo(liveCourseService.getCourse(courseId).getLiveImg());
 		return pack;
 	}
-	
+
+	/**
+	 * 配置显示的报名人数、观看人数、总观看人数等的基数
+	 */
+	@RequestMapping(value = "/configureBaseLine")
+	@ResponseBody
+	public PackVO configureBaseLine(@RequestParam Integer courseId,
+									@RequestParam String type,
+									@RequestParam(required = false, defaultValue = "0") Integer baseLine) {
+		liveCourseService.configureDisplayBaseLine(courseId, type, baseLine);
+		return new PackVO();
+	}
 }

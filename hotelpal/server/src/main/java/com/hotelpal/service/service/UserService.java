@@ -708,7 +708,7 @@ public class UserService {
 	public List<WxUserInfo> getUserList(UserRelaSO so) {
 		Integer count = userRelaDao.getCount(so);
 		so.setTotalCount(count);
-		if (count == 0) return null;
+		if (count == 0) return Collections.emptyList();
 		List<UserPO> poList =  userRelaDao.getPageList(so);
 		List<String> openIdList = new ArrayList<>(poList.size());
 		List<Integer> domainIdList = new ArrayList<>(poList.size());

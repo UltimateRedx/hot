@@ -20,14 +20,14 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
 			throws Exception {
 		logger.info("Request URL: " + request.getRequestURI() + "?" + request.getQueryString());
 		
-		HttpSession session = request.getSession(false);
-		if (session == null) {
-			throw new ServiceException(ServiceException.ADMIN_NO_SESSION_EXISTS);
-		}
-		AdminSessionMO mo = (AdminSessionMO) session.getAttribute("adminLoginInfo");
-		if (mo == null) {
-			throw new ServiceException(ServiceException.ADMIN_USER_NO_INFO);
-		}
+//		HttpSession session = request.getSession(false);
+//		if (session == null) {
+//			throw new ServiceException(ServiceException.ADMIN_NO_SESSION_EXISTS);
+//		}
+//		AdminSessionMO mo = (AdminSessionMO) session.getAttribute("adminLoginInfo");
+//		if (mo == null) {
+//			throw new ServiceException(ServiceException.ADMIN_USER_NO_INFO);
+//		}
 		SecurityContext context = new SecurityContext();
 		context.setDomainId(0);
 		SecurityContextHolder.setContext(context);

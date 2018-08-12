@@ -8,11 +8,11 @@
 						http://www.springframework.org/schema/task/spring-task-4.2.xsd"
 	   default-lazy-init="false">
 	<bean class="org.dozer.DozerBeanMapper">
-		<constructor-arg name="mappingFiles">
-			<list>
-				<value>classpath:dozerMapper.xml</value>
-			</list>
-		</constructor-arg>
+		<!--<constructor-arg name="mappingFiles">-->
+			<!--<list>-->
+				<!--<value>classpath:dozerMapper.xml</value>-->
+			<!--</list>-->
+		<!--</constructor-arg>-->
 	</bean>
 
 </beans>

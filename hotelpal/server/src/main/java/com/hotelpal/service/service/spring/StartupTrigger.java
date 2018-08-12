@@ -29,7 +29,7 @@ public class StartupTrigger {
 	 */
 	public void contentInitializer() {
 		startLiveService();
-		loadLiveCourseScheduler();
+//		loadLiveCourseScheduler();
 	}
 	
 	/**

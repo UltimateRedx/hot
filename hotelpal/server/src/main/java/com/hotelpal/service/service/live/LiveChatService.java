@@ -1,12 +1,14 @@
 package com.hotelpal.service.service.live;
 
 import com.alibaba.fastjson.JSON;
+import com.hotelpal.service.basic.mysql.dao.SysPropertyDao;
 import com.hotelpal.service.basic.mysql.dao.live.LiveCourseDao;
 import com.hotelpal.service.basic.mysql.dao.live.LiveMockUserDao;
 import com.hotelpal.service.basic.mysql.dao.live.OnlineLogDao;
 import com.hotelpal.service.common.enums.BoolStatus;
 import com.hotelpal.service.common.enums.LiveCourseStatus;
 import com.hotelpal.service.common.exception.ServiceException;
+import com.hotelpal.service.common.po.SysPropertyPO;
 import com.hotelpal.service.common.po.UserPO;
 import com.hotelpal.service.common.po.live.*;
 import com.hotelpal.service.common.so.live.OnlineLogSO;
@@ -51,6 +53,8 @@ public class LiveChatService {
 	private LiveMockUserDao liveMockUserDao;
 	@Resource
 	private DozerBeanMapper dozerBeanMapper;
+	@Resource
+	private SysPropertyDao sysPropertyDao;
 
 	////////////////////////////////////////////////
 	private static final String Y = BoolStatus.Y.toString();
@@ -76,7 +80,9 @@ public class LiveChatService {
 			return;
 		}
 		courseEnvMap.put(courseId, new SingleCourseEnv());
+		Map<Integer, Integer> ongoingBaseLine = sysPropertyDao.getBaseLine(SysPropertyPO.LIVE_BASE_LINE_ONGOING, Collections.singletonList(courseId));
 		SingleCourseEnv env = courseEnvMap.get(courseId);
+		env.ongoingBaseLine = ongoingBaseLine.get(courseId);
 		env.published.set(true);
 
 		for (int i = 0; i < POOL_SIZE; i++) {
@@ -405,8 +411,18 @@ public class LiveChatService {
 			liveCourseService.updateLiveCourse(course);
 		}
 	}
-	
-	
+
+	public void setOngoingBaseLine(Integer courseId, Integer baseLine) {
+		SingleCourseEnv env = courseEnvMap.get(courseId);
+		env.ongoingBaseLine = baseLine;
+		env.msgQueue.offer(new Message(TYPE_PRESENT_UPDATE, null, null, String.valueOf(env.subscriber.size())));
+		try {
+			env.LOCK.tryLock();
+			env.EMPTY.signalAll();
+		}finally {
+			env.LOCK.unlock();
+		}
+	}
 	
 	private class MessageWorker implements Runnable {
 		private Integer courseId;
@@ -456,7 +472,6 @@ public class LiveChatService {
 							}
 							continue;
 						}
-						UserPO user = env.subscriber.get(msg.getSessionId());
 						if (coupon || isStartTerminate) {
 							for (Session s : sessionList) {
 								LiveChatMessageVO vo = new LiveChatMessageVO();
@@ -473,14 +488,23 @@ public class LiveChatService {
 								vo.setMsgType(msg.getMsgType());
 								this.send(s, vo);
 							}
-						} else if (img || presentUpdate) {
+						} else if (img) {
 							for (Session s : sessionList) {
 								LiveChatMessageVO vo = new LiveChatMessageVO();
 								vo.setMsg(msg.getMsg());
 								vo.setMsgType(msg.getMsgType());
 								this.send(s, vo);
 							}
+						} else if (presentUpdate) {
+							Integer baseLine = env.ongoingBaseLine;
+							for (Session s : sessionList) {
+								LiveChatMessageVO vo = new LiveChatMessageVO();
+								vo.setMsg(String.valueOf(Integer.valueOf(msg.getMsg()) + baseLine));
+								vo.setMsgType(msg.getMsgType());
+								this.send(s, vo);
+							}
 						} else {
+							UserPO user = env.subscriber.get(msg.getSessionId());
 							boolean blocked = env.blockedUserSet.contains(user.getDomainId());
 							for (Session s : sessionList) {
 								if (blocked && (!s.getId().equalsIgnoreCase(msg.getSessionId())) && env.subscriber.get(s.getId()).getDomainId() > 0) continue;
@@ -649,7 +673,8 @@ public class LiveChatService {
 		AtomicBoolean published = new AtomicBoolean(false);
 		String currentImg;
 		AtomicBoolean showCoupon = new AtomicBoolean(false);
-		
+		//在线人数显示的基数
+		Integer ongoingBaseLine = 0;
 	}
 
 	public void destroyTasks() {

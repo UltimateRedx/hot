@@ -456,7 +456,7 @@ public class ServiceConverter {
 			RedPacketSO uso = new RedPacketSO();
 			uso.setLessonId(lessonId);
 			uso.setType(RedPacketType.RECEIVER.toString());
-			uso.setFrom(SecurityContextHolder.getUserDomainId());
+			uso.setNonce(rp.getNonce());
 			uso.setIgnoreDomainId(true);
 			int used = redPacketDao.count(uso);
 			res.setRedPacketRemained(DEFAULT_RED_PACKET_NUM - used);

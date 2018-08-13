@@ -75,6 +75,7 @@
 		<mvc:interceptor>
 			<mvc:mapping path="/admin/**"/>
 			<mvc:exclude-mapping path="/admin/login"/>
+			<mvc:exclude-mapping path="/admin/liveCourse/getLiveImgList"/>
 			<bean class="com.hotelpal.service.web.interceptor.AdminInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>

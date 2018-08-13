@@ -93,10 +93,14 @@ public class LiveCourseService {
 		List<LiveCoursePO> courseList = liveCourseDao.getList(so);
 		List<Integer> idList = courseList.stream().map(BasePO::getId).collect(Collectors.toList());
 		Map<Integer, Integer> baseLineMap = sysPropertyDao.getBaseLine(SysPropertyPO.LIVE_BASE_LINE_ENROLL, idList);
+		Map<Integer, Integer> ongoingBaseLineMap = sysPropertyDao.getBaseLine(SysPropertyPO.LIVE_BASE_LINE_ONGOING, idList);
+		Map<Integer, Integer> totalBaseLineMap = sysPropertyDao.getBaseLine(SysPropertyPO.LIVE_BASE_LINE_TOTAL, idList);
 		for (LiveCoursePO course : courseList) {
-			course.setPresent(liveChatService.getCoursePresent(course.getId()));
+			course.setPresent(liveChatService.getCoursePresent(course.getId()) + ongoingBaseLineMap.get(course.getId()));
 			Integer times = course.getFreeEnrolledTimes() == null ? 0 : course.getFreeEnrolledTimes();
 			course.setFreeEnrolledTimes(times + baseLineMap.get(course.getId()));
+			Integer totalTimes = course.getTotalPeople() == null ? 0 : course.getTotalPeople();
+			course.setTotalPeople(totalTimes + totalBaseLineMap.get(course.getId()));
 		}
 		return courseList;
 	}

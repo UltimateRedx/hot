@@ -3,10 +3,7 @@ package com.hotelpal.service.service.converter;
 import com.hotelpal.service.basic.mysql.dao.*;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.dto.response.*;
-import com.hotelpal.service.common.enums.BoolStatus;
-import com.hotelpal.service.common.enums.CourseStatus;
-import com.hotelpal.service.common.enums.LessonType;
-import com.hotelpal.service.common.enums.RedPacketType;
+import com.hotelpal.service.common.enums.*;
 import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.po.*;
 import com.hotelpal.service.common.po.extra.PurchasedCoursePO;
@@ -60,6 +57,8 @@ public class ServiceConverter {
 	private DozerBeanMapper dozerMapper;
 	@Resource
 	private RedPacketDao redPacketDao;
+	@Resource
+	private PurchaseLogDao purchaseLogDao;
 	
 	
 	
@@ -400,6 +399,11 @@ public class ServiceConverter {
 		if (lesson.getPublishDate().after(new Date())) {
 			throw new ServiceException(ServiceException.COMMON_DATA_NOT_PUBLISHED);
 		}
+		boolean purchased = purchaseLogDao.recordExists(CourseType.NORMAL, lesson.getCourseId(), SecurityContextHolder.getUserDomainId());
+		if (!purchased) {
+			throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
+		}
+		CoursePO course = courseDao.getById(lesson.getCourseId());
 		LessonResponse res = new LessonResponse();
 		res.setId(lesson.getId());
 		res.setCourseId(lesson.getCourseId());
@@ -442,26 +446,30 @@ public class ServiceConverter {
 		RedPacketSO rso = new RedPacketSO();
 		rso.setType(RedPacketType.SENDER.toString());
 		rso.setLessonId(lessonId);
-		RedPacketPO rp = redPacketDao.getOne(rso);
-		if (rp == null) {
-			rp = new RedPacketPO();
-			rp.setLessonId(lessonId);
-			rp.setNonce(RandomStringUtils.random(32, true, true));
-			rp.setType(RedPacketType.SENDER.toString());
-			redPacketDao.create(rp);
-			res.setRedPacketNonce(rp.getNonce());
-			res.setRedPacketRemained(DEFAULT_RED_PACKET_NUM);
+		if (course.getPrice() >= 600 * 100) {
+			res.setRedPacketRemained(0);
 		} else {
-			res.setRedPacketNonce(rp.getNonce());
-			RedPacketSO uso = new RedPacketSO();
-			uso.setLessonId(lessonId);
-			uso.setType(RedPacketType.RECEIVER.toString());
-			uso.setNonce(rp.getNonce());
-			uso.setIgnoreDomainId(true);
-			int used = redPacketDao.count(uso);
-			res.setRedPacketRemained(DEFAULT_RED_PACKET_NUM - used);
+			RedPacketPO rp = redPacketDao.getOne(rso);
+			if (rp == null) {
+				rp = new RedPacketPO();
+				rp.setLessonId(lessonId);
+				rp.setNonce(RandomStringUtils.random(32, true, true));
+				rp.setType(RedPacketType.SENDER.toString());
+				redPacketDao.create(rp);
+				res.setRedPacketNonce(rp.getNonce());
+				res.setRedPacketRemained(DEFAULT_RED_PACKET_NUM);
+			} else {
+				res.setRedPacketNonce(rp.getNonce());
+				RedPacketSO uso = new RedPacketSO();
+				uso.setLessonId(lessonId);
+				uso.setType(RedPacketType.RECEIVER.toString());
+				uso.setNonce(rp.getNonce());
+				uso.setIgnoreDomainId(true);
+				int used = redPacketDao.count(uso);
+				res.setRedPacketRemained(DEFAULT_RED_PACKET_NUM - used);
+			}
 		}
-		
+
 		//已听记录
 		ListenLogSO lso = new ListenLogSO();
 		lso.setLessonId(lessonId);

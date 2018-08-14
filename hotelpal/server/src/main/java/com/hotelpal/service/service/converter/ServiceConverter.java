@@ -399,7 +399,7 @@ public class ServiceConverter {
 		if (lesson.getPublishDate().after(new Date())) {
 			throw new ServiceException(ServiceException.COMMON_DATA_NOT_PUBLISHED);
 		}
-		if (LessonType.NORMAL.toString().equalsIgnoreCase(lesson.getType())) {
+		if (LessonType.NORMAL.toString().equalsIgnoreCase(lesson.getType()) && N.equalsIgnoreCase(lesson.getFree())) {
 			boolean purchased = purchaseLogDao.recordExists(CourseType.NORMAL, lesson.getCourseId(), SecurityContextHolder.getUserDomainId());
 			if (!purchased) {
 				throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);

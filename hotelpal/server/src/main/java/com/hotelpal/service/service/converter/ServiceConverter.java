@@ -399,9 +399,11 @@ public class ServiceConverter {
 		if (lesson.getPublishDate().after(new Date())) {
 			throw new ServiceException(ServiceException.COMMON_DATA_NOT_PUBLISHED);
 		}
-		boolean purchased = purchaseLogDao.recordExists(CourseType.NORMAL, lesson.getCourseId(), SecurityContextHolder.getUserDomainId());
-		if (!purchased) {
-			throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
+		if (LessonType.NORMAL.toString().equalsIgnoreCase(lesson.getType())) {
+			boolean purchased = purchaseLogDao.recordExists(CourseType.NORMAL, lesson.getCourseId(), SecurityContextHolder.getUserDomainId());
+			if (!purchased) {
+				throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
+			}
 		}
 		CoursePO course = courseDao.getById(lesson.getCourseId());
 		LessonResponse res = new LessonResponse();
@@ -446,7 +448,8 @@ public class ServiceConverter {
 		RedPacketSO rso = new RedPacketSO();
 		rso.setType(RedPacketType.SENDER.toString());
 		rso.setLessonId(lessonId);
-		if (course.getPrice() >= 600 * 100) {
+		if (LessonType.SELF.toString().equalsIgnoreCase(lesson.getType()) ||
+				LessonType.NORMAL.toString().equalsIgnoreCase(lesson.getType()) && course.getPrice() >= 600 * 100) {
 			res.setRedPacketRemained(0);
 		} else {
 			RedPacketPO rp = redPacketDao.getOne(rso);

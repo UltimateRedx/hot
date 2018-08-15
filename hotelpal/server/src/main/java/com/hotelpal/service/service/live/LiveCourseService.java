@@ -7,6 +7,7 @@ import com.hotelpal.service.common.enums.BoolStatus;
 import com.hotelpal.service.common.enums.LiveCourseStatus;
 import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.mo.HttpParams;
+import com.hotelpal.service.common.mo.ValuePair;
 import com.hotelpal.service.common.po.BasePO;
 import com.hotelpal.service.common.po.SysPropertyPO;
 import com.hotelpal.service.common.po.live.*;
@@ -24,6 +25,8 @@ import com.hotelpal.service.web.handler.PropertyHolder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.dozer.DozerBeanMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,7 @@ import java.util.stream.Collectors;
 @Component
 @Transactional
 public class LiveCourseService {
+	private static final Logger logger = LoggerFactory.getLogger(LiveCourseService.class);
 	private static final String ADMIN_DOMAIN = PropertyHolder.getProperty("http.admin.domain");
 	@Resource
 	private LiveCourseService liveCourseService;
@@ -63,6 +67,8 @@ public class LiveCourseService {
 	private WXService wxService;
 	@Resource
 	private SysPropertyDao sysPropertyDao;
+	@Resource
+	private LiveEnrollDao liveEnrollDao;
 	
 	
 	
@@ -137,7 +143,7 @@ public class LiveCourseService {
 		getImgCache(course.getId());
 	}
 	@Transactional
-	LiveCoursePO doUpdateLiveCourse(LiveCourseSO so) {
+	public LiveCoursePO doUpdateLiveCourse(LiveCourseSO so) {
 		boolean create = false;
 		if(so.getId() == null) create = true;
 		LiveCoursePO course = liveCourseDao.getById(so.getId());
@@ -166,8 +172,26 @@ public class LiveCourseService {
 			course.setStatus(status);
 			liveCourseDao.update(course);
 		}
+		//updateEnroll(course.getId(), course.getInviteRequire());
 		return course;
 	}
+
+	private void updateEnroll(Integer liveCourseId, Integer inviteRequire) {
+		if (inviteRequire == null) return;
+		List<ValuePair<Integer, Integer>> domainIdList = liveEnrollDao.getInvitingDomainIdList(liveCourseId);
+		List<Integer> toUpdateList = domainIdList.stream().filter(p -> p.getValue() >= inviteRequire).mapToInt(ValuePair::getName).boxed().collect(Collectors.toList());
+		List<Integer> successDomainIdList = new ArrayList<>(toUpdateList.size());
+		for (Integer domainId : toUpdateList) {
+			try {
+					liveEnrollDao.updateToEnrolled(liveCourseId, domainId);
+					successDomainIdList.add(domainId);
+			}catch (Exception e) {
+				logger.error("updateEnroll Exception...", e);
+			}
+		}
+		//消息推送
+	}
+
 
 	public LiveCoursePO getLiveCourse(Integer courseId) {
 		LiveCoursePO po = liveCourseDao.getById(courseId, true);

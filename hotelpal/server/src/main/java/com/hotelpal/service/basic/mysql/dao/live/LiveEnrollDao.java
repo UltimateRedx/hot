@@ -5,6 +5,7 @@ import com.hotelpal.service.basic.mysql.TableNames;
 import com.hotelpal.service.basic.mysql.dao.UserRelaDao;
 import com.hotelpal.service.common.enums.LiveEnrollStatus;
 import com.hotelpal.service.common.enums.LiveEnrollType;
+import com.hotelpal.service.common.mo.ValuePair;
 import com.hotelpal.service.common.po.live.LiveEnrollPO;
 import com.hotelpal.service.common.so.live.LiveEnrollSO;
 import com.hotelpal.service.common.utils.StringUtils;
@@ -63,11 +64,11 @@ public class LiveEnrollDao extends DomainMysqlBaseDao<LiveEnrollSO, LiveEnrollPO
 		 return dao.queryForList(sql, new Object[]{courseId, LiveEnrollStatus.ENROLLED.toString()}, Integer.class);
 	}
 	
-	public List<Integer> getInvitingDomainIdList(Integer courseId) {
-		String sql = "SELECT domainId FROM " + TABLE_NAME +
-		 " WHERE liveCourseId=? AND `status`=? ";
-		 return dao.queryForList(sql, new Object[]{courseId, LiveEnrollStatus.INVITING.toString()}, Integer.class);
-	}
+//	public List<Integer> getInvitingDomainIdList(Integer courseId) {
+//		String sql = "SELECT domainId FROM " + TABLE_NAME +
+//		 " WHERE liveCourseId=? AND `status`=? ";
+//		 return dao.queryForList(sql, new Object[]{courseId, LiveEnrollStatus.INVITING.toString()}, Integer.class);
+//	}
 
 	public List<Map<String, Object>> getInvitingList(Integer courseId) {
 		String sql = "select " +
@@ -95,5 +96,29 @@ public class LiveEnrollDao extends DomainMysqlBaseDao<LiveEnrollSO, LiveEnrollPO
 				" AND not exists ( select * from cc_live_enroll where liveCourseId=? and domainId=m.domainId and enrollType not in(?) ) " +
 				" group by domainId)t ";
 		return dao.queryForObject(sql, new Object[]{LiveEnrollType.INVITE.toString(), liveCourseId, liveCourseId, LiveEnrollType.INVITE.toString()}, Integer.class);
+	}
+
+	/**
+	 * 返回正在邀请中(排除已经付费报名)的domainId
+	 */
+	public List<ValuePair<Integer, Integer>> getInvitingDomainIdList(Integer liveCourseId) {
+		String sql = StringUtils.format("select le.domainId, count(ll.invitedDomainId)" +
+				" from {} le " +
+				" left join {} ll on le.domainId= ll.domainId" +
+				" where le.liveCourseId=? and le.`status`=? " +
+				" and le.domainId not in(select domainId from {} where `status`=? and liveCourseId=?)" +
+				" group by le.domainId",
+				TABLE_NAME, TableNames.TABLE_LIVE_COURSE_INVITED_LOG, TABLE_NAME);
+		return dao.query(sql, new Object[]{liveCourseId, LiveEnrollStatus.INVITING.toString(), LiveEnrollStatus.ENROLLED.toString(), liveCourseId}, (rs, index) -> {
+			ValuePair<Integer, Integer> res = new ValuePair<>();
+			res.setName(rs.getInt(1));
+			res.setValue(rs.getInt(2));
+			return res;
+		});
+	}
+
+	public void updateToEnrolled(Integer liveCourseId, Integer domainId) {
+		String sql = "update " + TABLE_NAME + " set `status`=?,updateTime=sysdate() where liveCourseId=? and domainId=? and enrollType=?";
+		dao.update(sql, new Object[]{LiveEnrollStatus.ENROLLED.toString(), liveCourseId, domainId, LiveEnrollType.INVITE.toString()});
 	}
 }

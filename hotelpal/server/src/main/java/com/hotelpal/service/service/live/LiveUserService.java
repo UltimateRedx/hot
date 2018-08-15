@@ -87,7 +87,7 @@ public class LiveUserService {
 
 	private static final String qrCodeLink = PropertyHolder.getProperty("LIVE_COURSE_INVITE_QR_CODE");
 	private static final String inviteUrl  = PropertyHolder.getProperty("LIVE_COURSE_INVITE_IMG_URL");
-	
+
 	private Lock lock = new ReentrantLock();
 	
 	public LiveUserInfoVO getUserInfo(Integer liveCourseId, LiveCoursePO liveCourse) {
@@ -355,7 +355,7 @@ public class LiveUserService {
 		return info;
 	}
 	@Transactional
-	boolean doEnrolledFor(Integer courseId, String openId) {
+	public boolean doEnrolledFor(Integer courseId, String openId) {
 		if (SecurityContextHolder.getUserOpenId().equalsIgnoreCase(openId)) {
 			throw new ServiceException(ServiceException.LIVE_COURSE_SELF_INVITE);
 		}

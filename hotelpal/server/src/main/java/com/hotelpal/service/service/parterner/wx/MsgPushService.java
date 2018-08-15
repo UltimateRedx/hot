@@ -109,6 +109,7 @@ public class MsgPushService {
 					});
 				}
 			}
+			pool.shutdown();
 		} catch (Exception e) {
 			LOGGER.error("pushCourseOpenMsg exception...", e);
 		}
@@ -154,6 +155,7 @@ public class MsgPushService {
 					});
 				}
 			}
+			pool.shutdown();
 		}catch (Exception e) {
 			LOGGER.error("pushLessonPublishMsg exception...", e);
 		}

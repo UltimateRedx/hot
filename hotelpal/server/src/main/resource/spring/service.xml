@@ -16,20 +16,24 @@
 	</bean>
 
 	<bean class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler"/>
-
+	<bean class="com.hotelpal.service.service.spring.SpringApplicationContext"/>
 	<!--<aop:aspectj-autoproxy proxy-target-class="true" expose-proxy="true"/>-->
 
-
+	<bean class="com.hotelpal.service.service.live.netty.NettyServer" init-method="initServer" destroy-method="destroy"/>
 	<bean id="taskClass" class="com.hotelpal.service.service.parterner.wx.MsgPushService"/>
-	<bean id="liveChatService" class="com.hotelpal.service.service.live.LiveChatService" destroy-method="destroyTasks"/>
+	<!--<bean id="liveChatService" class="com.hotelpal.service.service.live.LiveChatService" destroy-method="destroyTasks"/>-->
 	<bean class="com.hotelpal.service.service.spring.SpringTaskScheduler" destroy-method="destroyAllTasks"/>
 
-	<bean class="com.hotelpal.service.service.spring.StartupTrigger" init-method="contentInitializer"/>
-	<task:scheduled-tasks>
-		<task:scheduled ref="taskClass" method="pushCourseOpenMsg" cron="0 0 8 * * ?"/>
-		<task:scheduled ref="taskClass" method="pushLessonPublishMsg" cron="0 0 8 * * ?"/>
-		<task:scheduled ref="taskClass" method="pushRemindLearnMsg" cron="0 5 8 * * ?"/>
-		<task:scheduled ref="taskClass" method="pushCouponExpireMsg" cron="0 0 22 * * ?"/>
-	</task:scheduled-tasks>
+	<bean id="nettyServerHelper" class="com.hotelpal.service.service.live.netty.ServerHelper" init-method="init" destroy-method="destroyTasks"/>
+
+	<bean class="com.hotelpal.service.service.spring.StartupTrigger" init-method="contentInitializer" depends-on="nettyServerHelper"/>
+	<!--<task:scheduled-tasks>-->
+		<!--<task:scheduled ref="taskClass" method="pushCourseOpenMsg" cron="0 0 8 * * ?"/>-->
+		<!--<task:scheduled ref="taskClass" method="pushLessonPublishMsg" cron="0 0 8 * * ?"/>-->
+		<!--<task:scheduled ref="taskClass" method="pushRemindLearnMsg" cron="0 5 8 * * ?"/>-->
+		<!--<task:scheduled ref="taskClass" method="pushCouponExpireMsg" cron="0 0 22 * * ?"/>-->
+	<!--</task:scheduled-tasks>-->
+
+
 
 </beans>

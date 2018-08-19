@@ -16,6 +16,7 @@ import com.hotelpal.service.common.so.live.LiveCourseSO;
 import com.hotelpal.service.common.so.live.OnlineSumSO;
 import com.hotelpal.service.common.vo.LiveCourseCurveVO;
 import com.hotelpal.service.common.vo.LiveCourseStatisticsVO;
+import com.hotelpal.service.service.live.netty.ServerHelper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +33,8 @@ public class LiveContentService {
 	private LiveCourseDao liveCourseDao;
 	@Resource
 	private ChatLogDao chatLogDao;
-	@Resource
-	private LiveChatService liveChatService;
+//	@Resource
+//	private LiveChatService liveChatService;
 	@Resource
 	private LiveEnrollDao liveEnrollDao;
 	@Resource
@@ -42,6 +43,8 @@ public class LiveContentService {
 	private OnlineLogDao onlineLogDao;
 	@Resource
 	private OnlineSumDao onlineSumDao;
+	@Resource
+	private ServerHelper serverHelper;
 
 	public Integer sendMsg(Integer courseId, String msg) {
 		LiveCourseSO so = new LiveCourseSO();
@@ -69,7 +72,7 @@ public class LiveContentService {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
 		}
 		assistantMessageDao.delete(msgId);
-		liveChatService.assistantMessageRemove(msg.getLiveCourseId(), msgId);
+		serverHelper.assistantMessageRemove(msg.getLiveCourseId(), msgId);
 		return msg.getLiveCourseId();
 	}
 	
@@ -80,7 +83,7 @@ public class LiveContentService {
 		}
 		chat.setBlocked(BoolStatus.Y.toString());
 		chatLogDao.update(chat);
-		liveChatService.blockUser(chat.getLiveCourseId(), chat.getDomainId());
+		serverHelper.blockUser(chat.getLiveCourseId(), chat.getDomainId());
 	}
 	
 	public LiveCourseStatisticsVO getStatisticsData(Integer courseId) {

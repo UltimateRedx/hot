@@ -6,6 +6,7 @@ import com.hotelpal.service.common.enums.LiveCourseStatus;
 import com.hotelpal.service.common.po.live.LiveCoursePO;
 import com.hotelpal.service.common.so.live.LiveCourseSO;
 import com.hotelpal.service.service.live.LiveChatService;
+import com.hotelpal.service.service.live.netty.ServerHelper;
 import com.hotelpal.service.service.parterner.wx.MsgPushService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +21,17 @@ public class StartupTrigger {
 	private MsgPushService msgPushService;
 	@Resource
 	private LiveCourseDao liveCourseDao;
+//	@Resource
+//	private LiveChatService liveChatService;
 	@Resource
-	private LiveChatService liveChatService;
-	
+	private ServerHelper serverHelper;
 	
 	/**
 	 * content初始化之后将需要执行的方法放入这个里面
 	 */
 	public void contentInitializer() {
 		startLiveService();
-		loadLiveCourseScheduler();
+//		loadLiveCourseScheduler();
 	}
 	
 	/**
@@ -56,7 +58,7 @@ public class StartupTrigger {
 		List<LiveCoursePO> courseList = liveCourseDao.getList(so);
 		for (LiveCoursePO po : courseList) {
 			try {
-				liveChatService.startService(po.getId());
+				serverHelper.reInitCourseEnv(po.getId());
 			}catch (Exception e) {
 				logger.error("start live course service failed...", e);
 			}

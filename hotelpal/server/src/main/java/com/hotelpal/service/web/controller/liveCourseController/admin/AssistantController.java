@@ -5,9 +5,9 @@ import com.hotelpal.service.common.po.live.AssistantMessagePO;
 import com.hotelpal.service.common.po.live.ChatLogPO;
 import com.hotelpal.service.common.so.live.ChatLogSO;
 import com.hotelpal.service.common.vo.PackVO;
-import com.hotelpal.service.service.live.LiveChatService;
 import com.hotelpal.service.service.live.LiveContentService;
 import com.hotelpal.service.service.live.LiveCourseService;
+import com.hotelpal.service.service.live.netty.ServerHelper;
 import com.hotelpal.service.web.controller.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +23,10 @@ public class AssistantController extends BaseController {
 	private LiveContentService liveContentService;
 	@Resource
 	private LiveCourseService liveCourseService;
+//	@Resource
+//	private LiveChatService liveChatService;
 	@Resource
-	private LiveChatService liveChatService;
+	private ServerHelper serverHelper;
 	
 	@Deprecated
 	@RequestMapping(value = "/sendMsg")
@@ -62,7 +64,7 @@ public class AssistantController extends BaseController {
 	@RequestMapping(value = "/mockUserMsg")
 	@ResponseBody
 	public PackVO<Void> mockUserMsg(Integer courseId, String msg) {
-		liveChatService.mockUserMsg(courseId, msg);
+		serverHelper.mockUserMsg(courseId, msg);
 		return new PackVO<>();
 	}
 	

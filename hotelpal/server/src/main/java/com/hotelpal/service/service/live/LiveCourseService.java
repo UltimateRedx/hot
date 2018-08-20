@@ -1,6 +1,7 @@
 package com.hotelpal.service.service.live;
 
 import com.hotelpal.service.basic.mysql.dao.SysPropertyDao;
+import com.hotelpal.service.basic.mysql.dao.UserRelaDao;
 import com.hotelpal.service.basic.mysql.dao.live.*;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.enums.BoolStatus;
@@ -33,10 +34,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
@@ -72,7 +71,9 @@ public class LiveCourseService {
 	private LiveEnrollDao liveEnrollDao;
 	@Resource
 	private ServerHelper serverHelper;
-	
+	@Resource
+	private UserRelaDao userRelaDao;
+
 	
 	
 	
@@ -175,11 +176,11 @@ public class LiveCourseService {
 			course.setStatus(status);
 			liveCourseDao.update(course);
 		}
-		updateEnroll(course.getId(), course.getInviteRequire());
+		updateEnroll(course.getId(), course.getInviteRequire(), course.getOpenTime());
 		return course;
 	}
 
-	private void updateEnroll(Integer liveCourseId, Integer inviteRequire) {
+	private void updateEnroll(Integer liveCourseId, Integer inviteRequire, Date openTime) {
 		if (inviteRequire == null) return;
 		List<ValuePair<Integer, Integer>> domainIdList = liveEnrollDao.getInvitingDomainIdList(liveCourseId);
 		List<Integer> toUpdateList = domainIdList.stream().filter(p -> p.getValue() >= inviteRequire).mapToInt(ValuePair::getName).boxed().collect(Collectors.toList());
@@ -193,6 +194,11 @@ public class LiveCourseService {
 			}
 		}
 		//TODO 消息推送
+		if (successDomainIdList.isEmpty()) return;
+		List<String> openIdList = userRelaDao.getOpenIdByDomainIdList(successDomainIdList);
+		for (String openId : openIdList) {
+			CompletableFuture.runAsync(() -> msgPushService.pushInviteCompleteMsg(liveCourseId, openId, openTime));
+		}
 	}
 
 

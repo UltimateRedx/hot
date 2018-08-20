@@ -9,7 +9,8 @@ import java.util.Date;
 public class DateUtils {
 	public static final String DATE_DELIMITER = "-";
 	public static final String TIME_DELIMITER = ":";
-	
+	public static final DecimalFormat decimalformat_00 = new DecimalFormat("00");
+
 	public static String getDateTimeString(Date date) {
 		if (date == null) return null;
 		Calendar cal = Calendar.getInstance();
@@ -21,15 +22,15 @@ public class DateUtils {
 	public static String getDateTimeString(Calendar cal) {
 		if (cal == null) return null;
 		return getDateString(cal) + " " +
-				new DecimalFormat("00").format(cal.get(Calendar.HOUR_OF_DAY)) + TIME_DELIMITER +
-				new DecimalFormat("00").format(cal.get(Calendar.MINUTE)) + TIME_DELIMITER +
-				new DecimalFormat("00").format(cal.get(Calendar.SECOND));
+				decimalformat_00.format(cal.get(Calendar.HOUR_OF_DAY)) + TIME_DELIMITER +
+				decimalformat_00.format(cal.get(Calendar.MINUTE)) + TIME_DELIMITER +
+				decimalformat_00.format(cal.get(Calendar.SECOND));
 	}
 
 	public static String getMMDDString(Calendar cal) {
 		if (cal == null) return null;
-		return new DecimalFormat("00").format(cal.get(Calendar.MONTH) + 1) + DATE_DELIMITER +
-				new DecimalFormat("00").format(cal.get(Calendar.DATE));
+		return decimalformat_00.format(cal.get(Calendar.MONTH) + 1) + DATE_DELIMITER +
+				decimalformat_00.format(cal.get(Calendar.DATE));
 	}
 	
 	public static String getDateString(Date date) {
@@ -43,8 +44,8 @@ public class DateUtils {
 	public static String getDateString(Calendar cal) {
 		if (cal == null) return null;
 		return cal.get(Calendar.YEAR) + DATE_DELIMITER +
-				new DecimalFormat("00").format(cal.get(Calendar.MONTH) + 1) + DATE_DELIMITER +
-				new DecimalFormat("00").format(cal.get(Calendar.DATE));
+				decimalformat_00.format(cal.get(Calendar.MONTH) + 1) + DATE_DELIMITER +
+				decimalformat_00.format(cal.get(Calendar.DATE));
 	}
 
 	public static String getHHMMString(Date date) {
@@ -55,8 +56,22 @@ public class DateUtils {
 	}
 	public static String getHHMMString(Calendar cal) {
 		if (cal == null) return null;
-		return new DecimalFormat("00").format(cal.get(Calendar.HOUR_OF_DAY)) + TIME_DELIMITER +
-				new DecimalFormat("00").format(cal.get(Calendar.MINUTE));
+		return decimalformat_00.format(cal.get(Calendar.HOUR_OF_DAY)) + TIME_DELIMITER +
+				decimalformat_00.format(cal.get(Calendar.MINUTE));
+	}
+
+	public static String getTimeString(Date date) {
+		if (date == null) return null;
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return getTimeString(cal);
+	}
+
+	public static String getTimeString(Calendar cal) {
+		if (cal == null) return null;
+		return decimalformat_00.format(cal.get(Calendar.HOUR_OF_DAY)) + TIME_DELIMITER +
+				decimalformat_00.format(cal.get(Calendar.MINUTE)) + TIME_DELIMITER +
+				decimalformat_00.format(cal.get(Calendar.SECOND));
 	}
 	
 	public static Calendar toCalendar(String dateTimeStr, boolean includeTime) {

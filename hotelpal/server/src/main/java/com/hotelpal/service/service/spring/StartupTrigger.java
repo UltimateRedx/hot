@@ -8,6 +8,7 @@ import com.hotelpal.service.common.so.live.LiveCourseSO;
 import com.hotelpal.service.service.live.LiveChatService;
 import com.hotelpal.service.service.live.netty.ServerHelper;
 import com.hotelpal.service.service.parterner.wx.MsgPushService;
+import com.hotelpal.service.web.handler.PropertyHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,13 +26,16 @@ public class StartupTrigger {
 //	private LiveChatService liveChatService;
 	@Resource
 	private ServerHelper serverHelper;
-	
+	private Boolean startLiveCourseScheduler = !BoolStatus.N.toString().equalsIgnoreCase(PropertyHolder.getProperty("context.hotelpal.loadLiveCourseScheduler"));
+
 	/**
 	 * content初始化之后将需要执行的方法放入这个里面
 	 */
 	public void contentInitializer() {
 		startLiveService();
-//		loadLiveCourseScheduler();
+		if (startLiveCourseScheduler) {
+			loadLiveCourseScheduler();
+		}
 	}
 	
 	/**

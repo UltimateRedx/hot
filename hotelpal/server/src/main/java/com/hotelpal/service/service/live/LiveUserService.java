@@ -378,6 +378,7 @@ public class LiveUserService {
 			throw new ServiceException(ServiceException.DAO_OPENID_NOT_FOUND);
 		}
 		Integer userDomainId = SecurityContextHolder.getUserDomainId();
+		String userOpenId = SecurityContextHolder.getUserOpenId();
 		SecurityContextHolder.loginSuperDomain();
 		SecurityContextHolder.getContext().setTargetDomain(inviter.getDomainId());
 		LiveCourseInviteLogSO so = new LiveCourseInviteLogSO();
@@ -402,10 +403,12 @@ public class LiveUserService {
 				if (!LiveEnrollStatus.ENROLLED.toString().equalsIgnoreCase(inviterPO.getStatus())) {
 					inviterPO.setStatus(LiveEnrollStatus.ENROLLED.toString());
 					liveEnrollDao.update(inviterPO);
+					updateEnrollCount(courseId);
 					//异步推送任务完成的消息
 					CompletableFuture.runAsync(() -> msgPushService.pushInviteCompleteMsg(courseId, inviter.getOpenId(), course.getOpenTime()));
-					updateEnrollCount(courseId);
 				}
+			} else {
+				msgPushService.pushEnrollForNotification(userOpenId, inviter.getNick(), DateUtils.getTimeString(new Date()), r, inviteCount + 1);
 			}
 			return true;
 		}finally {

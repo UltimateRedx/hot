@@ -18,6 +18,8 @@ public class LessonSO extends ExtendedBaseSO {
 
 	private Date publishDateFrom;
 	private Date publishDateTo;
+	private Date statisticsDateFrom;
+	private Date statisticsDateTo;
 	
 	
 	public Integer getCourseId() {
@@ -103,5 +105,17 @@ public class LessonSO extends ExtendedBaseSO {
 	}
 	public void setPublishDateTo(Date publishDateTo) {
 		this.publishDateTo = publishDateTo;
+	}
+	public Date getStatisticsDateFrom() {
+		return statisticsDateFrom;
+	}
+	public void setStatisticsDateFrom(Date statisticsDateFrom) {
+		this.statisticsDateFrom = statisticsDateFrom;
+	}
+	public Date getStatisticsDateTo() {
+		return statisticsDateTo;
+	}
+	public void setStatisticsDateTo(Date statisticsDateTo) {
+		this.statisticsDateTo = statisticsDateTo;
 	}
 }

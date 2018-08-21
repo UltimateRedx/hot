@@ -301,7 +301,6 @@ public class MsgPushService {
 
 			SpeakerPO speaker = speakerDao.getById(course.getSpeakerId());
 			Calendar cal = Calendar.getInstance();
-			cal.setTime(course.getOpenTime());
 			String openTime =  cal.get(Calendar.YEAR) + "年" + (cal.get(Calendar.MONTH) + 1) + "月" + cal.get(Calendar.DATE) + "日";
 			List<String> openIdList = purchaseLogDao.getPurchasedNormalCourseUserOpenId(course.getId());
 			for (String openId : openIdList) {

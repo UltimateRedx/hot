@@ -41,7 +41,7 @@ public class LiveCourseDao extends ExtendedMysqlBaseDao<LiveCourseSO, LiveCourse
 	private static final List<String> TABLE_COLUMNS_LIST = new ArrayList<>(Arrays.asList(("id,createTime,updateTime," +
 			"deleted,title,subTitle,openTime,price,inviteRequire,bannerImg,contentId,status,inviteImg," +
 			"speakerNick,speakerTitle,publish,relaCourseId,sysCouponId,totalPeople,couponShow,purchasedTimes,freeEnrolledTimes," +
-			"liveAudio,liveImg,vipEnrolledTimes,currentImg,relaCourseCouponImg").split(",")));
+			"liveAudio,liveImg,vipEnrolledTimes,currentImg,relaCourseCouponImg,freePurchasedTimes").split(",")));
 	private static final Map<String, Integer> TABLE_COLUMN_MAP = tableListToMap(TABLE_COLUMNS_LIST);
 	@Override
 	protected Class<LiveCoursePO> getPOClass() {
@@ -116,7 +116,8 @@ public class LiveCourseDao extends ExtendedMysqlBaseDao<LiveCourseSO, LiveCourse
 				po.setVipEnrolledTimes(rs.getInt(index++));
 				po.setCurrentImg(rs.getString(index++));
 				po.setRelaCourseCouponImg(rs.getString(index++));
-				
+				po.setFreePurchasedTimes(rs.getInt(index++));
+
 				po.setIntroduce(rs.getString(index++));
 				po.setInstruction(rs.getString(index++));
 				return po;

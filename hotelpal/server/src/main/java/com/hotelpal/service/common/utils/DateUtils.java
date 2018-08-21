@@ -215,6 +215,10 @@ public class DateUtils {
 		date.setTime(date.getTime() + ((long) days) * 24 * 60 * 60 * 1000);
 		return date;
 	}
+
+	public static Date getIfAbsence(Date get, Date defaultDate) {
+		return get == null ? defaultDate : get;
+	}
 	
 }
 

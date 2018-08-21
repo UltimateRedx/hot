@@ -270,7 +270,7 @@ public class LiveUserService {
 	}
 
 	@Transactional
-	WXPreOrderMO doCreateOrder(Integer courseId, Integer couponId) {
+	public WXPreOrderMO doCreateOrder(Integer courseId, Integer couponId) {
 		LiveCoursePO course = liveCourseDao.getById(courseId);
 		if (course == null) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
@@ -442,13 +442,13 @@ public class LiveUserService {
 	/**
 	 * 需要可以重复调用
 	 */
-	public void afterPaid(Integer courseId) {
+	public void afterPaid(Integer courseId, Integer originalCoursePrice) {
 		LiveCoursePO course = liveCourseDao.getById(courseId);
 		if (course == null) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
 		}
 		LiveEnrollPO po = new LiveEnrollPO();
-		po.setEnrollType(LiveEnrollType.PURCHASE.toString());
+		po.setEnrollType(originalCoursePrice == 0 ? LiveEnrollType.PURCHASE_FREE.toString() : LiveEnrollType.PURCHASE.toString());
 		po.setLiveCourseId(courseId);
 		po.setStatus(LiveEnrollStatus.ENROLLED.toString());
 		try {
@@ -469,8 +469,11 @@ public class LiveUserService {
 		Integer inviteCount = liveEnrollDao.count(so);
 		so.setEnrollType(LiveEnrollType.PURCHASE.toString());
 		Integer purchaseCount = liveEnrollDao.count(so);
+		so.setEnrollType(LiveEnrollType.PURCHASE_FREE.toString());
+		Integer freePurchaseCount = liveEnrollDao.count(so);
 		course.setFreeEnrolledTimes(inviteCount);
 		course.setPurchasedTimes(purchaseCount);
+		course.setFreePurchasedTimes(freePurchaseCount);
 		liveCourseDao.update(course);
 	}
 	

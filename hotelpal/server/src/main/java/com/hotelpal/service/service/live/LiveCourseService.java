@@ -111,6 +111,7 @@ public class LiveCourseService {
 			course.setFreeEnrolledTimes(times + baseLineMap.get(course.getId()));
 			Integer totalTimes = course.getTotalPeople() == null ? 0 : course.getTotalPeople();
 			course.setTotalPeople(totalTimes + totalBaseLineMap.get(course.getId()));
+			course.setPurchasedTimes(course.getFreePurchasedTimes() + course.getPurchasedTimes());
 		}
 		return courseList;
 	}
@@ -193,7 +194,6 @@ public class LiveCourseService {
 				logger.error("updateEnroll Exception...", e);
 			}
 		}
-		//TODO 消息推送
 		if (successDomainIdList.isEmpty()) return;
 		List<String> openIdList = userRelaDao.getOpenIdByDomainIdList(successDomainIdList);
 		for (String openId : openIdList) {
@@ -215,6 +215,7 @@ public class LiveCourseService {
 		po.setTotalPeople(totalTimes + totalBaseLineMap.get(po.getId()));
 		LiveUserInfoVO userInfo = liveUserService.getUserInfo(courseId, po);
 		po.setUserInfo(userInfo);
+		po.setPurchasedTimes(po.getFreePurchasedTimes() + po.getPurchasedTimes());
 		return po;
 	}
 	

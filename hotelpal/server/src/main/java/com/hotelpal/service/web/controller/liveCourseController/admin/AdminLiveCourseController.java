@@ -10,6 +10,7 @@ import com.hotelpal.service.common.vo.PackVO;
 import com.hotelpal.service.service.live.LiveContentService;
 import com.hotelpal.service.service.live.LiveCourseService;
 import com.hotelpal.service.web.controller.BaseController;
+import com.hotelpal.service.web.handler.PropertyHolder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import java.util.List;
 @Controller
 @RequestMapping(value = "/admin/liveCourse")
 public class AdminLiveCourseController extends BaseController {
+	private static final String DOMAIN = PropertyHolder.getProperty("DOMAIN_NAME_HTTP");
 	@Resource
 	private LiveCourseService liveCourseService;
 	@Resource
@@ -100,7 +102,7 @@ public class AdminLiveCourseController extends BaseController {
 	public PackVO<String> getLiveImgList(Integer courseId) {
 		PackVO<String> pack = new PackVO<>();
 		pack.setVoList(liveCourseService.getLiveImg(courseId));
-		pack.setVo(liveCourseService.getCourse(courseId).getLiveImg());
+		pack.setVo(DOMAIN + "/admin/#/" + liveCourseService.getCourse(courseId).getLiveImg());
 		return pack;
 	}
 

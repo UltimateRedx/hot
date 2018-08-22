@@ -9,10 +9,7 @@ import com.hotelpal.service.common.utils.ValidationUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class UserDao extends MysqlBaseDao<UserSO, UserPO> {
@@ -42,7 +39,7 @@ public class UserDao extends MysqlBaseDao<UserSO, UserPO> {
 	}
 	
 	public List<UserPO> getByDomainIdList(List<Integer> domainIdList) {
-	if (ValidationUtils.isNullEmpty(domainIdList)) {return null;}
+	if (ValidationUtils.isNullEmpty(domainIdList)) {return Collections.emptyList();}
 		String rela = TableNames.TABLE_USER_RELA;
 		String[] arr = new String[domainIdList.size()];
 		Arrays.fill(arr, "?");

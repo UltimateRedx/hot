@@ -104,7 +104,7 @@ public class LiveEnrollDao extends DomainMysqlBaseDao<LiveEnrollSO, LiveEnrollPO
 	public List<ValuePair<Integer, Integer>> getInvitingDomainIdList(Integer liveCourseId) {
 		String sql = StringUtils.format("select le.domainId, count(ll.invitedDomainId)" +
 				" from {} le " +
-				" left join {} ll on le.domainId= ll.domainId" +
+				" left join {} ll on le.domainId= ll.domainId and ll.liveCourseId=le.liveCourseId" +
 				" where le.liveCourseId=? and le.`status`=? " +
 				" and le.domainId not in(select domainId from {} where `status`=? and liveCourseId=?)" +
 				" group by le.domainId",

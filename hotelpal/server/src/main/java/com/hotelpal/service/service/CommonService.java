@@ -47,8 +47,10 @@ public class CommonService {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(userPO.getLiveVipStartTime());
 			cal.add(Calendar.DATE, userPO.getValidity() - 1);
-			context.setLiveVipValidity(DateUtils.setMaxTime(cal).getTime());
-			context.setLiveVip(BoolStatus.Y.toString());
+			if (cal.getTime().after(new Date())) {
+				context.setLiveVipValidity(DateUtils.setMaxTime(cal).getTime());
+				context.setLiveVip(BoolStatus.Y.toString());
+			}
 		}
 		SecurityContextHolder.setContext(context);
 		UserPO user = userDao.getById(userPO.getId());

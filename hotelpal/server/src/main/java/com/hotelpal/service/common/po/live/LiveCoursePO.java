@@ -29,6 +29,7 @@ public class LiveCoursePO extends ExtendedBasePO {
 	//正在收看的人数
 	private Integer totalPeople;
 	private Integer purchasedTimes;
+	private Integer freePurchasedTimes;
 	private Integer freeEnrolledTimes;
 	private Integer vipEnrolledTimes;
 	
@@ -172,7 +173,7 @@ public class LiveCoursePO extends ExtendedBasePO {
 		this.purchasedTimes = purchasedTimes;
 	}
 	public Integer getFreeEnrolledTimes() {
-		return freeEnrolledTimes;
+		return freeEnrolledTimes == null ? 0 : freeEnrolledTimes;
 	}
 	public void setFreeEnrolledTimes(Integer freeEnrolledTimes) {
 		this.freeEnrolledTimes = freeEnrolledTimes;
@@ -196,7 +197,7 @@ public class LiveCoursePO extends ExtendedBasePO {
 		this.sysCouponId = sysCouponId;
 	}
 	public Integer getVipEnrolledTimes() {
-		return vipEnrolledTimes;
+		return vipEnrolledTimes == null ? 0 : vipEnrolledTimes;
 	}
 	public void setVipEnrolledTimes(Integer vipEnrolledTimes) {
 		this.vipEnrolledTimes = vipEnrolledTimes;
@@ -218,5 +219,11 @@ public class LiveCoursePO extends ExtendedBasePO {
 	}
 	public void setRelaCourseCouponImg(String relaCourseCouponImg) {
 		this.relaCourseCouponImg = relaCourseCouponImg;
+	}
+	public Integer getFreePurchasedTimes() {
+		return freePurchasedTimes == null ? 0 : freePurchasedTimes;
+	}
+	public void setFreePurchasedTimes(Integer freePurchasedTimes) {
+		this.freePurchasedTimes = freePurchasedTimes;
 	}
 }

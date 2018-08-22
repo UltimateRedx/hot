@@ -36,6 +36,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class MsgPushService {
@@ -51,6 +52,7 @@ public class MsgPushService {
 	private static final String TEMPLATE_STARTING_ID = "2RcZojmR6PP23YyME8kYtDZoFc_hPMFvN3tgcKd8WU4";
 	private static final String TEMPLATE_TASK_COMPLETE_ID = "wYZ0KRLij9NsWiZAX693QtBRMyO1vuu11OlAdMntxNM";
 	private static final String TEMPLATE_COUPON_EXPIRE_ID = "kDNApnUEqxj6gltkNTybYOsJmevBTNwyF6Q5ez_dXcE";
+	private static final String TEMPLATE_RECOMMEND_ID = "_9aFAu8XARqdkHBqGJKVVx2bd6N6YMCZ3ZWC1icRZ9E";
 	private static final String NOTIFICATION_PUSH_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=";
 	
 	
@@ -80,7 +82,9 @@ public class MsgPushService {
 	private SysCouponDao sysCouponDao;
 	@Resource
 	private UserCouponDao userCouponDao;
-	
+	private boolean activeCommentMessage = !BoolStatus.N.toString().equalsIgnoreCase(PropertyHolder.getProperty("context.wx.pushReplyMessage"));
+	private boolean activeEnrollForMessage = !BoolStatus.N.toString().equalsIgnoreCase(PropertyHolder.getProperty("context.wx.pushEnrollForMessage"));
+
 	
 	public void pushCourseOpenMsg() {
 		try {
@@ -162,6 +166,7 @@ public class MsgPushService {
 	}
 	
 	public void pushCommentRepliedMsg(Integer replyToCommentId, String content) {
+		if (!activeCommentMessage) return;
 		try {
 //			SecurityContextHolder.loginSuperDomain();
 			CommentPO commentPO = commentDao.getById(replyToCommentId);
@@ -267,11 +272,17 @@ public class MsgPushService {
 		pushTaskCompleteNotification(LIVE_COURSE_LINK.replaceFirst("@liveCourseId", String.valueOf(courseId)), openId, date, remarkTime);
 	}
 
+	private static final List<Integer> extraCourseIdList = Arrays.stream(PropertyHolder.getProperty("context.hotelpal.wx.extraCourseToRemindLearn").split(",")).filter(s -> !StringUtils.isNullEmpty(s)).map(Integer::parseInt).collect(Collectors.toList());
 	public void pushRemindLearnMsg() {
 		SecurityContextHolder.loginSuperDomain();
 		CourseSO so = new CourseSO();
 		so.setPublish(BoolStatus.Y.toString());
 		List<CoursePO> publishedCourseList = courseDao.getList(so);
+		if (!extraCourseIdList.isEmpty()) {
+			CourseSO eso = new CourseSO();
+			eso.setIdList(extraCourseIdList);
+			publishedCourseList.addAll(courseDao.getList(so));
+		}
 		//更新完的课程
 		List<CoursePO> courseList = new ArrayList<>();
 		for (CoursePO course : publishedCourseList) {
@@ -279,6 +290,7 @@ public class MsgPushService {
 			lso.setCourseId(course.getId());
 			lso.setOnSale(BoolStatus.Y.toString());
 			lso.setPageSize(null);
+			lso.setPublishDateTo(new Date());
 			Integer count = lessonDao.count(lso);
 			if (course.getLessonNum() - count <= 0) {
 				courseList.add(course);
@@ -290,7 +302,6 @@ public class MsgPushService {
 
 			SpeakerPO speaker = speakerDao.getById(course.getSpeakerId());
 			Calendar cal = Calendar.getInstance();
-			cal.setTime(course.getOpenTime());
 			String openTime =  cal.get(Calendar.YEAR) + "年" + (cal.get(Calendar.MONTH) + 1) + "月" + cal.get(Calendar.DATE) + "日";
 			List<String> openIdList = purchaseLogDao.getPurchasedNormalCourseUserOpenId(course.getId());
 			for (String openId : openIdList) {
@@ -426,7 +437,27 @@ public class MsgPushService {
 		pushNotification(jsonStr);
 	}
 
-	
+	/** 推荐成功通知
+	 *{{first.DATA}}
+	 * 微信昵称：{{keyword1.DATA}}
+	 * 时间：{{keyword2.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public void pushEnrollForNotification(String openId, String helperName, String time, Integer targetValue, Integer currentValue, String url) {
+		if (!activeEnrollForMessage) return;
+		WXMsgPushMO request = WXMsgPushMO.New();
+		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_RECOMMEND_ID).setUrl(url)
+				.add("first", StringUtils.format("您有{}位好友帮你助力了啦！", currentValue))
+				.add("keyword1", helperName)
+				.add("keyword2", time)
+				.add("remark", StringUtils.format("任务目标：{}人\n" +
+								"已经完成：{}人\n" +
+								"你还差{}位小伙伴的助力即可免费听课～", targetValue, currentValue, targetValue - currentValue))
+				.build();
+		pushNotification(jsonStr);
+	}
+
+
 	private void pushNotification(String body) {
 		Integer maxRetryTimes = 3;
 		for (int i = 0; i < maxRetryTimes; i++) {

@@ -46,8 +46,11 @@ public class LessonService {
 		}
 		List<StatisticsLessonVO> voList = new ArrayList<>(poList.size());
 		List<Integer> lessonIdList = poList.stream().map(BasePO::getId).collect(Collectors.toList());
-		String from = DateUtils.getDateString(new Date());
+		String from = DateUtils.getDateString(DateUtils.getIfAbsence(so.getStatisticsDateFrom(), new Date()));
 		Calendar cal = Calendar.getInstance();
+		if (so.getStatisticsDateTo() != null) {
+			cal.setTime(so.getStatisticsDateTo());
+		}
 		cal.add(Calendar.DATE, 1);
 		String to = DateUtils.getDateString(cal);
 		Map<Integer, ValuePair<Long, Long>> resMap = statisticsDao.getStatisticsByLessonList(lessonIdList, from, to);

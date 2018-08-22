@@ -1,6 +1,7 @@
 package com.hotelpal.service.service.live;
 
 import com.hotelpal.service.basic.mysql.dao.SysPropertyDao;
+import com.hotelpal.service.basic.mysql.dao.UserRelaDao;
 import com.hotelpal.service.basic.mysql.dao.live.*;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.enums.BoolStatus;
@@ -19,6 +20,7 @@ import com.hotelpal.service.common.utils.StringUtils;
 import com.hotelpal.service.common.vo.AdminLiveCourseVO;
 import com.hotelpal.service.common.vo.LiveUserInfoVO;
 import com.hotelpal.service.service.cache.CacheService;
+import com.hotelpal.service.service.live.netty.ServerHelper;
 import com.hotelpal.service.service.parterner.wx.MsgPushService;
 import com.hotelpal.service.service.parterner.wx.WXService;
 import com.hotelpal.service.web.handler.PropertyHolder;
@@ -32,10 +34,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Component
@@ -55,8 +55,8 @@ public class LiveCourseService {
 	private DozerBeanMapper dozerBeanMapper;
 	@Resource
 	private ChatLogDao chatLogDao;
-	@Resource
-	private LiveChatService liveChatService;
+//	@Resource
+//	private LiveChatService liveChatService;
 	@Resource
 	private AssistantMessageDao assistantMessageDao;
 	@Resource
@@ -69,7 +69,11 @@ public class LiveCourseService {
 	private SysPropertyDao sysPropertyDao;
 	@Resource
 	private LiveEnrollDao liveEnrollDao;
-	
+	@Resource
+	private ServerHelper serverHelper;
+	@Resource
+	private UserRelaDao userRelaDao;
+
 	
 	
 	
@@ -102,11 +106,12 @@ public class LiveCourseService {
 		Map<Integer, Integer> ongoingBaseLineMap = sysPropertyDao.getBaseLine(SysPropertyPO.LIVE_BASE_LINE_ONGOING, idList);
 		Map<Integer, Integer> totalBaseLineMap = sysPropertyDao.getBaseLine(SysPropertyPO.LIVE_BASE_LINE_TOTAL, idList);
 		for (LiveCoursePO course : courseList) {
-			course.setPresent(liveChatService.getCoursePresent(course.getId()) + ongoingBaseLineMap.get(course.getId()));
+			course.setPresent(serverHelper.getCoursePresent(course.getId()) + ongoingBaseLineMap.get(course.getId()));
 			Integer times = course.getFreeEnrolledTimes() == null ? 0 : course.getFreeEnrolledTimes();
 			course.setFreeEnrolledTimes(times + baseLineMap.get(course.getId()));
 			Integer totalTimes = course.getTotalPeople() == null ? 0 : course.getTotalPeople();
 			course.setTotalPeople(totalTimes + totalBaseLineMap.get(course.getId()));
+			course.setPurchasedTimes(course.getFreePurchasedTimes() + course.getPurchasedTimes());
 		}
 		return courseList;
 	}
@@ -134,9 +139,9 @@ public class LiveCourseService {
 		msgPushService.loadOrUpdateLiveCourseOpeningTrigger(course.getId());
 		//start or terminate live
 		if (!BoolStatus.Y.toString().equalsIgnoreCase(course.getDeleted()) && BoolStatus.Y.toString().equalsIgnoreCase(course.getPublish())) {
-			liveChatService.startService(course.getId());
+			serverHelper.reInitCourseEnv(course.getId());
 		}else {
-			liveChatService.shutdownService(course.getId());
+			serverHelper.shutdownOldCourseEnv(course.getId());
 		}
 		//update invite img cache
 		CacheService.removeValue(CacheService.KEY_LIVE_COURSE_INVITE_IMG + course.getId());
@@ -172,11 +177,11 @@ public class LiveCourseService {
 			course.setStatus(status);
 			liveCourseDao.update(course);
 		}
-		//updateEnroll(course.getId(), course.getInviteRequire());
+		updateEnroll(course.getId(), course.getInviteRequire(), course.getOpenTime());
 		return course;
 	}
 
-	private void updateEnroll(Integer liveCourseId, Integer inviteRequire) {
+	private void updateEnroll(Integer liveCourseId, Integer inviteRequire, Date openTime) {
 		if (inviteRequire == null) return;
 		List<ValuePair<Integer, Integer>> domainIdList = liveEnrollDao.getInvitingDomainIdList(liveCourseId);
 		List<Integer> toUpdateList = domainIdList.stream().filter(p -> p.getValue() >= inviteRequire).mapToInt(ValuePair::getName).boxed().collect(Collectors.toList());
@@ -189,7 +194,11 @@ public class LiveCourseService {
 				logger.error("updateEnroll Exception...", e);
 			}
 		}
-		//消息推送
+		if (successDomainIdList.isEmpty()) return;
+		List<String> openIdList = userRelaDao.getOpenIdByDomainIdList(successDomainIdList);
+		for (String openId : openIdList) {
+			CompletableFuture.runAsync(() -> msgPushService.pushInviteCompleteMsg(liveCourseId, openId, openTime));
+		}
 	}
 
 
@@ -206,6 +215,7 @@ public class LiveCourseService {
 		po.setTotalPeople(totalTimes + totalBaseLineMap.get(po.getId()));
 		LiveUserInfoVO userInfo = liveUserService.getUserInfo(courseId, po);
 		po.setUserInfo(userInfo);
+		po.setPurchasedTimes(po.getFreePurchasedTimes() + po.getPurchasedTimes());
 		return po;
 	}
 	
@@ -223,7 +233,7 @@ public class LiveCourseService {
 		if (course == null) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
 		}
-		liveChatService.startLive(courseId);
+		serverHelper.startLive(courseId);
 		course.setStatus(LiveCourseStatus.ONGOING.toString());
 		liveCourseDao.update(course);
 	}
@@ -233,7 +243,7 @@ public class LiveCourseService {
 		if (course == null) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
 		}
-		liveChatService.shutdownLive(courseId);
+		serverHelper.shutdownLive(courseId);
 		course.setStatus(LiveCourseStatus.ENDED.toString());
 		liveCourseDao.update(course);
 	}
@@ -243,7 +253,7 @@ public class LiveCourseService {
 	}
 	
 	public void changeCouponShowStatus(Integer courseId, boolean show) {
-		liveChatService.showCoupon(courseId, show);
+		serverHelper.showCoupon(courseId, show);
 	}
 	
 	public String updateCourseImage(Integer courseId, List<String> imgList) {
@@ -326,7 +336,7 @@ public class LiveCourseService {
 			key = SysPropertyPO.LIVE_BASE_LINE_ENROLL;
 		} else if ("ONGOING".equalsIgnoreCase(type)) {
 			key = SysPropertyPO.LIVE_BASE_LINE_ONGOING;
-			liveChatService.setOngoingBaseLine(liveCourseId, baseLine);
+			serverHelper.setOngoingBaseLine(liveCourseId, baseLine);
 		} else if ("TOTAL".equalsIgnoreCase(type)) {
 			key = SysPropertyPO.LIVE_BASE_LINE_TOTAL;
 		} else {

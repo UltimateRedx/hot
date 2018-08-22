@@ -225,14 +225,11 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 	
 	
 	public List<String> getOpenIdByDomainIdList(List<Integer> domainIdList) {
-		if (ArrayUtils.isNullEmpty(domainIdList)) return null;
-		StringBuilder buff = new StringBuilder();
-		int i = 0, j = domainIdList.size();
-		while (i ++  < j) {
-			buff.append(",?");
-		}
+		if (ArrayUtils.isNullEmpty(domainIdList)) return Collections.emptyList();
+		String[] arr = new String[domainIdList.size()];
+		Arrays.fill(arr, "?");
 		String sql = "SELECT openId FROM " + TABLE_NAME +
-				" WHERE domainId in (" + buff.toString().replaceFirst(",", "") + ")";
+				" WHERE domainId in (" + String.join(",", arr) + ")";
 		return dao.queryForList(sql, domainIdList.toArray(), String.class);
 	}
 	

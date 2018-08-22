@@ -410,7 +410,7 @@ public class UserService {
 	 */
 	public void afterPay(OrderPO orderPO) {
 		if (CourseType.LIVE.toString().equalsIgnoreCase(orderPO.getCourseType())) {
-			liveUserService.afterPaid(orderPO.getCourseId());
+			liveUserService.afterPaid(orderPO.getCourseId(), orderPO.getOrderPrice());
 		}
 		//优惠券标记为已使用
 		if (orderPO.getCouponId() != null) {

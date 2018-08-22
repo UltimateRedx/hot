@@ -87,6 +87,8 @@ public class LiveUserService {
 
 	private static final String qrCodeLink = PropertyHolder.getProperty("LIVE_COURSE_INVITE_QR_CODE");
 	private static final String inviteUrl  = PropertyHolder.getProperty("LIVE_COURSE_INVITE_IMG_URL");
+	private static final String LIVE_COURSE_LINK = PropertyHolder.getProperty("content.course.live.link");
+
 
 	private Lock lock = new ReentrantLock();
 	
@@ -270,7 +272,7 @@ public class LiveUserService {
 	}
 
 	@Transactional
-	WXPreOrderMO doCreateOrder(Integer courseId, Integer couponId) {
+	public WXPreOrderMO doCreateOrder(Integer courseId, Integer couponId) {
 		LiveCoursePO course = liveCourseDao.getById(courseId);
 		if (course == null) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
@@ -378,6 +380,7 @@ public class LiveUserService {
 			throw new ServiceException(ServiceException.DAO_OPENID_NOT_FOUND);
 		}
 		Integer userDomainId = SecurityContextHolder.getUserDomainId();
+		String userOpenId = SecurityContextHolder.getUserOpenId();
 		SecurityContextHolder.loginSuperDomain();
 		SecurityContextHolder.getContext().setTargetDomain(inviter.getDomainId());
 		LiveCourseInviteLogSO so = new LiveCourseInviteLogSO();
@@ -402,10 +405,13 @@ public class LiveUserService {
 				if (!LiveEnrollStatus.ENROLLED.toString().equalsIgnoreCase(inviterPO.getStatus())) {
 					inviterPO.setStatus(LiveEnrollStatus.ENROLLED.toString());
 					liveEnrollDao.update(inviterPO);
+					updateEnrollCount(courseId);
 					//异步推送任务完成的消息
 					CompletableFuture.runAsync(() -> msgPushService.pushInviteCompleteMsg(courseId, inviter.getOpenId(), course.getOpenTime()));
-					updateEnrollCount(courseId);
 				}
+			} else {
+				msgPushService.pushEnrollForNotification(userOpenId, inviter.getNick(), DateUtils.getTimeString(new Date()), r, inviteCount + 1,
+						LIVE_COURSE_LINK.replaceFirst("@liveCourseId", String.valueOf(courseId)));
 			}
 			return true;
 		}finally {
@@ -439,13 +445,13 @@ public class LiveUserService {
 	/**
 	 * 需要可以重复调用
 	 */
-	public void afterPaid(Integer courseId) {
+	public void afterPaid(Integer courseId, Integer originalCoursePrice) {
 		LiveCoursePO course = liveCourseDao.getById(courseId);
 		if (course == null) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
 		}
 		LiveEnrollPO po = new LiveEnrollPO();
-		po.setEnrollType(LiveEnrollType.PURCHASE.toString());
+		po.setEnrollType(originalCoursePrice == 0 ? LiveEnrollType.PURCHASE_FREE.toString() : LiveEnrollType.PURCHASE.toString());
 		po.setLiveCourseId(courseId);
 		po.setStatus(LiveEnrollStatus.ENROLLED.toString());
 		try {
@@ -466,8 +472,11 @@ public class LiveUserService {
 		Integer inviteCount = liveEnrollDao.count(so);
 		so.setEnrollType(LiveEnrollType.PURCHASE.toString());
 		Integer purchaseCount = liveEnrollDao.count(so);
+		so.setEnrollType(LiveEnrollType.PURCHASE_FREE.toString());
+		Integer freePurchaseCount = liveEnrollDao.count(so);
 		course.setFreeEnrolledTimes(inviteCount);
 		course.setPurchasedTimes(purchaseCount);
+		course.setFreePurchasedTimes(freePurchaseCount);
 		liveCourseDao.update(course);
 	}
 	

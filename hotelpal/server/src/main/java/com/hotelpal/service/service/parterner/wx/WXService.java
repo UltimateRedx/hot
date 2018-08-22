@@ -230,20 +230,20 @@ public class WXService {
 		return res;
 	}
 
-
+	private static final String WX_MIDDLE_SERVER = "http://hotelpal.cn";
 	public synchronized String getAccessToken() {
 		HttpParams params = new HttpParams();
-		params.setUrl(DOMAIN_NAME + "/service/wx/accessToken");
+		params.setUrl(WX_MIDDLE_SERVER + "/service/wx/accessToken");
 		return HttpGetUtils.executeGet(params);
 	}
 	public synchronized String getJsApiTicket() {
 		HttpParams params = new HttpParams();
-		params.setUrl(DOMAIN_NAME + "/service/wx/jsApiTicket");
+		params.setUrl(WX_MIDDLE_SERVER + "/service/wx/jsApiTicket");
 		return HttpGetUtils.executeGet(params);
 	}
 	public synchronized void renewAccessToken() {
 		HttpParams params = new HttpParams();
-		params.setUrl(DOMAIN_NAME + "/service/wx/renewAccessToken");
+		params.setUrl(WX_MIDDLE_SERVER + "/service/wx/renewAccessToken");
 		HttpGetUtils.executeGet(params);
 	}
 

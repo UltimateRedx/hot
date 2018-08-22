@@ -87,6 +87,8 @@ public class LiveUserService {
 
 	private static final String qrCodeLink = PropertyHolder.getProperty("LIVE_COURSE_INVITE_QR_CODE");
 	private static final String inviteUrl  = PropertyHolder.getProperty("LIVE_COURSE_INVITE_IMG_URL");
+	private static final String LIVE_COURSE_LINK = PropertyHolder.getProperty("content.course.live.link");
+
 
 	private Lock lock = new ReentrantLock();
 	
@@ -408,7 +410,8 @@ public class LiveUserService {
 					CompletableFuture.runAsync(() -> msgPushService.pushInviteCompleteMsg(courseId, inviter.getOpenId(), course.getOpenTime()));
 				}
 			} else {
-				msgPushService.pushEnrollForNotification(userOpenId, inviter.getNick(), DateUtils.getTimeString(new Date()), r, inviteCount + 1);
+				msgPushService.pushEnrollForNotification(userOpenId, inviter.getNick(), DateUtils.getTimeString(new Date()), r, inviteCount + 1,
+						LIVE_COURSE_LINK.replaceFirst("@liveCourseId", String.valueOf(courseId)));
 			}
 			return true;
 		}finally {

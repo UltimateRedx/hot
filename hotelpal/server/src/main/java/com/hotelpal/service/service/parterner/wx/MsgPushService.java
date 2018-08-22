@@ -52,6 +52,7 @@ public class MsgPushService {
 	private static final String TEMPLATE_STARTING_ID = "2RcZojmR6PP23YyME8kYtDZoFc_hPMFvN3tgcKd8WU4";
 	private static final String TEMPLATE_TASK_COMPLETE_ID = "wYZ0KRLij9NsWiZAX693QtBRMyO1vuu11OlAdMntxNM";
 	private static final String TEMPLATE_COUPON_EXPIRE_ID = "kDNApnUEqxj6gltkNTybYOsJmevBTNwyF6Q5ez_dXcE";
+	private static final String TEMPLATE_RECOMMEND_ID = "_9aFAu8XARqdkHBqGJKVVx2bd6N6YMCZ3ZWC1icRZ9E";
 	private static final String NOTIFICATION_PUSH_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=";
 	
 	
@@ -442,10 +443,10 @@ public class MsgPushService {
 	 * 时间：{{keyword2.DATA}}
 	 * {{remark.DATA}}
 	 */
-	public void pushEnrollForNotification(String openId, String helperName, String time, Integer targetValue, Integer currentValue) {
+	public void pushEnrollForNotification(String openId, String helperName, String time, Integer targetValue, Integer currentValue, String url) {
 		if (!activeEnrollForMessage) return;
 		WXMsgPushMO request = WXMsgPushMO.New();
-		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_COUPON_EXPIRE_ID).setUrl(DOMAIN_LINK)
+		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_RECOMMEND_ID).setUrl(url)
 				.add("first", StringUtils.format("您有{}位好友帮你助力了啦！", currentValue))
 				.add("keyword1", helperName)
 				.add("keyword2", time)

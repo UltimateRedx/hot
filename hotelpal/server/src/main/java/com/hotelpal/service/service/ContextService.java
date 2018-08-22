@@ -45,8 +45,10 @@ public class ContextService {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(user.getLiveVipStartTime());
 			cal.add(Calendar.DATE, user.getValidity() - 1);
-			context.setLiveVipValidity(DateUtils.setMaxTime(cal).getTime());
-			context.setLiveVip(BoolStatus.Y.toString());
+			if (cal.getTime().after(new Date())) {
+				context.setLiveVipValidity(DateUtils.setMaxTime(cal).getTime());
+				context.setLiveVip(BoolStatus.Y.toString());
+			}
 		}
 		return user;
 	}

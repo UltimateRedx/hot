@@ -58,7 +58,12 @@ public class CourseServiceHandler extends ChannelDuplexHandler {
 
 	private void handleMsg(ChannelHandlerContext ctx, TextWebSocketFrame msg) {
 		String json = msg.text();
-		ClientMessage clientMsg = JSON.parseObject(json, ClientMessage.class);
+		ClientMessage clientMsg = null;
+		try {
+			clientMsg = JSON.parseObject(json, ClientMessage.class);
+		} catch (Exception e) {
+			logger.warn("前端传入json解析失败，{}", json);
+		}
 		msg.release();
 		if (CLIENT_USER.equalsIgnoreCase(clientMsg.getClientType()) && Y.equalsIgnoreCase(clientMsg.init) && clientMsg.initValid()) {
 			initUserServerContext(ctx, clientMsg);

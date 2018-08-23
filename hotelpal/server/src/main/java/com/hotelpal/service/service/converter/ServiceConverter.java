@@ -181,7 +181,9 @@ public class ServiceConverter {
 			else if(CourseStatus.PREDICTION.toString().equalsIgnoreCase(status))
 				res.setStatus((byte) 0);
 			else res.setStatus((byte) -1);
-			res.setBannerImg(Arrays.asList(po.getBannerImg().split(",")));
+			if (!StringUtils.isNullEmpty(po.getBannerImg())) {
+				res.setBannerImg(Arrays.asList(po.getBannerImg().split(",")));
+			}
 			if (po.getPublishedLessonCount() == 0) {
 				res.setMsg("暂无课时");
 			} else {

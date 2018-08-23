@@ -410,7 +410,7 @@ public class LiveUserService {
 					CompletableFuture.runAsync(() -> msgPushService.pushInviteCompleteMsg(courseId, inviter.getOpenId(), course.getOpenTime()));
 				}
 			} else {
-				msgPushService.pushEnrollForNotification(userOpenId, inviter.getNick(), DateUtils.getTimeString(new Date()), r, inviteCount + 1,
+				msgPushService.pushEnrollForNotification(openId, inviter.getNick(), DateUtils.getTimeString(new Date()), r, inviteCount + 1,
 						LIVE_COURSE_LINK.replaceFirst("@liveCourseId", String.valueOf(courseId)));
 			}
 			return true;

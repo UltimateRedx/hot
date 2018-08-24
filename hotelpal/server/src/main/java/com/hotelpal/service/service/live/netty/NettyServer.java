@@ -4,11 +4,13 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -54,8 +56,18 @@ public class NettyServer {
 	public void destroy() {
 		logger.info("Shutting down Netty Server...");
 		if(channel != null) { channel.close();}
-		workerGroup.shutdownGracefully();
-		bossGroup.shutdownGracefully();
+		Future workerFuture = workerGroup.shutdownGracefully(2, 3, TimeUnit.SECONDS);
+		try {
+			workerFuture.await();
+		} catch (InterruptedException e) {
+			logger.error("Worker await Interrupted", e);
+		}
+		Future bossFuture = bossGroup.shutdownGracefully(2, 3, TimeUnit.SECONDS);
+		try {
+			bossFuture.await();
+		} catch (InterruptedException e) {
+			logger.error("Boss await Interrupted", e);
+		}
 		logger.info("Shutdown Netty Server Success!");
 	}
 }

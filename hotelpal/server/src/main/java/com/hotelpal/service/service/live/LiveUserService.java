@@ -380,7 +380,7 @@ public class LiveUserService {
 			throw new ServiceException(ServiceException.DAO_OPENID_NOT_FOUND);
 		}
 		Integer userDomainId = SecurityContextHolder.getUserDomainId();
-		String userOpenId = SecurityContextHolder.getUserOpenId();
+		UserPO currentUser = userDao.getById(SecurityContextHolder.getUserId());
 		SecurityContextHolder.loginSuperDomain();
 		SecurityContextHolder.getContext().setTargetDomain(inviter.getDomainId());
 		LiveCourseInviteLogSO so = new LiveCourseInviteLogSO();
@@ -410,7 +410,7 @@ public class LiveUserService {
 					CompletableFuture.runAsync(() -> msgPushService.pushInviteCompleteMsg(courseId, inviter.getOpenId(), course.getOpenTime()));
 				}
 			} else {
-				msgPushService.pushEnrollForNotification(openId, inviter.getNick(), DateUtils.getTimeString(new Date()), r, inviteCount + 1,
+				msgPushService.pushEnrollForNotification(openId, currentUser.getNick(), DateUtils.getTimeString(new Date()), r, inviteCount + 1,
 						LIVE_COURSE_LINK.replaceFirst("@liveCourseId", String.valueOf(courseId)));
 			}
 			return true;

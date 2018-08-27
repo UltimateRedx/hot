@@ -52,6 +52,10 @@ public class UserCouponDao extends DomainMysqlBaseDao<UserCouponSO, UserCouponPO
 			buff.append(" AND ").append(alias).append("`validity` >= ?");
 			params.add(so.getValidityFrom());
 		}
+		if (so.getValidityTo() != null) {
+			buff.append(" AND ").append(alias).append("`validity` < ?");
+			params.add(so.getValidityTo());
+		}
 		if (ArrayUtils.isNotNullEmpty(so.getIncludeType())) {
 			buff.append(" AND ").append(alias).append("`type` IN(");
 			StringBuilder sb = new StringBuilder();

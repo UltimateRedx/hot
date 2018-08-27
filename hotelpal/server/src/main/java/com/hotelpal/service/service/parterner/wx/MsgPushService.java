@@ -225,25 +225,26 @@ public class MsgPushService {
 	}
 	
 	public void pushCouponExpireMsg() {
-		SecurityContextHolder.loginSuperDomain();
-		LiveCourseSO so = new LiveCourseSO();
-		so.setPublish(BoolStatus.Y.toString());
-		so.setPageSize(null);
-		Calendar cal = Calendar.getInstance();
-		DateUtils.clearTime(cal);
-		so.setOpenTimeFrom(cal.getTime());
-		cal.add(Calendar.DATE, 1);
-		so.setOpenTimeTo(cal.getTime());
-		List<LiveCoursePO> courseList = liveCourseDao.getList(so);
-		for (LiveCoursePO course : courseList) {
-			if (course.getSysCouponId() == null) continue;
-			SysCouponPO sysCoupon  = sysCouponDao.getById(course.getSysCouponId());
-			if (sysCoupon == null || !CouponValidityType.FIXED_DAY.toString().equalsIgnoreCase(sysCoupon.getValidityType())) continue;
-			
+//		SecurityContextHolder.loginSuperDomain();
+//		LiveCourseSO so = new LiveCourseSO();
+//		so.setPublish(BoolStatus.Y.toString());
+//		so.setPageSize(null);
+//		Calendar cal = Calendar.getInstance();
+//		DateUtils.clearTime(cal);
+//		so.setOpenTimeFrom(cal.getTime());
+//		cal.add(Calendar.DATE, 1);
+//		so.setOpenTimeTo(cal.getTime());
+//		List<LiveCoursePO> courseList = liveCourseDao.getList(so);
+//		for (LiveCoursePO course : courseList) {
+//			if (course.getSysCouponId() == null) continue;
+//			SysCouponPO sysCoupon  = sysCouponDao.getById(course.getSysCouponId());
+//			if (sysCoupon == null || !CouponValidityType.FIXED_DAY.toString().equalsIgnoreCase(sysCoupon.getValidityType())) continue;
+//
 			UserCouponSO cso = new UserCouponSO();
 			cso.setUsed(BoolStatus.N.toString());
-			cso.setSysCouponId(sysCoupon.getId());
-			cso.setValidityFrom(new Date());
+//			cso.setSysCouponId(sysCoupon.getId());
+			cso.setValidityFrom(DateUtils.clearTime(new Date()).getTime());
+			cso.setValidityTo(DateUtils.clearTime(DateUtils.increaseAndGet(new Date())).getTime());
 			List<UserCouponUserPO> userCouponList = userCouponDao.getUserCouponAndUser(cso);
 			for (UserCouponUserPO userCoupon : userCouponList) {
 				try {
@@ -255,7 +256,7 @@ public class MsgPushService {
 					LOGGER.error("pushCouponExpireNotification error... ", e);
 				}
 			}
-		}
+//		}
 	}
 
 	/**
@@ -482,10 +483,12 @@ public class MsgPushService {
 
 
 
+	private Boolean startLiveCourseScheduler = !BoolStatus.N.toString().equalsIgnoreCase(PropertyHolder.getProperty("context.hotelpal.loadLiveCourseScheduler"));
 	/**
 	 * 当web容器启动/课程被更新的时候加载/刷新定时任务
 	 */
 	public void loadOrUpdateLiveCourseOpeningTrigger(Integer courseId) {
+		if (!startLiveCourseScheduler) return;
 		LiveCoursePO course = liveCourseDao.getById(courseId);
 		if (BoolStatus.N.toString().equalsIgnoreCase(course.getDeleted()) && BoolStatus.Y.toString().equalsIgnoreCase(course.getPublish())
 				&& LiveCourseStatus.ENROLLING.toString().equalsIgnoreCase(course.getStatus())

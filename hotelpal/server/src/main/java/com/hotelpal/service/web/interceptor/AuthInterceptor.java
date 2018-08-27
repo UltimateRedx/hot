@@ -125,6 +125,11 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
 		super.afterCompletion(request, response, handler, ex);
 		SecurityContextHolder.getContextHolder().remove();
-		logger.info("Request URL: " + request.getRequestURI() + "?" + request.getQueryString() + ";Chain handle time: " + (new Date().getTime() - map.get(request.getSession().getId())));
+		for (String path : excludeLoggingPath) {
+			if (request.getRequestURI().contains(path)) return;
+		}
+		logger.info("Request URL: " + request.getRequestURI() + "?" + request.getQueryString() + ";\tChain handle time: " + (new Date().getTime() - map.get(request.getSession().getId())));
 	}
+
+	private static final Set<String> excludeLoggingPath = new HashSet<>(Collections.singletonList("/user/recordListenPos"));
 }

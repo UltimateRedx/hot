@@ -8,6 +8,7 @@ public class UserCouponSO extends DomainBaseSO{
 	private String used;
 	private Integer sysCouponId;
 	private Date validityFrom;
+	private Date validityTo;
 	private List<String> includeType;
 	//没有过期的
 	private Boolean valid;
@@ -47,5 +48,11 @@ public class UserCouponSO extends DomainBaseSO{
 	}
 	public void setValid(Boolean valid) {
 		this.valid = valid;
+	}
+	public Date getValidityTo() {
+		return validityTo;
+	}
+	public void setValidityTo(Date validityTo) {
+		this.validityTo = validityTo;
 	}
 }

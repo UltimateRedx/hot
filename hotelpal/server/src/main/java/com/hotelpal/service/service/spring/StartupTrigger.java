@@ -58,7 +58,6 @@ public class StartupTrigger {
 	public void startLiveService() {
 		LiveCourseSO so = new LiveCourseSO();
 		so.setPageSize(Integer.MAX_VALUE);
-		so.setPublish(BoolStatus.Y.toString());
 		List<LiveCoursePO> courseList = liveCourseDao.getList(so);
 		for (LiveCoursePO po : courseList) {
 			try {

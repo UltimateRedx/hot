@@ -138,7 +138,7 @@ public class LiveCourseService {
 		LiveCoursePO course = liveCourseService.doUpdateLiveCourse(so);
 		msgPushService.loadOrUpdateLiveCourseOpeningTrigger(course.getId());
 		//start or terminate live
-		if (!BoolStatus.Y.toString().equalsIgnoreCase(course.getDeleted()) && BoolStatus.Y.toString().equalsIgnoreCase(course.getPublish())) {
+		if (!BoolStatus.Y.toString().equalsIgnoreCase(course.getDeleted())) {
 			serverHelper.reInitCourseEnv(course.getId());
 		}else {
 			serverHelper.shutdownOldCourseEnv(course.getId());

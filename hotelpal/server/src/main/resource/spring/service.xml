@@ -27,12 +27,12 @@
 	<bean id="nettyServerHelper" class="com.hotelpal.service.service.live.netty.ServerHelper" init-method="init" destroy-method="destroyTasks"/>
 
 	<bean class="com.hotelpal.service.service.spring.StartupTrigger" init-method="contentInitializer" depends-on="nettyServerHelper"/>
-	<!--<task:scheduled-tasks>-->
-		<!--<task:scheduled ref="taskClass" method="pushCourseOpenMsg" cron="0 0 8 * * ?"/>-->
-		<!--<task:scheduled ref="taskClass" method="pushLessonPublishMsg" cron="0 0 8 * * ?"/>-->
-		<!--<task:scheduled ref="taskClass" method="pushRemindLearnMsg" cron="0 5 8 * * ?"/>-->
-		<!--<task:scheduled ref="taskClass" method="pushCouponExpireMsg" cron="0 0 22 * * ?"/>-->
-	<!--</task:scheduled-tasks>-->
+	<task:scheduled-tasks>
+		<task:scheduled ref="taskClass" method="pushCourseOpenMsg" cron="0 0 8 * * ?"/>
+		<task:scheduled ref="taskClass" method="pushLessonPublishMsg" cron="0 0 8 * * ?"/>
+		<task:scheduled ref="taskClass" method="pushRemindLearnMsg" cron="0 5 8 * * ?"/>
+		<task:scheduled ref="taskClass" method="pushCouponExpireMsg" cron="0 0 22 * * ?"/>
+	</task:scheduled-tasks>
 
 
 

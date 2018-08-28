@@ -79,15 +79,19 @@ public class StatisticsDao extends MysqlBaseDao<StatisticsSO, StatisticsPO> {
 	}
 	
 	public Map<Integer, ValuePair<Long, Long>> getStatisticsByCourseList(List<Integer> courseIdList, String from, String to) {
+		Map<Integer, ValuePair<Long, Long>> res = new HashMap<>();
+		if (courseIdList ==  null || courseIdList.isEmpty()) {
+			return res;
+		}
+		for (Integer id : courseIdList) {
+			res.put(id, new ValuePair<>(0L, 0L));
+		}
 		String pre = "select type, statisticsId, sum(value) from " + TABLE_NAME +
 				" where type in(?,?) and statisticsDate>=? and statisticsDate<? and statisticsId in (";
 		String[] arr = new String[courseIdList.size()];
 		Arrays.fill(arr, "?");
 		String suf = ") group by type, statisticsId";
-		Map<Integer, ValuePair<Long, Long>> res = new HashMap<>();
-		for (Integer id : courseIdList) {
-			res.put(id, new ValuePair<>(0L, 0L));
-		}
+
 		dao.query(pre + String.join(",", arr) + suf,
 				ArrayUtils.addAll(new Object[]{StatisticsType.COURSE_PV.toString(), StatisticsType.COURSE_UV.toString(), from, to}, courseIdList.toArray()),
 				rch -> {
@@ -102,12 +106,16 @@ public class StatisticsDao extends MysqlBaseDao<StatisticsSO, StatisticsPO> {
 	}
 	
 	public Map<Integer, ValuePair<Long, Long>> getStatisticsByLessonList(List<Integer> lessonIdList, String from, String to) {
+		Map<Integer, ValuePair<Long, Long>> res = new HashMap<>();
+		if (lessonIdList == null || lessonIdList.isEmpty()) {
+			return res;
+		}
 		String pre = "select type, statisticsId, sum(value) from " + TABLE_NAME +
 				" where type in(?,?) and createTime>=? and createTime<? and statisticsId in (";
 		String[] arr = new String[lessonIdList.size()];
 		Arrays.fill(arr, "?");
 		String suf = ") group by type, statisticsId";
-		Map<Integer, ValuePair<Long, Long>> res = new HashMap<>();
+
 		for (Integer id : lessonIdList) {
 			res.put(id, new ValuePair<>(0L, 0L));
 		}

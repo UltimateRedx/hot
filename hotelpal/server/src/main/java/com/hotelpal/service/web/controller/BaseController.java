@@ -14,7 +14,7 @@ public class BaseController {
 	
 	protected static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 	
-	@ExceptionHandler
+	@ExceptionHandler(value = Throwable.class)
 	@ResponseBody
 	public BaseDTO<Void> handleException(HttpServletRequest request, Exception ex) {
 		logger.error("exception..", ex);

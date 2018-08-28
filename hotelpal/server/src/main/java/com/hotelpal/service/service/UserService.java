@@ -535,14 +535,14 @@ public class UserService {
 		if (coupon != null) {
 			fee = fee.subtract(new BigDecimal(coupon.getValue()));
 		}
-		BigDecimal oneHundred = new BigDecimal("100");
-		BigDecimal discount = BigDecimal.ONE;
-		if (totalUserPayment >= 100 * 100 && totalUserPayment < 600 * 100) {
-			discount = new BigDecimal("0.95");
-		} else if (totalUserPayment >= 600 * 100) {
-			discount = new BigDecimal("0.90");
-		}
-		fee = fee.multiply(discount).divide(oneHundred, RoundingMode.HALF_UP).setScale(0, BigDecimal.ROUND_HALF_UP).multiply(oneHundred);
+//		BigDecimal oneHundred = new BigDecimal("100");
+//		BigDecimal discount = BigDecimal.ONE;
+//		if (totalUserPayment >= 100 * 100 && totalUserPayment < 600 * 100) {
+//			discount = new BigDecimal("0.95");
+//		} else if (totalUserPayment >= 600 * 100) {
+//			discount = new BigDecimal("0.90");
+//		}
+//		fee = fee.multiply(discount).divide(oneHundred, RoundingMode.HALF_UP).setScale(0, BigDecimal.ROUND_HALF_UP).multiply(oneHundred);
 		fee = fee.compareTo(BigDecimal.ZERO) <= 0 ? BigDecimal.ZERO : fee;
 		OrderPO po = new OrderPO();
 		po.setCourseType(CourseType.NORMAL.toString());

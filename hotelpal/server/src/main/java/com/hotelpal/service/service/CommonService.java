@@ -47,8 +47,9 @@ public class CommonService {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(userPO.getLiveVipStartTime());
 			cal.add(Calendar.DATE, userPO.getValidity() - 1);
-			if (cal.getTime().after(new Date())) {
-				context.setLiveVipValidity(DateUtils.setMaxTime(cal).getTime());
+			Date val = DateUtils.setMaxTime(cal).getTime();
+			if (val.after(new Date())) {
+				context.setLiveVipValidity(val);
 				context.setLiveVip(BoolStatus.Y.toString());
 			}
 		}

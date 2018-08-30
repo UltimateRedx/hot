@@ -54,7 +54,7 @@ public class MsgPushService {
 	private static final String TEMPLATE_COUPON_EXPIRE_ID = "kDNApnUEqxj6gltkNTybYOsJmevBTNwyF6Q5ez_dXcE";
 	private static final String TEMPLATE_RECOMMEND_ID = "_9aFAu8XARqdkHBqGJKVVx2bd6N6YMCZ3ZWC1icRZ9E";
 	private static final String NOTIFICATION_PUSH_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=";
-	
+	private static final String COLOR_RED = "#f8474d";
 	
 	@Resource
 	private CourseDao courseDao;
@@ -382,7 +382,7 @@ public class MsgPushService {
 	private void pushLiveCourseOpen2Notification(String openId, String keyword1, String keyword2, String remark){
 		WXMsgPushMO request = WXMsgPushMO.New();
 		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_COURSE_OPEN_ID)
-				.add("first", "您好，您报名参加的本周公开课即将开始，特此通知")
+				.add("first", "您好，您报名参加的本周公开课即将开始，特此通知", COLOR_RED)
 				.add("keyword1", "《" + keyword1 + "》")
 				.add("keyword2", keyword2).add("remark", remark).build();
 		pushNotification(jsonStr);
@@ -398,7 +398,7 @@ public class MsgPushService {
 	private void pushTaskCompleteNotification(String url, String openId, String keyword3, String remarkTime){
 		WXMsgPushMO request = WXMsgPushMO.New();
 		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_TASK_COMPLETE_ID).setUrl(url)
-				.add("first", "恭喜您的任务已完成～")
+				.add("first", "恭喜您的任务已完成～", COLOR_RED)
 				.add("keyword1", "公开课报名")
 				.add("keyword2", "直播课")
 				.add("keyword3", keyword3).add("remark", "本次公开课时间" + remarkTime + "开课，请准时参加，不见不散").build();
@@ -414,7 +414,7 @@ public class MsgPushService {
 	private void pushOpeningNotification(String openId, String url, String title, String time, String remark) {
 		WXMsgPushMO request = WXMsgPushMO.New();
 		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_STARTING_ID).setUrl(url)
-				.add("first", "您好，您报名参加的本周直播课即将开始，特此通知")
+				.add("first", "您好，您报名参加的本周直播课即将开始，特此通知", COLOR_RED)
 				.add("keyword1", "《" + title + "》")
 				.add("keyword2", time)
 				.add("remark", remark).build();
@@ -431,7 +431,7 @@ public class MsgPushService {
 	private void pushCouponExpireNotification(String openId, String name, String time) {
 		WXMsgPushMO request = WXMsgPushMO.New();
 		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_COUPON_EXPIRE_ID).setUrl(DOMAIN_LINK)
-				.add("first", "您好，您的课程优惠券即将到期，特此通知")
+				.add("first", "您好，您的课程优惠券即将到期，特此通知", COLOR_RED)
 				.add("keyword1", name)
 				.add("keyword2", "订阅课程")
 				.add("keyword3", time).add("remark", "请不要错过哦，点击详情立即使用哦~").build();
@@ -448,7 +448,7 @@ public class MsgPushService {
 		if (!activeEnrollForMessage) return;
 		WXMsgPushMO request = WXMsgPushMO.New();
 		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_RECOMMEND_ID).setUrl(url)
-				.add("first", StringUtils.format("您有{}位好友帮你助力了啦！", currentValue))
+				.add("first", StringUtils.format("您有{}位好友帮你助力了啦！", currentValue), COLOR_RED)
 				.add("keyword1", helperName)
 				.add("keyword2", time)
 				.add("remark", StringUtils.format("任务目标：{}人\n" +

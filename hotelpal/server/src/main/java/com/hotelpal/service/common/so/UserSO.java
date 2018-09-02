@@ -13,6 +13,8 @@ public class UserSO extends BaseSO {
 	private Boolean newPhone;
 	//Old properties
     private String nickname;
+    //昵称，手机号，公司
+    private String searchValue;
 	
 	public String getOpenId() {
 		return openId;
@@ -61,5 +63,11 @@ public class UserSO extends BaseSO {
 	}
 	public void setNewPhone(Boolean newPhone) {
 		this.newPhone = newPhone;
+	}
+	public String getSearchValue() {
+		return searchValue;
+	}
+	public void setSearchValue(String searchValue) {
+		this.searchValue = searchValue;
 	}
 }

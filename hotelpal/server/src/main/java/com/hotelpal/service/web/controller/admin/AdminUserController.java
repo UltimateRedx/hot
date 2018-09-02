@@ -1,6 +1,6 @@
 package com.hotelpal.service.web.controller.admin;
 
-import com.hotelpal.service.common.so.UserRelaSO;
+import com.hotelpal.service.common.so.UserSO;
 import com.hotelpal.service.common.vo.PackVO;
 import com.hotelpal.service.common.vo.WxUserInfo;
 import com.hotelpal.service.service.UserService;
@@ -22,7 +22,7 @@ public class AdminUserController {
 	
 	@RequestMapping(value = "/getUserList")
 	@ResponseBody
-	public PackVO<WxUserInfo> getUserList(@RequestBody UserRelaSO so) {
+	public PackVO getUserList(@RequestBody UserSO so) {
 		PackVO<WxUserInfo> res = new PackVO<>();
 		res.setVoList(userService.getUserList(so));
 		res.setPageInfo(so);

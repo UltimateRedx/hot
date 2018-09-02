@@ -27,8 +27,13 @@ import java.util.*;
 import java.util.Date;
 
 public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends BaseDao<S, P> {
-//	private static final Logger logger = LoggerFactory.getLogger(MysqlBaseDao.class);
-	
+
+	/********************************SQL syntax********************************************************************************/
+	protected static final String AND = " AND ";
+	protected static final String OR = " OR ";
+
+
+
 	@Resource
 	protected JdbcTemplate dao;
 	@Resource

@@ -5,7 +5,6 @@ import com.hotelpal.service.common.enums.BoolStatus;
 import com.hotelpal.service.common.enums.LiveCourseStatus;
 import com.hotelpal.service.common.po.live.LiveCoursePO;
 import com.hotelpal.service.common.so.live.LiveCourseSO;
-import com.hotelpal.service.service.live.LiveChatService;
 import com.hotelpal.service.service.live.netty.ServerHelper;
 import com.hotelpal.service.service.parterner.wx.MsgPushService;
 import com.hotelpal.service.web.handler.PropertyHolder;
@@ -22,8 +21,6 @@ public class StartupTrigger {
 	private MsgPushService msgPushService;
 	@Resource
 	private LiveCourseDao liveCourseDao;
-//	@Resource
-//	private LiveChatService liveChatService;
 	@Resource
 	private ServerHelper serverHelper;
 	private Boolean startLiveCourseScheduler = !BoolStatus.N.toString().equalsIgnoreCase(PropertyHolder.getProperty("context.hotelpal.loadLiveCourseScheduler"));

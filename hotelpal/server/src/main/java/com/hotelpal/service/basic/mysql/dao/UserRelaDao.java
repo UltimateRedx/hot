@@ -49,19 +49,25 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 	protected void searchNonColumnField(StringBuilder buff, List<Object> params, UserRelaSO so, String baseAlias) {
 		String alias = !StringUtils.isNullEmpty(baseAlias) ? " `" + baseAlias + "`." : "";
 		if (so.getPhoneRegTimeFrom() != null) {
-			buff.append(" AND ").append(alias).append("`phoneRegTime` >= ?");
+			buff.append(AND).append(alias).append("`phoneRegTime` >= ?");
 			params.add(DateUtils.getDateString(so.getPhoneRegTimeFrom()));
 		}
 		if (so.getPhoneRegTimeTo() != null) {
-			buff.append(" AND ").append(alias).append("`phoneRegTime` < ?");
+			buff.append(AND).append(alias).append("`phoneRegTime` < ?");
 			Date date = new Date(so.getPhoneRegTimeTo().getTime());
 			params.add(DateUtils.getDateString(DateUtils.increaseAndGet(date)));
 		}
 		if (ArrayUtils.isNotNullEmpty(so.getPhoneList())) {
 			String[] arr = new String[so.getPhoneList().size()];
 			Arrays.fill(arr, "?");
-			buff.append(" AND ").append(alias).append("`phone` in (").append(String.join(",", arr)).append(")");
+			buff.append(AND).append(alias).append("`phone` in (").append(String.join(",", arr)).append(")");
 			params.addAll(so.getPhoneList());
+		}
+		if (!StringUtils.isNullEmpty(so.getSearchValue())) {
+			buff.append(" AND (rela.phone like concat('%', ?, '%') or u.nick like concat('%', ?, '%') or u.company like concat('%', ?, '%') )" );
+			params.add(so.getSearchValue());
+			params.add(so.getSearchValue());
+			params.add(so.getSearchValue());
 		}
 	}
 	public UserPO getUserByDomainId(Integer domainId) {
@@ -125,7 +131,7 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 				" from " + TABLE_NAME +
 				" where openId=?";
 		List<UserRelaPO> list = dao.query(sql, new Object[]{openId}, new RowMapperImpl(UserRelaPO.class));
-		if (list.size() > 0) {
+		if (!list.isEmpty()) {
 			return list.get(0);
 		}
 		return null;
@@ -144,12 +150,6 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 			buff.append(" AND rela.phone like concat('%', ?, '%')" );
 			params.add(so.getPhone());
 			so.setPhone(null);
-		}
-		if (!StringUtils.isNullEmpty(so.getSearchValue())) {
-			buff.append(" AND (rela.phone like concat('%', ?, '%') or u.nick like concat('%', ?, '%') or u.company like concat('%', ?, '%') )" );
-			params.add(so.getSearchValue());
-			params.add(so.getSearchValue());
-			params.add(so.getSearchValue());
 		}
 		this.searchSO(buff, params, so, "rela");
 		String sql = " SELECT count(rela.id) " +
@@ -178,12 +178,6 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 			buff.append(" AND rela.domainId in (").append(String.join(",", arr)).append(")");
 			params.addAll(so.getDomainIdList());
 		}
-		if (!StringUtils.isNullEmpty(so.getSearchValue())) {
-			buff.append(" AND (rela.phone like concat('%', ?, '%') or u.nick like concat('%', ?, '%') or u.company like concat('%', ?, '%') )" );
-			params.add(so.getSearchValue());
-			params.add(so.getSearchValue());
-			params.add(so.getSearchValue());
-		}
 		this.searchSO(buff, params, so, "rela");
 		this.searchSuffix(buff, params, so,"rela");
 		String sql = " SELECT " + this.getColumnAlias("rela") +
@@ -191,37 +185,35 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 		 			" FROM " + TABLE_NAME + " rela " +
 					" INNER JOIN " + user + " u on rela.userId = u.id " +
 					 " WHERE 1=1 " + buff.toString();
-		return dao.query(sql, params.toArray(), new RowMapper<UserPO>() {
-			@Override
-			public UserPO mapRow(ResultSet rs, int i) throws SQLException {
-				UserPO po = new UserPO();
-				int index = 1;
-				index++;
-				po.setCreateTime(DateUtils.toDate(rs.getString(index++), true));
-				po.setUpdateTime(DateUtils.toDate(rs.getString(index++), true));
-				index++;
-				index++;
-				po.setPhone(rs.getString(index++));
-				po.setDomainId(rs.getInt(index++));
-				po.setLiveVipStartTime(DateUtils.toDate(rs.getString(index++), true));
-				po.setValidity(rs.getInt(index++));
-				po.setPhoneRegTime(DateUtils.toDate(rs.getString(index++), true));
-				
-				po.setId(rs.getInt(index++));
-				index++;
-				index++;
-				po.setOpenId(rs.getString(index++));
-				po.setHeadImg(rs.getString(index++));
-				po.setNick(rs.getString(index++));
-				po.setCompany(rs.getString(index++));
-				po.setTitle(rs.getString(index++));
-				po.setRegChannel(rs.getString(index++));
-				po.setLiveVip(rs.getString(index++));
-				po.setLastLoginTime(DateUtils.toDate(rs.getString(index++), true));
-				return po;
-			}
+		return dao.query(sql, params.toArray(), (rs, i) -> {
+			UserPO po = new UserPO();
+			int index = 1;
+			index++;
+			po.setCreateTime(DateUtils.toDate(rs.getString(index++), true));
+			po.setUpdateTime(DateUtils.toDate(rs.getString(index++), true));
+			index++;
+			index++;
+			po.setPhone(rs.getString(index++));
+			po.setDomainId(rs.getInt(index++));
+			po.setLiveVipStartTime(DateUtils.toDate(rs.getString(index++), true));
+			po.setValidity(rs.getInt(index++));
+			po.setPhoneRegTime(DateUtils.toDate(rs.getString(index++), true));
+
+			po.setId(rs.getInt(index++));
+			index++;
+			index++;
+			po.setOpenId(rs.getString(index++));
+			po.setHeadImg(rs.getString(index++));
+			po.setNick(rs.getString(index++));
+			po.setCompany(rs.getString(index++));
+			po.setTitle(rs.getString(index++));
+			po.setRegChannel(rs.getString(index++));
+			po.setLiveVip(rs.getString(index++));
+			po.setLastLoginTime(DateUtils.toDate(rs.getString(index++), true));
+			return po;
 		});
 	}
+
 	
 	
 	public List<String> getOpenIdByDomainIdList(List<Integer> domainIdList) {

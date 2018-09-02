@@ -287,7 +287,6 @@ public class UserService {
 		return map;
 	}
 	
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void newInvitedUser(String inviterOpenId) {
 		obtainCoupon();
 		//将邀请记录写入表
@@ -705,30 +704,22 @@ public class UserService {
 	}
 	
 	
-	public List<WxUserInfo> getUserList(UserRelaSO so) {
-		Integer count = userRelaDao.getCount(so);
+	public List<WxUserInfo> getUserList(UserSO so) {
+		Integer count = userDao.count(so);
 		so.setTotalCount(count);
 		if (count == 0) return Collections.emptyList();
-		List<UserPO> poList =  userRelaDao.getPageList(so);
+		List<WxUserInfo> poList = userDao.getUserInfoPageList(so);
 		List<String> openIdList = new ArrayList<>(poList.size());
-		List<Integer> domainIdList = new ArrayList<>(poList.size());
 		for (UserPO po : poList) {
 			openIdList.add(po.getOpenId());
-			domainIdList.add(po.getDomainId());
 		}
 		Map<String, ValuePair<String, String>> wxInfoMap = wxUserInfoDao.getByOpenIdList(openIdList);
-		Map<Integer, ValuePair<Integer, Integer>> statisticsMap = purchaseLogDao.getCourseCountFee(domainIdList);
-		List<WxUserInfo> infoList = new ArrayList<>(poList.size());
-		for (UserPO po : poList) {
-			WxUserInfo info = dozer.map(po, WxUserInfo.class);
-			info.setWxNickname(wxInfoMap.get(po.getOpenId()).getName());
-			info.setWxHeadImg(wxInfoMap.get(po.getOpenId()).getValue());
-			info.setSubscribed(wxInfoMap.get(po.getOpenId()).getValue0());
-			info.setPurchasedNormalCourseCount(statisticsMap.get(po.getDomainId()).getName());
-			info.setTotalFee(statisticsMap.get(po.getDomainId()).getValue());
-			infoList.add(info);
+		for (WxUserInfo info : poList) {
+			info.setWxNickname(wxInfoMap.get(info.getOpenId()).getName());
+			info.setWxHeadImg(wxInfoMap.get(info.getOpenId()).getValue());
+			info.setSubscribed(wxInfoMap.get(info.getOpenId()).getValue0());
 		}
-		return infoList;
+		return poList;
 	}
 	
 	private void obtainCoupon() {

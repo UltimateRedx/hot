@@ -2,15 +2,15 @@ package com.hotelpal.service.service.live.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -18,23 +18,29 @@ import java.util.concurrent.TimeUnit;
  */
 public class NettyServer {
 	private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-	private final EventLoopGroup bossGroup = new NioEventLoopGroup();
-	private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-	private Channel channel;
+	private static final boolean OS_LINUX = System.getProperty("os.name").toUpperCase().contains("LINUX");
 
-	public static ServerBootstrap server;
+	private final EventLoopGroup bossGroup = OS_LINUX ? new EpollEventLoopGroup() : new NioEventLoopGroup();
+	private final EventLoopGroup workerGroup = OS_LINUX ? new EpollEventLoopGroup() : new NioEventLoopGroup();
+	private Channel channel;
 
 	public void initServer() {
 		InetSocketAddress addr = new InetSocketAddress(8081);
 		startServer(addr);
 	}
 
-	public ChannelFuture startServer (SocketAddress address) {
+	public void startServer (SocketAddress address) {
+		if (OS_LINUX) {
+			logger.info("Using epoll on Linux platform...");
+		} else {
+			logger.info("Using nio on non-Linux platform...");
+		}
+
 		ChannelFuture f = null;
 		try {
-			server = new ServerBootstrap();
+			ServerBootstrap server = new ServerBootstrap();
 			server.group(bossGroup, workerGroup)
-					.channel(NioServerSocketChannel.class)
+					.channel(OS_LINUX ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
 					.option(ChannelOption.SO_BACKLOG, 128)
 					.childOption(ChannelOption.SO_KEEPALIVE, true)
 					.childHandler(new NettyServiceHandler());
@@ -50,24 +56,13 @@ public class NettyServer {
 				logger.error("Netty server start up Error!");
 			}
 		}
-		return f;
 	}
 
 	public void destroy() {
 		logger.info("Shutting down Netty Server...");
 		if(channel != null) { channel.close();}
-		Future workerFuture = workerGroup.shutdownGracefully(2, 3, TimeUnit.SECONDS);
-		try {
-			workerFuture.await();
-		} catch (InterruptedException e) {
-			logger.error("Worker await Interrupted", e);
-		}
-		Future bossFuture = bossGroup.shutdownGracefully(2, 3, TimeUnit.SECONDS);
-		try {
-			bossFuture.await();
-		} catch (InterruptedException e) {
-			logger.error("Boss await Interrupted", e);
-		}
+		workerGroup.shutdownGracefully().syncUninterruptibly();
+		bossGroup.shutdownGracefully().syncUninterruptibly();
 		logger.info("Shutdown Netty Server Success!");
 	}
 }

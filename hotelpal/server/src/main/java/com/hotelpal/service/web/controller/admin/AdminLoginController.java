@@ -22,11 +22,11 @@ public class AdminLoginController extends BaseController{
 	@RequestMapping(value = "/admin/login")
 	@ResponseBody
 	public PackVO<Void> login(HttpServletRequest request, String user, String auth) {
-		if (StringUtils.isNullEmpty(auth)) {
+		if (StringUtils.isNullEmpty(user) || StringUtils.isNullEmpty(auth)) {
 			throw new ServiceException(ServiceException.COMMON_REQUEST_DATA_INVALID);
 		}
 		try {
-			contextService.adminLogin(request.getSession(), auth);
+			contextService.adminLogin(request.getSession(), user, auth);
 		} catch (Exception e) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -34,6 +34,20 @@ public class AdminLoginController extends BaseController{
 			}
 			throw e;
 		}
+		return new PackVO<>();
+	}
+
+	@RequestMapping(value = "/admin/heartBeat")
+	@ResponseBody
+	public PackVO<Void> heartBeat() {
+		logger.info("heart beating...");
+		return new PackVO<>();
+	}
+
+	@RequestMapping(value = "/admin/heartBeat")
+	@ResponseBody
+	public PackVO<Void> resetPW(HttpServletRequest request, String old, String nova) {
+
 		return new PackVO<>();
 	}
 	

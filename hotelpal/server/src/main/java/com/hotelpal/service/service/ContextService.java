@@ -54,7 +54,6 @@ public class ContextService {
 		return user;
 	}
 
-	@Deprecated
 	public void adminLogin(HttpSession session, String user, String auth) {
 		AdminUserPO adminUser = adminUserDao.getByName(user);
 		if (adminUser == null) {

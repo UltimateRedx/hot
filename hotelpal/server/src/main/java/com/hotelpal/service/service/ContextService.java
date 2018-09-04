@@ -9,6 +9,7 @@ import com.hotelpal.service.common.mo.AdminSessionMO;
 import com.hotelpal.service.common.po.AdminUserPO;
 import com.hotelpal.service.common.po.UserPO;
 import com.hotelpal.service.common.utils.DateUtils;
+import com.hotelpal.service.common.utils.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -84,6 +85,19 @@ public class ContextService {
 		AdminSessionMO mo = new AdminSessionMO();
 		mo.setLoginTime(new Date());
 		session.setAttribute("adminLoginInfo", mo);
+	}
+
+	public void resetPW(String user, String old, String nova) {
+		AdminUserPO adminUser = adminUserDao.getByName(user);
+		if (StringUtils.isNullEmpty(old) || StringUtils.isNullEmpty(nova)) {
+			throw new ServiceException(ServiceException.COMMON_EMPTY_INPUT_PARAMETER);
+		}
+		if (!DigestUtils.sha256Hex(old).equalsIgnoreCase(adminUser.getAuth())) {
+			throw new ServiceException(ServiceException.ADMIN_USER_AUTH_FAILED);
+		}
+		String newAuth = DigestUtils.sha256Hex(nova);
+		adminUser.setAuth(newAuth);
+		adminUserDao.update(adminUser);
 	}
 
 	public void runTask() {

@@ -1,12 +1,14 @@
 package com.hotelpal.service.web.controller.admin;
 
 import com.hotelpal.service.common.exception.ServiceException;
+import com.hotelpal.service.common.mo.AdminSessionMO;
 import com.hotelpal.service.common.utils.StringUtils;
 import com.hotelpal.service.common.vo.PackVO;
 import com.hotelpal.service.service.ContextService;
 import com.hotelpal.service.web.controller.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
@@ -44,10 +46,11 @@ public class AdminLoginController extends BaseController{
 		return new PackVO<>();
 	}
 
-	@RequestMapping(value = "/admin/heartBeat")
+	@RequestMapping(value = "/admin/resetPW")
 	@ResponseBody
-	public PackVO<Void> resetPW(HttpServletRequest request, String old, String nova) {
-
+	public PackVO<Void> resetPW(HttpServletRequest request, @RequestParam String old, @RequestParam String nova) {
+		AdminSessionMO mo = (AdminSessionMO) request.getSession().getAttribute("adminLoginInfo");
+		contextService.resetPW(mo.getUser(), old, nova);
 		return new PackVO<>();
 	}
 	

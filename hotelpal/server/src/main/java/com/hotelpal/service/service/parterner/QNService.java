@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 public class QNService {
 	private static final Logger logger = LoggerFactory.getLogger(QNService.class);
 	public static final String BUCKET_IMG = "hotelpalimgbucket";
-	public static final String IMG_DOMAIN = "http://img.hotelpal.cn/";
+	public static final String IMG_DOMAIN = "//img.hotelpal.cn/";
 	public static final String BUCKET_AUDIO = "hotelpalaudiobucket";
-	public static final String AUDIO_DOMAIN = "http://audio.hotelpal.cn/";
+	public static final String AUDIO_DOMAIN = "//audio.hotelpal.cn/";
 
 	private static final String ACCESS_KEY = "QC0A1LD93q3bt4BrBlQLNSZkn3Y5Li1plQ8D7Gow";
 	private static final String SECRET_KEY = "dVdYNKJm8q00KjrBF3XTe7PVJeZRRxNRuMd8ehE-";

@@ -80,6 +80,18 @@ public class UserDao extends MysqlBaseDao<UserSO, UserPO> {
 	/**
 	 * 后台页面的用户信息
 	 */
+	public Integer getUserInfoCount(UserSO so) {
+		StringBuilder buff = new StringBuilder();
+		List<Object> params = new ArrayList<>();
+		this.searchNonColumnField(buff, params, so, "rela");
+		String sql = StringUtils.format("select " +
+				" count(rela.domainId)" +
+				" from {} rela " +
+				" inner join {} u on rela.userId = u.id " +
+				" where 1=1 " +
+				buff.toString(), TableNames.TABLE_USER_RELA, TABLE_NAME);
+		return dao.queryForObject(sql, params.toArray(),Integer.class);
+	}
 	public List<WxUserInfo> getUserInfoPageList(UserSO so) {
 		StringBuilder buff = new StringBuilder();
 		List<Object> params = new ArrayList<>();
@@ -92,6 +104,7 @@ public class UserDao extends MysqlBaseDao<UserSO, UserPO> {
 				" from {} rela " +
 				" inner join {} u on rela.userId = u.id " +
 				" left join {} pl on pl.domainId=rela.domainId " +
+				" where 1=1 " +
 				buff.toString() +
 				" group by rela.domainId", TableNames.TABLE_USER_RELA, TABLE_NAME, TableNames.TABLE_PURCHASE_LOG) +
 				where.toString();

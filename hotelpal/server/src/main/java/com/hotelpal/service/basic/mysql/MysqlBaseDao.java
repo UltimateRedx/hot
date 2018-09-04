@@ -31,6 +31,7 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	/********************************SQL syntax********************************************************************************/
 	protected static final String AND = " AND ";
 	protected static final String OR = " OR ";
+	protected static final String CLASS = "class";
 
 
 
@@ -163,10 +164,7 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 			Map<String, Integer> columnMap = getTableColumnMap();
 			for (PropertyDescriptor pd : descriptors) {
 				String fieldName = pd.getName();
-				if (fieldName.equalsIgnoreCase("class")) continue;
-				if (fieldName.equalsIgnoreCase("domainId")) continue;
-				if (!columnMap.containsKey(fieldName)) continue;
-				
+				if (fieldName.equalsIgnoreCase(CLASS) || fieldName.equalsIgnoreCase("domainId") || !columnMap.containsKey(fieldName)) continue;
 				Object value = pd.getReadMethod().invoke(so);
 				StringUtils.addSQLCondition(buff, params, fieldName, value, alias);
 			}
@@ -183,7 +181,6 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	protected abstract List<String> getTableColumnList();
 	//也存储字段列，供校验使用，查找是否存在相应列
 	protected abstract Map<String, Integer> getTableColumnMap();
-	//protected abstract RowMapper<P> getRowMapper();
 	protected abstract void searchNonColumnField(StringBuilder buff, List<Object> params, S so, String alias);
 	
 	

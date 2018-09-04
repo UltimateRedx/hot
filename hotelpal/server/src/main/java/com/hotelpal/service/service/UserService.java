@@ -705,7 +705,7 @@ public class UserService {
 	
 	
 	public List<WxUserInfo> getUserList(UserSO so) {
-		Integer count = userDao.count(so);
+		Integer count = userDao.getUserInfoCount(so);
 		so.setTotalCount(count);
 		if (count == 0) return Collections.emptyList();
 		List<WxUserInfo> poList = userDao.getUserInfoPageList(so);

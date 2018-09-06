@@ -37,8 +37,12 @@ public class LessonController extends BaseController{
 	@RequestMapping(value = "/getLesson")
 	@ResponseBody
 	public BaseDTO<LessonResponse> getLesson(Integer lessonId) {
+		LessonResponse lr = serviceConverter.getLesson(lessonId);
+		boolean self = lr.getCourseId() == null || lr.getCourseId() <= 0;
+		//统计单个课时 和 所有课时的
 		CompletableFuture.runAsync(() -> statisticsService.increase(StatisticsService.TYPE_LESSON, lessonId, SecurityContextHolder.getUserDomainId()));
-		return new BaseDTO<>(serviceConverter.getLesson(lessonId));
+		CompletableFuture.runAsync(() -> statisticsService.increase(StatisticsService.TYPE_LESSON, self ? -2 : -1, SecurityContextHolder.getUserDomainId()));
+		return new BaseDTO<>(lr);
 	}
 	
 	@RequestMapping(value = "/getInternalLessonList")

@@ -100,7 +100,7 @@ public class UserDao extends MysqlBaseDao<UserSO, UserPO> {
 		List<Object> whereParams = new ArrayList<>();
 		searchSuffix(where, whereParams, so, "");
 		String sql = StringUtils.format("select " +
-				" rela.phone, rela.phoneRegTime, u.*, count(distinct if(pl.classify=?, pl.courseId, null)) purchaseCount, sum(pl.payment) totalFee " +
+				" rela.phone, rela.phoneRegTime, rela.domainId, u.*, count(distinct if(pl.classify=?, pl.courseId, null)) purchaseCount, sum(pl.payment) totalFee " +
 				" from {} rela " +
 				" inner join {} u on rela.userId = u.id " +
 				" left join {} pl on pl.domainId=rela.domainId " +
@@ -114,6 +114,7 @@ public class UserDao extends MysqlBaseDao<UserSO, UserPO> {
 					WxUserInfo res = dozerBeanMapper.map(user, WxUserInfo.class);
 					res.setPhone(rs.getString("rela.phone"));
 					res.setPhoneRegTime(DateUtils.toDate(rs.getString("rela.phoneRegTime"), true));
+					res.setDomainId(rs.getInt("rela.domainId"));
 					res.setPurchasedNormalCourseCount(rs.getInt("purchaseCount"));
 					res.setTotalFee(rs.getInt("totalFee"));
 					return res;

@@ -229,8 +229,7 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 		String pre = " UPDATE `" + TABLE_NAME + "` SET ";
 		StringBuilder buff = new StringBuilder();
 		for (String column : TABLE_COLUMNS_LIST) {
-			if (column.equalsIgnoreCase("createTime")) continue;
-			if(column.equalsIgnoreCase("id")) continue;
+			if (column.equalsIgnoreCase("createTime") || column.equalsIgnoreCase("id")) continue;
 			buff.append(",`").append(column).append("`=?");
 		}
 		String sql = pre + buff.toString().replaceFirst(",", "") + " WHERE ID=?";
@@ -244,8 +243,8 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 		String sql = "select " +
 				" count(distinct rela.openId), " +
 				" count(distinct rela.phone), " +
-				" count(distinct pl.domainId), " +
-				" sum(payment) " +
+				" count( DISTINCT if(pl.payment > 0, pl.domainId, null)), " +
+				" sum(pl.payment) " +
 				" from " + TABLE_NAME + " rela " +
 				" left join " + purchaseLogDao.getTableName() + " pl on pl.domainId = rela.domainId";
 		return dao.queryForObject(sql, (rs, i) -> {
@@ -264,7 +263,8 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 				" union all " +
 				" select count(id) from cc_user_rela where phoneRegTime>= ? and phoneRegTime<? " +
 				" union all " +
-				" select count(distinct domainId) from cc_purchase_log where createTime>=? and createTime<? and domainId not in(select distinct domainId from cc_purchase_log where createTime<?) " +
+				" select count(distinct domainId) from cc_purchase_log where createTime>=? and createTime<? and payment>0 " +
+					" and domainId not in(select distinct domainId from cc_purchase_log where createTime<? and payment>0) " +
 				" union all " +
 				" select sum(payment) from cc_purchase_log where createTime >=? and createTime<? ";
 		List<Long> resList = dao.queryForList(sql, new Object[]{from, to, from, to, from, to, from, from, to}, Long.class);

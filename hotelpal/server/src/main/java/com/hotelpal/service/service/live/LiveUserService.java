@@ -12,7 +12,6 @@ import com.hotelpal.service.common.enums.LiveEnrollStatus;
 import com.hotelpal.service.common.enums.LiveEnrollType;
 import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.mo.WXPreOrderMO;
-import com.hotelpal.service.common.mo.WXUserInfoMO;
 import com.hotelpal.service.common.po.*;
 import com.hotelpal.service.common.po.live.LiveCourseInviteLogPO;
 import com.hotelpal.service.common.po.live.LiveCoursePO;
@@ -76,8 +75,6 @@ public class LiveUserService {
 	private SysCouponDao sysCouponDao;
 	@Resource
 	private LiveCourseService liveCourseService;
-	@Resource
-	private WXUserInfoDao wxUserInfoDao;
 	@Resource
 	private WXService wxService;
 	@Resource
@@ -168,26 +165,6 @@ public class LiveUserService {
 			logger.error("create img exception...", e);
 			throw new ServiceException(e);
 		}
-	}
-	public boolean considerPurchased(Integer liveCourseId) {
-		String liveVip = SecurityContextHolder.getLiveVip();
-		if (BoolStatus.Y.toString().equalsIgnoreCase(liveVip)) return true;
-		
-		PurchaseLogSO pso = new PurchaseLogSO();
-		pso.setClassify(CourseType.LIVE.toString());
-		pso.setCourseId(liveCourseId);
-		boolean purchased = purchaseLogDao.count(pso) > 0;
-		if (purchased) return true;
-		
-		//邀请
-		LiveCoursePO course = liveCourseDao.getById(liveCourseId);
-		if (course == null) throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
-		LiveCourseInviteLogSO iso = new LiveCourseInviteLogSO();
-		iso.setLiveCourseId(liveCourseId);
-		boolean inviteComplete = liveCourseInviteLogDao.count(iso) > course.getInviteRequire();
-		if (inviteComplete) return true;
-		
-		return false;
 	}
 	
 	/**
@@ -313,48 +290,7 @@ public class LiveUserService {
 
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public boolean enrollFor(Integer courseId, String openId) {
-		//WXUserInfoPO info = wxUserInfoDao.getByOpenId(SecurityContextHolder.getUserOpenId());
-		//info = liveUserService.checkSubscribe(info);
-//		if (!BoolStatus.Y.toString().equalsIgnoreCase(info.getSubscribe())) {
-//			throw new ServiceException(ServiceException.COMMON_USER_NOT_SUBSCRIBE);
-//		}
 		return liveUserService.doEnrolledFor(courseId, openId);
-	}
-	@Transactional
-	WXUserInfoPO checkSubscribe(WXUserInfoPO info) {
-		String openId = SecurityContextHolder.getUserOpenId();
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, -1);
-		//没有记录、未关注、已关注，超过一天未刷新
-		if (info == null) {
-			info = new WXUserInfoPO();
-		} else if (BoolStatus.N.toString().equalsIgnoreCase(info.getSubscribe())
-				|| (BoolStatus.Y.toString().equalsIgnoreCase(info.getSubscribe()) && info.getUpdateTime().before(cal.getTime()))) {
-		} else {
-			//已关注
-			return info;
-		}
-		WXUserInfoMO mo = WXService.getUserInfo(wxService.getAccessToken(), openId);
-		info.setSubscribe(mo.getSubscribe() == 1 ? BoolStatus.Y.toString() : BoolStatus.N.toString());
-		info.setOpenId(mo.getOpenid());
-		info.setNickname(mo.getNickname());
-		info.setSex(mo.getSex());
-		info.setCity(mo.getCity());
-		info.setCountry(mo.getCountry());
-		info.setProvince(mo.getProvince());
-		info.setLanguage(mo.getLanguage());
-		info.setHeadImgUrl(mo.getHeadimgurl());
-		info.setSubscribeTime(mo.getSubscribe_time());
-		info.setUnionId(mo.getUnionid());
-		info.setRemark(mo.getRemark());
-		info.setGroupId(mo.getGroupid());
-		info.setSubscribeScene(mo.getSubscribe_scene());
-		if (info.getId() != null) {
-			wxUserInfoDao.update(info);
-		} else {
-			wxUserInfoDao.create(info);
-		}
-		return info;
 	}
 	@Transactional
 	public boolean doEnrolledFor(Integer courseId, String openId) {

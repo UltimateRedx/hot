@@ -14,11 +14,12 @@ import javax.servlet.http.HttpSession;
 
 public class AdminInterceptor extends HandlerInterceptorAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(AdminInterceptor.class);
+	private static final String WEBAPP = "/hotelpal";
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		logger.info("Request URL: " + request.getRequestURI() + "?" + request.getQueryString());
+		logger.info("Request URL: {}？{}", request.getRequestURI(), request.getQueryString());
 		
 		HttpSession session = request.getSession(false);
 		if (session == null) {
@@ -28,6 +29,16 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
 		if (mo == null) {
 			throw new ServiceException(ServiceException.ADMIN_USER_NO_INFO);
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Admin access, user: {}, granted resources: {}", mo.getUser(), mo.getGrantedResources());
+		}
+		String uri = request.getRequestURI();
+		String resource = uri.substring(uri.indexOf(WEBAPP) + WEBAPP.length());
+		boolean accessable = AuthManager.resourceAccessable(mo, resource);
+		if (!accessable) {
+			throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
+		}
+		
 		SecurityContext context = new SecurityContext();
 		context.setDomainId(0);
 		SecurityContextHolder.setContext(context);

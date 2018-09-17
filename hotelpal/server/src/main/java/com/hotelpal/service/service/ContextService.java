@@ -1,6 +1,8 @@
 package com.hotelpal.service.service;
 
 import com.hotelpal.service.basic.mysql.dao.AdminUserDao;
+import com.hotelpal.service.basic.mysql.dao.security.MenuResourceDao;
+import com.hotelpal.service.basic.mysql.dao.security.ResourceGroupDao;
 import com.hotelpal.service.common.context.SecurityContext;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.enums.BoolStatus;
@@ -22,20 +24,28 @@ import java.util.*;
 @Component
 @Transactional
 public class ContextService {
+	private static final String ADMIN_SESSION_ATTRIBUTE_NAME = "adminLoginInfo";
 	@Resource
 	private UserService userService;
 	@Resource
 	private AdminUserDao  adminUserDao;
 	@Resource
 	protected JdbcTemplate dao;
+	@Resource
+	private ResourceGroupDao resourceGroupDao;
+	@Resource
+	private MenuResourceDao menuResourceDao;
 	
-	/**
-	 * 抛出的异常需要处理掉
-	 * 此方法不经过controller
-	 */
-	public UserPO initContext(String openId) {
+	
+	public void initContext(String openId) {
 		UserPO user = userService.getUserByOpenId(openId);
-		SecurityContext context = new SecurityContext();
+		if (user == null) {
+			throw new ServiceException(ServiceException.DAO_OPENID_NOT_FOUND);
+		}
+		SecurityContext context = SecurityContextHolder.getContext();
+		if (context == null) {
+			context = new SecurityContext();
+		}
 		context.setUserId(user.getId());
 		context.setPhone(user.getPhone());
 		context.setOpenId(user.getOpenId());
@@ -52,7 +62,6 @@ public class ContextService {
 				context.setLiveVip(BoolStatus.Y.toString());
 			}
 		}
-		return user;
 	}
 
 	public void adminLogin(HttpSession session, String user, String auth) {
@@ -66,25 +75,23 @@ public class ContextService {
 		AdminSessionMO mo = new AdminSessionMO();
 		mo.setUser(user);
 		mo.setLoginTime(new Date());
-		session.setAttribute("adminLoginInfo", mo);
+		Set<Integer> resourceGroups = adminUser.getResourceGroupsSet();
+		if (resourceGroups.isEmpty()) {
+			throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
+		}
+		//添加可以访问的资源
+		Set<String> accessableResources = resourceGroupDao.getGrantedResources(resourceGroups);
+		
+		mo.setGrantedResources(accessableResources);
+		session.setAttribute(ADMIN_SESSION_ATTRIBUTE_NAME, mo);
+		//查找可以使用的菜单
+		
 	}
-
-	public void adminLogin(HttpSession session, String auth) {
-		List<String> authList = adminUserDao.getAllAuth();
-		String hex = DigestUtils.sha256Hex(auth);
-		boolean authenticated = false;
-		for (String a : authList) {
-			if (a.equalsIgnoreCase(hex)){
-				authenticated = true;
-				break;
-			}
-		}
-		if (!authenticated) {
-			throw new ServiceException(ServiceException.ADMIN_USER_AUTH_FAILED);
-		}
-		AdminSessionMO mo = new AdminSessionMO();
-		mo.setLoginTime(new Date());
-		session.setAttribute("adminLoginInfo", mo);
+	
+	public void adminLogout(HttpSession session) {
+		session.removeAttribute(ADMIN_SESSION_ATTRIBUTE_NAME);
+		session.invalidate();
+		
 	}
 
 	public void resetPW(String user, String old, String nova) {

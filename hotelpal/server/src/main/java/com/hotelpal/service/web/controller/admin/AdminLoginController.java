@@ -38,6 +38,13 @@ public class AdminLoginController extends BaseController{
 		}
 		return new PackVO<>();
 	}
+	
+	@RequestMapping(value = "/admin/logout")
+	@ResponseBody
+	public PackVO<Void> logout(HttpServletRequest request) {
+		contextService.adminLogout(request.getSession());
+		return new PackVO<>();
+	}
 
 	@RequestMapping(value = "/admin/heartBeat")
 	@ResponseBody
@@ -53,5 +60,6 @@ public class AdminLoginController extends BaseController{
 		contextService.resetPW(mo.getUser(), old, nova);
 		return new PackVO<>();
 	}
+	
 	
 }

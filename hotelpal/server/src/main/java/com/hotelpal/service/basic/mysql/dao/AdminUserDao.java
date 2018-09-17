@@ -16,7 +16,7 @@ public class AdminUserDao extends ExtendedMysqlBaseDao<AdminUserSO, AdminUserPO>
 	
 	private static final String TABLE_NAME = TableNames.TABLE_ADMIN_USER;
 	private static final List<String> TABLE_COLUMNS_LIST = new ArrayList<>(Arrays.asList(("id,createTime,updateTime," +
-			"deleted,user,auth").split(",")));
+			"deleted,user,auth,resourceGroups").split(",")));
 	private static final Map<String, Integer> TABLE_COLUMN_MAP = tableListToMap(TABLE_COLUMNS_LIST);
 	
 	@Override
@@ -37,14 +37,14 @@ public class AdminUserDao extends ExtendedMysqlBaseDao<AdminUserSO, AdminUserPO>
 	}
 	@Override
 	protected void searchNonColumnField(StringBuilder buff, List<Object> params, AdminUserSO so, String alias) {
-	
+		// add when need
 	}
 	
 	public AdminUserPO getByName(String user) {
 		String sql = "SELECT " + this.getColumnAlias("") +
 				" FROM " + TABLE_NAME + " WHERE deleted='N' AND `user`=?";
 		List<AdminUserPO> list = dao.query(sql, new Object[]{user}, new RowMapperImpl(AdminUserPO.class));
-		return list.size() > 0 ? list.get(0) : null;
+		return !list.isEmpty()? list.get(0) : null;
 	}
 
 	public List<String> getAllAuth() {

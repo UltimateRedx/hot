@@ -1,9 +1,12 @@
 package com.hotelpal.service.basic.mysql;
 
 public class TableNames {
+	private TableNames(){}
 	private static final String TABLE_PREFIX = "cc_";
 	
 	public static final String TABLE_ADMIN_USER = TABLE_PREFIX + "admin_user";
+	public static final String TABLE_RESOURCE_GROUP = TABLE_PREFIX + "resource_group";
+	public static final String TABLE_RESOURCE = TABLE_PREFIX + "resource";
 	
 	public static final String TABLE_WX_SNS_USER_INFO = TABLE_PREFIX + "wx_sns_user_info";
 	public static final String TABLE_WX_USER_INFO = TABLE_PREFIX + "wx_user_info";

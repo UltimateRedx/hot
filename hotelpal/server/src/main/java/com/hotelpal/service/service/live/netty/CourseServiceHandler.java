@@ -4,15 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.hotelpal.service.basic.mysql.dao.live.LiveCourseDao;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.enums.BoolStatus;
-import com.hotelpal.service.common.enums.LiveCourseStatus;
-import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.po.UserPO;
 import com.hotelpal.service.common.po.live.LiveCoursePO;
 import com.hotelpal.service.common.po.live.OnlineLogPO;
 import com.hotelpal.service.common.utils.StringUtils;
 import com.hotelpal.service.service.ContextService;
 import com.hotelpal.service.service.UserService;
-import com.hotelpal.service.service.live.LiveChatService;
 import com.hotelpal.service.service.live.LiveCourseService;
 import com.hotelpal.service.service.live.LiveStatisticsService;
 import com.hotelpal.service.service.spring.SpringApplicationContext;
@@ -22,15 +19,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.hotelpal.service.service.live.netty.ServerHelper.Message;
 import static com.hotelpal.service.service.live.netty.ServerHelper.SingleCourseEnv;
 
-
 public class CourseServiceHandler extends ChannelDuplexHandler {
 	private static final Logger logger = LoggerFactory.getLogger(CourseServiceHandler.class);
-	private LiveChatService liveChatService = SpringApplicationContext.applicationContext.getBean(LiveChatService.class);
 	private UserService userService = SpringApplicationContext.applicationContext.getBean(UserService.class);
 	private ContextService contextService = SpringApplicationContext.applicationContext.getBean(ContextService.class);
 	private LiveCourseDao liveCourseDao = SpringApplicationContext.applicationContext.getBean(LiveCourseDao.class);
@@ -46,8 +40,15 @@ public class CourseServiceHandler extends ChannelDuplexHandler {
 	////////////////////////////////////////////////
 	private static final String Y = BoolStatus.Y.toString();
 	private static final String N = BoolStatus.N.toString();
-
-
+	
+	@Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		super.channelActive(ctx);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Active channel: {}", ctx.channel().id());
+		}
+	}
+	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		if (msg instanceof TextWebSocketFrame) {
@@ -58,13 +59,20 @@ public class CourseServiceHandler extends ChannelDuplexHandler {
 
 	private void handleMsg(ChannelHandlerContext ctx, TextWebSocketFrame msg) {
 		String json = msg.text();
+		msg.release();
+		if (StringUtils.isNullEmpty(json)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Input TextWebSocketFrame has empty text. Discarding message.");
+			}
+			return;
+		}
 		ClientMessage clientMsg = null;
 		try {
 			clientMsg = JSON.parseObject(json, ClientMessage.class);
 		} catch (Exception e) {
 			logger.warn("前端传入json解析失败，{}", json);
+			return;
 		}
-		msg.release();
 		if (CLIENT_USER.equalsIgnoreCase(clientMsg.getClientType()) && Y.equalsIgnoreCase(clientMsg.init) && clientMsg.initValid()) {
 			initUserServerContext(ctx, clientMsg);
 			initUserClientContext(ctx, clientMsg);
@@ -86,7 +94,7 @@ public class CourseServiceHandler extends ChannelDuplexHandler {
 			serverHelper.changeImg(clientMsg.getCourseId(), clientMsg.getMsg());
 		} else {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Client msg invalid. Full message is " + json);
+				logger.debug("Client msg invalid. Full message is {}", json);
 			}
 		}
 	}
@@ -181,7 +189,9 @@ public class CourseServiceHandler extends ChannelDuplexHandler {
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
-		serverHelper.closeSession(sessionCourseMap.get(ctx.channel().id()), ctx);
+		if (sessionCourseMap.containsKey(ctx.channel().id())) {
+			serverHelper.closeSession(sessionCourseMap.get(ctx.channel().id()), ctx);
+		}
 	}
 
 	@Override

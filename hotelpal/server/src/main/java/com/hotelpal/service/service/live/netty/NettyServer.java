@@ -29,7 +29,7 @@ public class NettyServer {
 		startServer(addr);
 	}
 
-	public void startServer (SocketAddress address) {
+	private void startServer (SocketAddress address) {
 		if (OS_LINUX) {
 			logger.info("Using epoll on Linux platform...");
 		} else {

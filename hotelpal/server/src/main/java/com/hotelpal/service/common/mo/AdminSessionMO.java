@@ -5,6 +5,7 @@ import com.hotelpal.service.common.po.security.ResourceGroupPO;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class AdminSessionMO implements Serializable {
@@ -14,6 +15,7 @@ public class AdminSessionMO implements Serializable {
 	private Date loginTime;
 	private transient List<ResourceGroupPO> resourceGroupList;
 	private Set<String> grantedResources;
+	private transient Map<Integer, ResourceGroupPO> grantedResourceMap;
 	
 	public String getUser() {
 		return user;
@@ -38,5 +40,12 @@ public class AdminSessionMO implements Serializable {
 	}
 	public void setResourceGroupList(List<ResourceGroupPO> resourceGroupList) {
 		this.resourceGroupList = resourceGroupList;
+	}
+	public Map<Integer, ResourceGroupPO> getGrantedResourceMap() {
+		return grantedResourceMap;
+	}
+	public void setGrantedResourceMap(
+			Map<Integer, ResourceGroupPO> grantedResourceMap) {
+		this.grantedResourceMap = grantedResourceMap;
 	}
 }

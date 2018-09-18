@@ -49,7 +49,9 @@ public class AdminLoginController extends BaseController{
 	@RequestMapping(value = "/admin/heartBeat")
 	@ResponseBody
 	public PackVO<Void> heartBeat() {
-		logger.info("heart beating...");
+		if (logger.isDebugEnabled()) {
+			logger.debug("heart beating...");
+		}
 		return new PackVO<>();
 	}
 

@@ -3,6 +3,7 @@ package com.hotelpal.service.basic.mysql.dao.security;
 import com.hotelpal.service.basic.mysql.MysqlBaseDao;
 import com.hotelpal.service.basic.mysql.TableNames;
 import com.hotelpal.service.common.po.security.ResourceGroupPO;
+import com.hotelpal.service.common.po.security.ResourcePO;
 import com.hotelpal.service.common.so.security.ResourceGroupSO;
 import com.hotelpal.service.common.utils.ArrayUtils;
 import com.hotelpal.service.common.utils.StringUtils;
@@ -47,15 +48,37 @@ public class ResourceGroupDao extends MysqlBaseDao<ResourceGroupSO, ResourceGrou
 				TableNames.TABLE_RESOURCE, TABLE_NAME, "(" + String.join(",", arr) + ")");
 		return new HashSet<>(dao.queryForList(sql, groupIds.toArray(), String.class));
 	}
-	
-	public List<ResourceGroupPO> getGrantedResourcesList(Set<Integer> groupIds) {
+
+	/**
+	 * 返回的map 结构： {groupId, ResourceGroupPO}
+	 */
+	public Map<Integer, ResourceGroupPO> getGrantedResourcesList(Set<Integer> groupIds) {
 		if (ArrayUtils.isNullEmpty(groupIds)) {
-			return Collections.emptyList();
+			return Collections.emptyMap();
+		}
+		Map<Integer, ResourceGroupPO> res = new LinkedHashMap<>();
+		for (Integer groupId : groupIds) {
+			ResourceGroupPO rr = new ResourceGroupPO();
+			rr.setId(groupId);
+			rr.setResources(new ArrayList<>());
+			res.put(groupId, rr);
 		}
 		String[] arr = new String[groupIds.size()];
 		Arrays.fill(arr, "?");
-		
-		
-		return null;
+
+		String sql = StringUtils.format(
+				"select rg.id,rg.groupName, res.id,res.accessPoint" +
+				" from {} rg " +
+				" inner join {} res on FIND_IN_SET(res.id, rg.groupResources)" +
+				" where eg.id in (" + String.join("?", arr) + ") " +
+				" order by rg.id, res.id", TABLE_NAME, TableNames.TABLE_RESOURCE);
+		dao.query(sql, groupIds.toArray(), rch -> {
+			res.get(rch.getInt(1)).setGroupName(rch.getString(2));
+			ResourcePO resource = new ResourcePO();
+			resource.setId(rch.getInt(3));
+			resource.setAccessPoint(rch.getString(4));
+			res.get(rch.getInt(1)).getResources().add(resource);
+		});
+		return res;
 	}
 }

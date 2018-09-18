@@ -35,7 +35,6 @@ public class TableNames {
 	public static final String TABLE_LIVE_COURSE_CONTENT = TABLE_PREFIX + "live_course_content";
 	public static final String TABLE_LIVE_ENROLL = TABLE_PREFIX + "live_enroll";
 	public static final String TABLE_LIVE_COURSE_INVITED_LOG = TABLE_PREFIX + "live_course_invited_log";
-	public static final String TABLE_LIVE_COUPON = TABLE_PREFIX + "live_coupon";
 	public static final String TABLE_LIVE_CHAT_LOG = TABLE_PREFIX + "live_chat_log";
 	public static final String TABLE_ASSISTANT_MESSAGE = TABLE_PREFIX + "assistant_message";
 	public static final String TABLE_STATISTICS = TABLE_PREFIX + "statistics";

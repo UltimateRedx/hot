@@ -19,7 +19,7 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		logger.info("Request URL: {}？{}", request.getRequestURI(), request.getQueryString());
+		logger.info("Request URL: {}?{}", request.getRequestURI(), request.getQueryString());
 		
 		HttpSession session = request.getSession(false);
 		if (session == null) {

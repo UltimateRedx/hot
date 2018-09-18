@@ -1,7 +1,6 @@
 package com.hotelpal.service.service;
 
 import com.hotelpal.service.basic.mysql.dao.AdminUserDao;
-import com.hotelpal.service.basic.mysql.dao.security.MenuResourceDao;
 import com.hotelpal.service.basic.mysql.dao.security.ResourceGroupDao;
 import com.hotelpal.service.common.context.SecurityContext;
 import com.hotelpal.service.common.context.SecurityContextHolder;
@@ -10,6 +9,8 @@ import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.mo.AdminSessionMO;
 import com.hotelpal.service.common.po.AdminUserPO;
 import com.hotelpal.service.common.po.UserPO;
+import com.hotelpal.service.common.po.security.ResourceGroupPO;
+import com.hotelpal.service.common.po.security.ResourcePO;
 import com.hotelpal.service.common.utils.DateUtils;
 import com.hotelpal.service.common.utils.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -33,9 +34,7 @@ public class ContextService {
 	protected JdbcTemplate dao;
 	@Resource
 	private ResourceGroupDao resourceGroupDao;
-	@Resource
-	private MenuResourceDao menuResourceDao;
-	
+
 	
 	public void initContext(String openId) {
 		UserPO user = userService.getUserByOpenId(openId);
@@ -64,6 +63,9 @@ public class ContextService {
 		}
 	}
 
+	/**
+	 * 返回已授权的菜单项
+	 */
 	public void adminLogin(HttpSession session, String user, String auth) {
 		AdminUserPO adminUser = adminUserDao.getByName(user);
 		if (adminUser == null) {
@@ -80,9 +82,16 @@ public class ContextService {
 			throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
 		}
 		//添加可以访问的资源
-		Set<String> accessableResources = resourceGroupDao.getGrantedResources(resourceGroups);
-		
-		mo.setGrantedResources(accessableResources);
+		Map<Integer, ResourceGroupPO> accessableResources = resourceGroupDao.getGrantedResourcesList(resourceGroups);
+		mo.setGrantedResourceMap(accessableResources);
+		Set<String> accessableResourceStrings = new HashSet<>();
+		for (Map.Entry<Integer, ResourceGroupPO> en : accessableResources.entrySet()) {
+			ResourceGroupPO po = en.getValue();
+			for (ResourcePO res : po.getResources()) {
+				accessableResourceStrings.add(res.getAccessPoint());
+			}
+		}
+		mo.setGrantedResources(accessableResourceStrings);
 		session.setAttribute(ADMIN_SESSION_ATTRIBUTE_NAME, mo);
 		//查找可以使用的菜单
 		
@@ -91,7 +100,6 @@ public class ContextService {
 	public void adminLogout(HttpSession session) {
 		session.removeAttribute(ADMIN_SESSION_ATTRIBUTE_NAME);
 		session.invalidate();
-		
 	}
 
 	public void resetPW(String user, String old, String nova) {

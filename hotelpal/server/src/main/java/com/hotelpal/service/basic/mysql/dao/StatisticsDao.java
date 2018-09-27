@@ -2,7 +2,6 @@ package com.hotelpal.service.basic.mysql.dao;
 
 import com.hotelpal.service.basic.mysql.MysqlBaseDao;
 import com.hotelpal.service.basic.mysql.TableNames;
-import com.hotelpal.service.common.enums.LessonType;
 import com.hotelpal.service.common.enums.StatisticsType;
 import com.hotelpal.service.common.mo.ValuePair;
 import com.hotelpal.service.common.po.StatisticsPO;
@@ -41,7 +40,7 @@ public class StatisticsDao extends MysqlBaseDao<StatisticsSO, StatisticsPO> {
 	}
 	@Override
 	protected void searchNonColumnField(StringBuilder buff, List<Object> params, StatisticsSO so, String alias) {
-	
+
 	}
 	
 	
@@ -58,17 +57,19 @@ public class StatisticsDao extends MysqlBaseDao<StatisticsSO, StatisticsPO> {
 			return null;
 		});
 	}
-	
+
+	/**
+	 * 首页的总订阅课程自主课程的统计
+	 */
 	public void getCourseStatisticsData(StatisticsVO res, String from ,String to) {
 		String sql = "select " +
-				" sum(if(s.type='COURSE_PV', s.value, 0)), " +
-				" sum(if(s.type='COURSE_UV', s.value, 0)), " +
-				" sum(if(s.type='LESSON_PV' and l.id is not null, s.value, 0)), " +
-				" sum(if(s.type='LESSON_UV' and l.id is not null, s.value, 0)) " +
+				" sum(if(s.type='COURSE_PV' and s.statisticsId=-1, s.value, 0)), " +
+				" sum(if(s.type='COURSE_UV' and s.statisticsId=-1, s.value, 0)), " +
+				" sum(if(s.type='LESSON_PV' and s.statisticsId=-2, s.value, 0)), " +
+				" sum(if(s.type='LESSON_UV' and s.statisticsId=-2, s.value, 0)) " +
 				" from " + TABLE_NAME + " s " +
-				" left join " + lessonDao.getTableName() + " l on s.statisticsId = l.id and l.type=? " +
 				" where statisticsDate >=? and statisticsDate<? ";
-		dao.queryForObject(sql, new Object[]{LessonType.SELF.toString(), from, to}, (rs, i) -> {
+		dao.queryForObject(sql, new Object[]{from, to}, (rs, i) -> {
 			int index = 1;
 			res.setNormalCoursePv(rs.getLong(index++));
 			res.setNormalCourseUv(rs.getLong(index++));

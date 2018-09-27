@@ -405,7 +405,7 @@ public class UserService {
 	/**
 	 * 方法内的方法需要都可以重复调用
 	 */
-	private void afterPay(OrderPO orderPO) {
+	public void afterPay(OrderPO orderPO) {
 		if (CourseType.LIVE.toString().equalsIgnoreCase(orderPO.getCourseType())) {
 			liveUserService.afterPaid(orderPO.getCourseId(), orderPO.getOrderPrice());
 		}

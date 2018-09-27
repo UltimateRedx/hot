@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -89,7 +88,7 @@ public class UserService {
 	}
 
 	@Transactional
-	void saveWxUserInfo(WXSNSUserInfoMO mo) {
+	public void saveWxUserInfo(WXSNSUserInfoMO mo) {
 		UserPO user = userRelaDao.getByOpenId(mo.getOpenid());
 		if (user == null) {
 			WXSNSUserInfoPO info = wxsnsUserInfoDao.getByOpenId(mo.getOpenid());
@@ -109,7 +108,7 @@ public class UserService {
 		}
 	}
 	@Transactional
-	void refineUserInfo(WXSNSUserInfoMO mo) {
+	public void refineUserInfo(WXSNSUserInfoMO mo) {
 		if (userRelaDao.getByOpenId(mo.getOpenid()) != null) return;
 		UserPO user = new UserPO();
 		user.setOpenId(mo.getOpenid());
@@ -237,11 +236,9 @@ public class UserService {
 			Integer currentUserId = SecurityContextHolder.getUserId();
 			UserRelaPO phoneHolder = phoneHolderList.get(0);
 			String oldOpenId = phoneHolder.getOpenId();
-//			Integer oldDomainId = phoneHolder.getDomainId();
 			Integer oldUserId = phoneHolder.getUserId();
 			// Step 1
 			UserRelaPO _currentUserRela_ = userRelaDao.getRelaByOpenId(currentOpenId);
-//			UserPO _currentUser_ = userDao.getById(currentUserId);
 			UserRelaPO _oldUserRela_ = userRelaDao.getRelaByOpenId(oldOpenId);
 			UserPO _oldUser_ = userDao.getById(oldUserId);
 			//Step 2
@@ -254,10 +251,6 @@ public class UserService {
 			// Step 4
 			UserPO _newUser_ = dozer.map(_oldUser_, UserPO.class);
 			_newUser_.setId(null);
-//			_newUser_.setHeadImg(null);
-//			_newUser_.setNick(null);
-//			_newUser_.setCompany(null);
-//			_newUser_.setTitle(null);
 			userDao.create(_newUser_);
 			Integer _newUser_id_ = _newUser_.getId();
 			//Step 5
@@ -287,7 +280,7 @@ public class UserService {
 		return map;
 	}
 	
-	public void newInvitedUser(String inviterOpenId) {
+	private void newInvitedUser(String inviterOpenId) {
 		obtainCoupon();
 		//将邀请记录写入表
 		Integer currentUserDomainId = SecurityContextHolder.getUserDomainId();
@@ -345,7 +338,7 @@ public class UserService {
 		so.setLessonId(lessonId);
 		List<ListenLogPO> poList = listenLogDao.getList(so);
 		LessonPO lessonPO = lessonDao.getById(lessonId);
-		if (poList.size() > 0) {
+		if (!poList.isEmpty()) {
 			ListenLogPO po = poList.get(0);
 			po.setRecordLen(po.getRecordLen() + lessonPO.getAudioLen());
 			listenLogDao.update(po);
@@ -366,7 +359,7 @@ public class UserService {
 		ListenLogSO so = new ListenLogSO();
 		so.setLessonId(lessonId);
 		List<ListenLogPO> poList = listenLogDao.getList(so);
-		if (poList.size() > 0) {
+		if (!poList.isEmpty()) {
 			ListenLogPO po = poList.get(0);
 			po.setRecordPos(realLen);
 			if (po.getMaxPos() < realLen) {
@@ -400,6 +393,11 @@ public class UserService {
 			po.setClassify(orderPO.getCourseType());
 			po.setCouponId(orderPO.getCouponId());
 			purchaseLogDao.create(po);
+			//短信提醒
+			if (CourseType.NORMAL.toString().equalsIgnoreCase(orderPO.getCourseType())) {
+				CoursePO course = courseDao.getById(orderPO.getCourseId());
+				SubMailService.notifyPurchase(SecurityContextHolder.getUserPhone(), course.getTitle());
+			}
 		}
 		afterPay(orderPO);
 	}
@@ -407,7 +405,7 @@ public class UserService {
 	/**
 	 * 方法内的方法需要都可以重复调用
 	 */
-	public void afterPay(OrderPO orderPO) {
+	private void afterPay(OrderPO orderPO) {
 		if (CourseType.LIVE.toString().equalsIgnoreCase(orderPO.getCourseType())) {
 			liveUserService.afterPaid(orderPO.getCourseId(), orderPO.getOrderPrice());
 		}
@@ -436,12 +434,7 @@ public class UserService {
 		if (coupon == null) {
 			throw new ServiceException(ServiceException.COUPON_DEPLETION);
 		}
-//		if (!BoolStatus.N.toString().equalsIgnoreCase(coupon.getUsed())) {
-//			throw new ServiceException(ServiceException.COUPON_USED);
-//		}
-//		if (coupon.getValidity().before(new Date())) {
-//			throw new ServiceException(ServiceException.COUPON_EXPIRED);
-//		}
+
 		CoursePO course = courseDao.getById(courseId);
 		if (course == null) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
@@ -458,6 +451,9 @@ public class UserService {
 		
 		coupon.setUsed(BoolStatus.Y.toString());
 		userCouponDao.update(coupon);
+
+		//发送短信提醒，此代码块只会执行一次
+		SubMailService.notifyPurchase(SecurityContextHolder.getUserPhone(), course.getTitle());
 	}
 	
 	public UserVO getUserInfo() {
@@ -517,7 +513,7 @@ public class UserService {
 		return res;
 	}
 	@Transactional
-	WXPreOrderMO doCreateOrder(Integer courseId, Integer couponId) {
+	public WXPreOrderMO doCreateOrder(Integer courseId, Integer couponId) {
 		CoursePO course = courseDao.getById(courseId);
 		if (course == null) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
@@ -529,19 +525,10 @@ public class UserService {
 			coupon = userCouponDao.getById(couponId);
 			couponService.validateCoupon(coupon, courseId);
 		}
-		Integer totalUserPayment = purchaseLogDao.getUserTotalPayment();
 		BigDecimal fee = new BigDecimal(course.getPrice());
 		if (coupon != null) {
 			fee = fee.subtract(new BigDecimal(coupon.getValue()));
 		}
-//		BigDecimal oneHundred = new BigDecimal("100");
-//		BigDecimal discount = BigDecimal.ONE;
-//		if (totalUserPayment >= 100 * 100 && totalUserPayment < 600 * 100) {
-//			discount = new BigDecimal("0.95");
-//		} else if (totalUserPayment >= 600 * 100) {
-//			discount = new BigDecimal("0.90");
-//		}
-//		fee = fee.multiply(discount).divide(oneHundred, RoundingMode.HALF_UP).setScale(0, BigDecimal.ROUND_HALF_UP).multiply(oneHundred);
 		fee = fee.compareTo(BigDecimal.ZERO) <= 0 ? BigDecimal.ZERO : fee;
 		OrderPO po = new OrderPO();
 		po.setCourseType(CourseType.NORMAL.toString());
@@ -604,7 +591,7 @@ public class UserService {
 		so.setType(RedPacketType.SENDER.toString());
 		so.setIgnoreDomainId(true);
 		List<RedPacketPO> poList = redPacketDao.getList(so);
-		if (poList.size() == 0) {
+		if (poList.isEmpty()) {
 			throw new ServiceException(ServiceException.DAO_DATA_NOT_FOUND);
 		}
 		RedPacketPO po = poList.get(0);

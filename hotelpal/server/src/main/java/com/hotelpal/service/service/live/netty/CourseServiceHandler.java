@@ -192,7 +192,8 @@ public class CourseServiceHandler extends ChannelDuplexHandler {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error("ws error...", cause);
+		logger.warn("ws error...", cause);
+		cause.printStackTrace();
 	}
 
 	public static class ClientMessage {

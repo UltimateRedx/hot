@@ -13,7 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-public class HttpGetUtils {
+public class HttpGetUtils extends HttpUtils{
+	private HttpGetUtils(){}
 	private static final Logger logger = LoggerFactory.getLogger(HttpGetUtils.class);
 	public static String executeGet(HttpParams params) {
 		GetMethod get = execute(params);
@@ -30,7 +31,7 @@ public class HttpGetUtils {
 		try {
 			byte[] res = get.getResponseBody();
 			if (logger.isDebugEnabled()) {
-				logger.debug("executeGetBytes: " + Hex.encodeHexString(res));
+				logger.debug("executeGetBytes: {}", Hex.encodeHexString(res));
 			}
 			return res;
 		} catch (Exception e) {
@@ -49,6 +50,7 @@ public class HttpGetUtils {
 	private static GetMethod execute(HttpParams params) {
 		URI uri;
 		try {
+			fillProtocol(params);
 			uri = new URI(params.getUrl(), false, "UTF-8");
 		} catch (Exception e) {
 			throw new ServiceException(e);

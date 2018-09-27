@@ -10,9 +10,10 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 
 import java.io.UnsupportedEncodingException;
 
-public class HttpPostUtils {
-	
+public class HttpPostUtils extends HttpUtils{
+	private HttpPostUtils() {}
 	public static String postMap(HttpParams params) {
+		fillProtocol(params);
 		PostMethod post = new PostMethod(params.getUrl());
 		if (ValidationUtils.isNotNullEmpty(params.getParams())) {
 			post.setRequestBody(params.getParams().toArray(new NameValuePair[]{}));

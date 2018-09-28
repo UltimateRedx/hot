@@ -38,17 +38,6 @@ public class ResourceGroupDao extends MysqlBaseDao<ResourceGroupSO, ResourceGrou
 		//add when necessary
 	}
 	
-	public Set<String> getGrantedResources(Set<Integer> groupIds) {
-		if (ArrayUtils.isNullEmpty(groupIds)) {
-			return Collections.emptySet();
-		}
-		String[] arr = new String[groupIds.size()];
-		Arrays.fill(arr, "?");
-		String sql = StringUtils.format("select accessPoint from {} where find_in_set(id, (select group_concat(groupResources) from {} where id in {}))",
-				TableNames.TABLE_RESOURCE, TABLE_NAME, "(" + String.join(",", arr) + ")");
-		return new HashSet<>(dao.queryForList(sql, groupIds.toArray(), String.class));
-	}
-
 	/**
 	 * 返回的map 结构： {groupId, ResourceGroupPO}
 	 */
@@ -67,16 +56,17 @@ public class ResourceGroupDao extends MysqlBaseDao<ResourceGroupSO, ResourceGrou
 		Arrays.fill(arr, "?");
 
 		String sql = StringUtils.format(
-				"select rg.id,rg.groupName, res.id,res.accessPoint" +
+				"select rg.id,rg.groupName, res.id,res.accessPoint,res.menu " +
 				" from {} rg " +
 				" inner join {} res on FIND_IN_SET(res.id, rg.groupResources)" +
-				" where eg.id in (" + String.join("?", arr) + ") " +
+				" where rg.id in (" + String.join("?", arr) + ") " +
 				" order by rg.id, res.id", TABLE_NAME, TableNames.TABLE_RESOURCE);
 		dao.query(sql, groupIds.toArray(), rch -> {
 			res.get(rch.getInt(1)).setGroupName(rch.getString(2));
 			ResourcePO resource = new ResourcePO();
 			resource.setId(rch.getInt(3));
 			resource.setAccessPoint(rch.getString(4));
+			resource.setMenu(rch.getString(5));
 			res.get(rch.getInt(1)).getResources().add(resource);
 		});
 		return res;

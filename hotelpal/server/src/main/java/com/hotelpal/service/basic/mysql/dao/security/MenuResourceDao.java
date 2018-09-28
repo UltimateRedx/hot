@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Component
 public class MenuResourceDao extends MysqlBaseDao<MenuResourceSO, MenuResourcePO> {
-	private static final String TABLE_NAME = TableNames.TABLE_RESOURCE_GROUP;
+	private static final String TABLE_NAME = TableNames.TABLE_ADMIN_MENU;
 	private static final List<String> TABLE_COLUMNS_LIST = new ArrayList<>(Arrays.asList(("id,createTime,updateTime," +
 			"menu,resources").split(",")));
 	private static final Map<String, Integer> TABLE_COLUMN_MAP = tableListToMap(TABLE_COLUMNS_LIST);

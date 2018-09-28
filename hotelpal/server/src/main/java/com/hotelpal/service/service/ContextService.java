@@ -66,7 +66,7 @@ public class ContextService {
 	/**
 	 * 返回已授权的菜单项
 	 */
-	public void adminLogin(HttpSession session, String user, String auth) {
+	public Set<String> adminLogin(HttpSession session, String user, String auth) {
 		AdminUserPO adminUser = adminUserDao.getByName(user);
 		if (adminUser == null) {
 			throw new ServiceException(ServiceException.ADMIN_USER_AUTH_FAILED2);
@@ -85,16 +85,17 @@ public class ContextService {
 		Map<Integer, ResourceGroupPO> accessableResources = resourceGroupDao.getGrantedResourcesList(resourceGroups);
 		mo.setGrantedResourceMap(accessableResources);
 		Set<String> accessableResourceStrings = new HashSet<>();
+		Set<String> menuSet = new HashSet<>();
 		for (Map.Entry<Integer, ResourceGroupPO> en : accessableResources.entrySet()) {
 			ResourceGroupPO po = en.getValue();
 			for (ResourcePO res : po.getResources()) {
 				accessableResourceStrings.add(res.getAccessPoint());
+				menuSet.add(res.getMenu());
 			}
 		}
 		mo.setGrantedResources(accessableResourceStrings);
 		session.setAttribute(ADMIN_SESSION_ATTRIBUTE_NAME, mo);
-		//查找可以使用的菜单
-		
+		return menuSet;
 	}
 	
 	public void adminLogout(HttpSession session) {

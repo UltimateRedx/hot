@@ -174,6 +174,8 @@ public class LiveUserService {
 			// 可能获取不到
 			double rate = width / 750D;
 			Graphics baseGraph = courseBufferedImg.getGraphics();
+			int blockMarginLeft = 30;
+			int blockMarginTop = 30;
 			if (headIS != null) {
 				BufferedImage bufferedHead = ImageIO.read(ImageIO.createImageInputStream(headIS));
 				/*
@@ -187,18 +189,17 @@ public class LiveUserService {
 				copyGraph.drawImage(bufferedHead, 0, 0, null);
 				copyGraph.dispose();
 
-
-				int posWidth = (int)(60 * rate);
-				int posHeight = (int)(30 * rate);
-				baseGraph.drawImage(copy, posWidth, posHeight, 72, 72, null);
+				baseGraph.drawImage(copy, blockMarginLeft, blockMarginTop, 72, 72, null);
 			}
-			int nickMarginLeft = (int)((30 + 72 + 10) * rate);
-			int nickMarginTop = (int)(30 * rate);
+			int nickMarginLeft = (int)((blockMarginLeft + 72 + 20) * rate);
+			int nickMarginTop = (int)((blockMarginTop + 24) * rate);
+			baseGraph.setColor(new Color(0x999999));
+			baseGraph.setFont(new Font("微软雅黑", Font.PLAIN, 24));
 			baseGraph.drawString(user.getTitle(), nickMarginLeft, nickMarginTop);
-			int constantMarginTop = (int)((30 + 24 + 6 * 3) * rate);
+
+
+			int constantMarginTop = (int)((blockMarginTop + 24 + 6 + 30) * rate);
 			baseGraph.drawString("送你一堂免费课", nickMarginLeft, constantMarginTop);
-
-
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(courseBufferedImg, "png", baos);

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Set;
 
 @Controller
 public class AdminLoginController extends BaseController{
@@ -23,12 +24,14 @@ public class AdminLoginController extends BaseController{
 
 	@RequestMapping(value = "/admin/login")
 	@ResponseBody
-	public PackVO<Void> login(HttpServletRequest request, String user, String auth) {
+	public PackVO login(HttpServletRequest request, String user, String auth) {
 		if (StringUtils.isNullEmpty(user) || StringUtils.isNullEmpty(auth)) {
 			throw new ServiceException(ServiceException.COMMON_REQUEST_DATA_INVALID);
 		}
 		try {
-			contextService.adminLogin(request.getSession(), user, auth);
+			PackVO<Set<String>> res = new PackVO<>();
+			res.setVo(contextService.adminLogin(request.getSession(), user, auth));
+			return res;
 		} catch (Exception e) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -36,7 +39,6 @@ public class AdminLoginController extends BaseController{
 			}
 			throw e;
 		}
-		return new PackVO<>();
 	}
 	
 	@RequestMapping(value = "/admin/logout")

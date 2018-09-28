@@ -2,16 +2,11 @@ package com.hotelpal.service.service;
 
 import com.hotelpal.service.basic.mysql.dao.StatisticsDao;
 import com.hotelpal.service.basic.mysql.dao.UserDao;
-import com.hotelpal.service.basic.mysql.dao.UserRelaDao;
-import com.hotelpal.service.common.context.SecurityContext;
 import com.hotelpal.service.common.context.SecurityContextHolder;
-import com.hotelpal.service.common.enums.BoolStatus;
 import com.hotelpal.service.common.enums.StatisticsType;
-import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.po.StatisticsPO;
 import com.hotelpal.service.common.po.UserPO;
 import com.hotelpal.service.common.so.StatisticsSO;
-import com.hotelpal.service.common.utils.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,39 +17,17 @@ import java.util.Date;
 @Component
 @Transactional
 public class CommonService {
+	private static final String DEFAULT_STATISTICS_SEARCH_ORDER_BY = "statisticsDate";
 	@Resource
 	private UserDao userDao;
 	@Resource
-	private UserRelaDao userRelaDao;
-	@Resource
 	private StatisticsDao statisticsDao;
+	@Resource
+	private ContextService contextService;
 	
 	public void putAuth(String openId) {
-		UserPO userPO = userRelaDao.getByOpenId(openId);
-		if (userPO == null) {
-			throw new ServiceException(ServiceException.DAO_OPENID_NOT_FOUND);
-		}
-		SecurityContext context = SecurityContextHolder.getContext();
-		if (context == null) {
-			context = new SecurityContext();
-		}
-		context.setDomainId(userPO.getDomainId());
-		context.setOpenId(openId);
-		context.setPhone(userPO.getPhone());
-		context.setUserId(userPO.getId());
-		context.setLiveVip(BoolStatus.N.toString());
-		if (BoolStatus.Y.toString().equalsIgnoreCase(userPO.getLiveVip()) && userPO.getValidity() > 0) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(userPO.getLiveVipStartTime());
-			cal.add(Calendar.DATE, userPO.getValidity() - 1);
-			Date val = DateUtils.setMaxTime(cal).getTime();
-			if (val.after(new Date())) {
-				context.setLiveVipValidity(val);
-				context.setLiveVip(BoolStatus.Y.toString());
-			}
-		}
-		SecurityContextHolder.setContext(context);
-		UserPO user = userDao.getById(userPO.getId());
+		contextService.initContext(openId);
+		UserPO user = userDao.getById(SecurityContextHolder.getUserId());
 		user.setLastLoginTime(new Date());
 		userDao.update(user);
 	}
@@ -63,7 +36,7 @@ public class CommonService {
 		if (pv == 0) return;
 		StatisticsSO so = new StatisticsSO();
 		so.setOrder("desc");
-		so.setOrderBy("statisticsDate");
+		so.setOrderBy(DEFAULT_STATISTICS_SEARCH_ORDER_BY);
 		so.setType(StatisticsType.SITE_PV.toString());
 		StatisticsPO po = statisticsDao.getOne(so);
 		if (po == null) {
@@ -93,7 +66,7 @@ public class CommonService {
 		if (uv == 0) return;
 		StatisticsSO so = new StatisticsSO();
 		so.setOrder("desc");
-		so.setOrderBy("statisticsDate");
+		so.setOrderBy(DEFAULT_STATISTICS_SEARCH_ORDER_BY);
 		so.setType(StatisticsType.SITE_UV.toString());
 		StatisticsPO po = statisticsDao.getOne(so);
 		if (po == null) {
@@ -122,7 +95,7 @@ public class CommonService {
 		if (value == 0) return;
 		StatisticsSO so = new StatisticsSO();
 		so.setOrder("desc");
-		so.setOrderBy("statisticsDate");
+		so.setOrderBy(DEFAULT_STATISTICS_SEARCH_ORDER_BY);
 		so.setType(type.toString());
 		so.setStatisticsId(courseId);
 		StatisticsPO po = statisticsDao.getOne(so);

@@ -150,11 +150,11 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		return dao.queryForObject(sql, params.toArray(), Integer.class);
 	}
 	public String getColumnAlias(String baseAlias) {
-		String alias = !StringUtils.isNullEmpty(baseAlias) ? baseAlias : "";
+		String alias = !StringUtils.isNullEmpty(baseAlias) ? "`" + baseAlias + "`.": "";
 		StringBuilder buff = new StringBuilder();
 		List<String> columns = getTableColumnList();
 		for (String col : columns) {
-			buff.append(",`").append(alias).append("`.`").append(col).append("`");
+			buff.append(",").append(alias).append("`").append(col).append("`");
 		}
 		return buff.toString().replaceFirst(",", "");
 	}

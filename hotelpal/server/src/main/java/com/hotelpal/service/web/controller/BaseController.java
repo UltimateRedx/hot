@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
+import java.util.Collections;
 
 public class BaseController {
 	
@@ -17,10 +17,10 @@ public class BaseController {
 	@ExceptionHandler(value = Throwable.class)
 	@ResponseBody
 	public BaseDTO<Void> handleException(HttpServletRequest request, Exception ex) {
-		logger.error("exception..", ex);
+		logger.warn("exception..", ex);
 		BaseDTO<Void> res = new BaseDTO<>();
 		res.setSuccess(false);
-		res.setMessages(Arrays.asList(ex.getMessage()));
+		res.setMessages(Collections.singletonList(ex.getMessage()));
 		res.setCode(ServiceException.getExceptionCode( ((ServiceException) ex).getType()));
 		return res;
 	}

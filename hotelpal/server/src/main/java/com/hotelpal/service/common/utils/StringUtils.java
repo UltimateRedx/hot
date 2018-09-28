@@ -30,7 +30,7 @@ public class StringUtils {
 		if (map == null || map.size() == 0) {
 			return "";
 		}
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		map.forEach((key, value) -> buff.append("&").append(key).append("=").append(value));
 		return buff.toString().replaceFirst("&", "");
 	}

@@ -18,6 +18,7 @@ import com.hotelpal.service.common.vo.DailySalesVO;
 import com.hotelpal.service.common.vo.PurchaseVO;
 import com.hotelpal.service.common.vo.StatisticsVO;
 import com.hotelpal.service.service.parterner.QNService;
+import com.hotelpal.service.service.parterner.SubMailService;
 import com.hotelpal.service.web.handler.PropertyHolder;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -126,8 +127,8 @@ public class ContentService {
 			mapWXPayData(((Element) e).getName(), ((Element) e).getText(), mo);
 		}
 
-		logger.info("==============================微信支付" +
-				(mo.getResultCode().equalsIgnoreCase("SUCCESS") ? "成功" : "失败") + ": " +
+		logger.info("==============================微信支付{} : {}",
+				(mo.getResultCode().equalsIgnoreCase("SUCCESS") ? "成功" : "失败"),
 				JSON.toJSONString(mo));
 		boolean orderExists = wxPayResultDao.existsByOrderNo(mo.getOutTradeNo());
 		if (orderExists) return;
@@ -155,6 +156,11 @@ public class ContentService {
 				po.setWxConfirm(BoolStatus.Y.toString());
 				po.setWxPrice(mo.getCashFee());
 				purchaseLogDao.create(po);
+				if (CourseType.NORMAL.toString().equalsIgnoreCase(order.getCourseType())) {
+					UserRelaPO userRela = userRelaDao.getByDomainId(order.getDomainId());
+					CoursePO course = courseDao.getById(order.getCourseId());
+					SubMailService.notifyPurchase(userRela.getPhone(), course.getTitle());
+				}
 			} else {
 				po.setWxConfirm(BoolStatus.Y.toString());
 				po.setWxPrice(mo.getCashFee());

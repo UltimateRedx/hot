@@ -51,7 +51,8 @@ public class MsgPushService {
 	private static final String TEMPLATE_COURSE_OPEN_ID = "wQpXw2Jo9S4wZurpCGdvsJd47rshZF2Bp4VqVLxiCOc";
 	private static final String TEMPLATE_STARTING_ID = "2RcZojmR6PP23YyME8kYtDZoFc_hPMFvN3tgcKd8WU4";
 	private static final String TEMPLATE_TASK_COMPLETE_ID = "wYZ0KRLij9NsWiZAX693QtBRMyO1vuu11OlAdMntxNM";
-	private static final String TEMPLATE_COUPON_EXPIRE_ID = "kDNApnUEqxj6gltkNTybYOsJmevBTNwyF6Q5ez_dXcE";
+//	private static final String TEMPLATE_COUPON_EXPIRE_ID = "kDNApnUEqxj6gltkNTybYOsJmevBTNwyF6Q5ez_dXcE";
+	private static final String TEMPLATE_COUPON_EXPIRE_ID = "YSM7iPrSKtuienmYIqZ0Nmbcanox8h8Fsi975O6qh-I";
 	private static final String TEMPLATE_RECOMMEND_ID = "_9aFAu8XARqdkHBqGJKVVx2bd6N6YMCZ3ZWC1icRZ9E";
 	private static final String NOTIFICATION_PUSH_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=";
 	private static final String COLOR_RED = "#f8474d";
@@ -428,7 +429,7 @@ public class MsgPushService {
 	 * 到期时间：{{keyword3.DATA}}
 	 * {{remark.DATA}}
 	 */
-	private void pushCouponExpireNotification(String openId, String name, String time) {
+	public void pushCouponExpireNotification(String openId, String name, String time) {
 		WXMsgPushMO request = WXMsgPushMO.New();
 		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_COUPON_EXPIRE_ID).setUrl(DOMAIN_LINK)
 				.add("first", "您好，您的课程优惠券即将到期，特此通知", COLOR_RED)

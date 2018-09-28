@@ -2,6 +2,7 @@ package com.hotelpal.service.web.controller;
 
 import com.hotelpal.service.service.ContentService;
 import com.hotelpal.service.service.UserService;
+import com.hotelpal.service.service.parterner.wx.MsgPushService;
 import com.hotelpal.service.service.parterner.wx.WXService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -23,10 +24,14 @@ public class TestController {
 	protected JdbcTemplate dao;
 	@Resource
 	private WXService wxService;
+	@Resource
+	private MsgPushService msgPushService;
+
+
 	@RequestMapping(value = "/test")
 	@ResponseBody
 	public String test() {
-		wxService.getAccessToken();
+		msgPushService.pushCouponExpireNotification("oyH7Q0c0d92cblJsJ0n8LyBtwets", "名称", "今天");
 		return "Done...";
 	}
 

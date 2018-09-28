@@ -28,7 +28,7 @@ public class LiveUserController extends BaseController {
 	 */
 	@RequestMapping(value = "/live/enroll")
 	@ResponseBody
-	public BaseDTO LiveCourseEnroll(Integer courseId) {
+	public BaseDTO liveCourseEnroll(Integer courseId) {
 		liveUserService.liveCourseEnroll(courseId);
 		return new BaseDTO();
 	}
@@ -61,7 +61,7 @@ public class LiveUserController extends BaseController {
 	@RequestMapping(value = "/live/enrollFor")
 	@ResponseBody
 	public BaseDTO<LiveUserInfoVO> enrollFor(Integer courseId, String inviter) {
-		boolean enrolledFor = liveUserService.enrollFor(courseId, inviter);
+		liveUserService.enrollFor(courseId, inviter);
 		return new BaseDTO<>();
 	}
 	

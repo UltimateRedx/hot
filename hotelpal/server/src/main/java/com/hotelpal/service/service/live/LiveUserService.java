@@ -11,6 +11,7 @@ import com.hotelpal.service.common.enums.CourseType;
 import com.hotelpal.service.common.enums.LiveEnrollStatus;
 import com.hotelpal.service.common.enums.LiveEnrollType;
 import com.hotelpal.service.common.exception.ServiceException;
+import com.hotelpal.service.common.mo.HttpParams;
 import com.hotelpal.service.common.mo.WXPreOrderMO;
 import com.hotelpal.service.common.po.*;
 import com.hotelpal.service.common.po.live.LiveCourseInviteLogPO;
@@ -38,11 +39,14 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -156,7 +160,46 @@ public class LiveUserService {
 			BufferedImage courseBufferedImg = ImageIO.read(iis);
 			int height = courseBufferedImg.getHeight();
 			int width = courseBufferedImg.getWidth();
+			/*
+			 * 将二维码画到海报上
+			 * 二维码大小 160*160
+			 * 二维码距离底边(202-160)，距离右边40
+			 */
 			courseBufferedImg.getGraphics().drawImage(bufferedQrCode, width-40-160, height-202, 160, 160, null);
+			//将用户信息写到海报上
+			UserPO user = userDao.getById(SecurityContextHolder.getUserId());
+			HttpParams params = new HttpParams();
+			params.setUrl(user.getHeadImg());
+			InputStream headIS = HttpGetUtils.executeGetStream(params);
+			// 可能获取不到
+			double rate = width / 750D;
+			Graphics baseGraph = courseBufferedImg.getGraphics();
+			if (headIS != null) {
+				BufferedImage bufferedHead = ImageIO.read(ImageIO.createImageInputStream(headIS));
+				/*
+				 * 用户信息块 (宽度为750px时)距离上边30，左边60, 72*72, radius=72/2
+				 * 需要按比例缩放
+				 */
+				//生成一个与bufferedHead一样大小的图片，准备剪裁
+				BufferedImage copy = new BufferedImage(bufferedHead.getWidth(), bufferedHead.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+				Graphics2D copyGraph = copy.createGraphics();
+				copyGraph.setClip(new Ellipse2D.Double(0, 0, copy.getWidth(), copy.getHeight()));
+				copyGraph.drawImage(bufferedHead, 0, 0, null);
+				copyGraph.dispose();
+
+
+				int posWidth = (int)(60 * rate);
+				int posHeight = (int)(30 * rate);
+				baseGraph.drawImage(copy, posWidth, posHeight, 72, 72, null);
+			}
+			int nickMarginLeft = (int)((30 + 72 + 10) * rate);
+			int nickMarginTop = (int)(30 * rate);
+			baseGraph.drawString(user.getTitle(), nickMarginLeft, nickMarginTop);
+			int constantMarginTop = (int)((30 + 24 + 6 * 3) * rate);
+			baseGraph.drawString("送你一堂免费课", nickMarginLeft, constantMarginTop);
+
+
+
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(courseBufferedImg, "png", baos);
 			byte[] imageInByte = baos.toByteArray();

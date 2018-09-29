@@ -40,15 +40,14 @@ public class CourseServiceHandler extends ChannelDuplexHandler {
 	////////////////////////////////////////////////
 	private static final String Y = BoolStatus.Y.toString();
 	private static final String N = BoolStatus.N.toString();
-	
-	@Override
+
+@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		super.channelActive(ctx);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Active channel: {}", ctx.channel().id());
 		}
 	}
-	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		if (msg instanceof TextWebSocketFrame) {

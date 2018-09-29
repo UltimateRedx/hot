@@ -197,8 +197,9 @@ public class LiveUserService {
 			baseGraph.setFont(new Font("微软雅黑", Font.PLAIN, 24));
 			baseGraph.drawString(user.getTitle(), nickMarginLeft, nickMarginTop);
 
-
 			int constantMarginTop = (int)((blockMarginTop + 24 + 6 + 30) * rate);
+			baseGraph.setColor(new Color(0x666666));
+			baseGraph.setFont(new Font("微软雅黑", Font.PLAIN, 30));
 			baseGraph.drawString("送你一堂免费课", nickMarginLeft, constantMarginTop);
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();

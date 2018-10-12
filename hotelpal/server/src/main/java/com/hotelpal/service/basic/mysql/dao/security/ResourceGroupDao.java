@@ -17,6 +17,11 @@ public class ResourceGroupDao extends MysqlBaseDao<ResourceGroupSO, ResourceGrou
 	private static final List<String> TABLE_COLUMNS_LIST = new ArrayList<>(Arrays.asList(("id,createTime,updateTime," +
 			"groupName,groupResources").split(",")));
 	private static final Map<String, Integer> TABLE_COLUMN_MAP = tableListToMap(TABLE_COLUMNS_LIST);
+
+	private static final List<String> TABLE_RESOURCE_COLUMNS_LIST = new ArrayList<>(Arrays.asList(("id,createTime,updateTime," +
+			"accessPoint,menu").split(",")));
+
+
 	@Override
 	protected Class<ResourceGroupPO> getPOClass() {
 		return ResourceGroupPO.class;
@@ -59,7 +64,7 @@ public class ResourceGroupDao extends MysqlBaseDao<ResourceGroupSO, ResourceGrou
 				"select rg.id,rg.groupName, res.id,res.accessPoint,res.menu " +
 				" from {} rg " +
 				" inner join {} res on FIND_IN_SET(res.id, rg.groupResources)" +
-				" where rg.id in (" + String.join("?", arr) + ") " +
+				" where rg.id in (" + String.join(",", arr) + ") " +
 				" order by rg.id, res.id", TABLE_NAME, TableNames.TABLE_RESOURCE);
 		dao.query(sql, groupIds.toArray(), rch -> {
 			res.get(rch.getInt(1)).setGroupName(rch.getString(2));
@@ -70,5 +75,15 @@ public class ResourceGroupDao extends MysqlBaseDao<ResourceGroupSO, ResourceGrou
 			res.get(rch.getInt(1)).getResources().add(resource);
 		});
 		return res;
+	}
+
+	public List<ResourcePO> getAllResources() {
+		return dao.query("select * from " + TableNames.TABLE_RESOURCE, new RowMapperImpl<>(ResourcePO.class, TABLE_RESOURCE_COLUMNS_LIST));
+	}
+
+	public ResourceGroupPO getByGroupName(String name) {
+		String sql = StringUtils.format("select * from {} where groupName=?", TABLE_NAME);
+		List<ResourceGroupPO> list = dao.queryForList(sql, ResourceGroupPO.class);
+		return list.isEmpty() ? null : list.get(0);
 	}
 }

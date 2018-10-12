@@ -49,18 +49,18 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 	protected void searchNonColumnField(StringBuilder buff, List<Object> params, UserRelaSO so, String baseAlias) {
 		String alias = !StringUtils.isNullEmpty(baseAlias) ? " `" + baseAlias + "`." : "";
 		if (so.getPhoneRegTimeFrom() != null) {
-			buff.append(AND).append(alias).append("`phoneRegTime` >= ?");
+			buff.append(B_AND_B).append(alias).append("`phoneRegTime` >= ?");
 			params.add(DateUtils.getDateString(so.getPhoneRegTimeFrom()));
 		}
 		if (so.getPhoneRegTimeTo() != null) {
-			buff.append(AND).append(alias).append("`phoneRegTime` < ?");
+			buff.append(B_AND_B).append(alias).append("`phoneRegTime` < ?");
 			Date date = new Date(so.getPhoneRegTimeTo().getTime());
 			params.add(DateUtils.getDateString(DateUtils.increaseAndGet(date)));
 		}
 		if (ArrayUtils.isNotNullEmpty(so.getPhoneList())) {
 			String[] arr = new String[so.getPhoneList().size()];
 			Arrays.fill(arr, "?");
-			buff.append(AND).append(alias).append("`phone` in (").append(String.join(",", arr)).append(")");
+			buff.append(B_AND_B).append(alias).append("`phone` in (").append(String.join(",", arr)).append(")");
 			params.addAll(so.getPhoneList());
 		}
 		if (!StringUtils.isNullEmpty(so.getSearchValue())) {
@@ -72,7 +72,7 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 	}
 	public UserPO getUserByDomainId(Integer domainId) {
 		String sql1 = "SELECT " + this.getTableColumnString() + " FROM `" + TABLE_NAME + "` WHERE `domainId`=? AND openId IS NOT NULL";
-		List<UserRelaPO> poList = dao.query(sql1, new Object[]{domainId}, new RowMapperImpl(UserRelaPO.class));
+		List<UserRelaPO> poList = dao.query(sql1, new Object[]{domainId}, new RowMapperImpl<>(UserRelaPO.class));
 		if (poList.size() == 0) return null;
 		UserRelaPO po = poList.get(0);
 		return userDao.getById(po.getUserId());
@@ -122,7 +122,7 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 	}
 	public UserRelaPO getByDomainId(Integer domainId) {
 		String sql = "select " + getTableColumnString() + " from " + TABLE_NAME + " where domainId=?";
-		List<UserRelaPO> poList = dao.query(sql, new Object[]{domainId}, new RowMapperImpl(UserRelaPO.class));
+		List<UserRelaPO> poList = dao.query(sql, new Object[]{domainId}, new RowMapperImpl<>(UserRelaPO.class));
 		return poList.isEmpty() ? null : poList.get(0);
 	}
 
@@ -130,7 +130,7 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 		String sql = "select "+ getTableColumnString() +
 				" from " + TABLE_NAME +
 				" where openId=?";
-		List<UserRelaPO> list = dao.query(sql, new Object[]{openId}, new RowMapperImpl(UserRelaPO.class));
+		List<UserRelaPO> list = dao.query(sql, new Object[]{openId}, new RowMapperImpl<>(UserRelaPO.class));
 		if (!list.isEmpty()) {
 			return list.get(0);
 		}

@@ -39,8 +39,8 @@ public class UserCourseDao extends DomainMysqlBaseDao<UserCourseSO, UserCoursePO
 	
 	public UserCoursePO getByNonce(String nonce) {
 		String sql = "SELECT " + this.getTableColumnString() + " FROM `" + TABLE_NAME + "` WHERE NONCE=?";
-		List<UserCoursePO> poList = dao.query(sql, new Object[]{nonce}, new RowMapperImpl(UserCoursePO.class));
-		if (poList.size() > 0) {
+		List<UserCoursePO> poList = dao.query(sql, new Object[]{nonce}, new RowMapperImpl<>(UserCoursePO.class));
+		if (!poList.isEmpty()) {
 			return poList.get(0);
 		}
 		return null;

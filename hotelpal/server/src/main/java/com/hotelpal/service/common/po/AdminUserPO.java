@@ -1,6 +1,7 @@
 package com.hotelpal.service.common.po;
 
 
+import com.hotelpal.service.common.po.security.ResourcePO;
 import com.hotelpal.service.common.utils.StringUtils;
 
 import java.util.Arrays;
@@ -13,6 +14,8 @@ public class AdminUserPO extends ExtendedBasePO {
 	private String user;
 	private String auth;
 	private String resourceGroups;
+	private Set<ResourcePO> grantedResources;
+	private Set<Integer> grantedResourceIds;
 	
 	public String getUser() {
 		return user;
@@ -44,5 +47,17 @@ public class AdminUserPO extends ExtendedBasePO {
 			return Collections.emptySet();
 		}
 		return Arrays.stream(resourceGroups.split(",")).map(Integer::parseInt).collect(Collectors.toSet());
+	}
+	public Set<ResourcePO> getGrantedResources() {
+		return grantedResources;
+	}
+	public void setGrantedResources(Set<ResourcePO> grantedResources) {
+		this.grantedResources = grantedResources;
+	}
+	public Set<Integer> getGrantedResourceIds() {
+		return grantedResourceIds;
+	}
+	public void setGrantedResourceIds(Set<Integer> grantedResourceIds) {
+		this.grantedResourceIds = grantedResourceIds;
 	}
 }

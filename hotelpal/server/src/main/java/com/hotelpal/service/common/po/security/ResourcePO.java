@@ -18,4 +18,14 @@ public class ResourcePO extends BasePO {
 	public void setMenu(String menu) {
 		this.menu = menu;
 	}
+
+	@Override
+	public int hashCode() {
+		return this.getId().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof ResourcePO && this.getId().equals(((ResourcePO) obj).getId());
+	}
 }

@@ -156,8 +156,8 @@ public class OrderDao extends DomainMysqlBaseDao<OrderSO, OrderPO>{
 
 	public OrderPO getByOrderNo(String orderNo) {
 		String sql = "SELECT " + getTableColumnString() + " FROM " + TABLE_NAME + " WHERE orderTradeNo=?";
-		List<OrderPO> resList = dao.query(sql, new Object[]{orderNo}, new RowMapperImpl(OrderPO.class));
-		if (resList.size() > 0) {
+		List<OrderPO> resList = dao.query(sql, new Object[]{orderNo}, new RowMapperImpl<>(OrderPO.class));
+		if (!resList.isEmpty()) {
 			return resList.get(0);
 		}
 		return null;

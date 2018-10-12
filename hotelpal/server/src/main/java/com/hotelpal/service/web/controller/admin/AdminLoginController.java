@@ -4,6 +4,7 @@ import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.mo.AdminSessionMO;
 import com.hotelpal.service.common.utils.StringUtils;
 import com.hotelpal.service.common.vo.PackVO;
+import com.hotelpal.service.service.AdminService;
 import com.hotelpal.service.service.ContextService;
 import com.hotelpal.service.web.controller.BaseController;
 import org.springframework.stereotype.Controller;
@@ -18,9 +19,11 @@ import java.util.Set;
 
 @Controller
 public class AdminLoginController extends BaseController{
-	
+
 	@Resource
 	private ContextService contextService;
+	@Resource
+	private AdminService adminService;
 
 	@RequestMapping(value = "/admin/login")
 	@ResponseBody
@@ -64,6 +67,17 @@ public class AdminLoginController extends BaseController{
 		contextService.resetPW(mo.getUser(), old, nova);
 		return new PackVO<>();
 	}
-	
-	
+
+	@RequestMapping(value = "/admin/getAdminAuth")
+	@ResponseBody
+	public PackVO getAdminAuth() {
+		return new PackVO<>(adminService.getAllAdminAuth());
+	}
+
+	@RequestMapping(value = "/admin/authorizeMenu")
+	@ResponseBody
+	public PackVO authorizeMenu(Integer uid, String menu) {
+		adminService.authorizeMenu(uid, menu);
+		return new PackVO();
+	}
 }

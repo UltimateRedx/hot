@@ -4,12 +4,17 @@ import com.hotelpal.service.basic.mysql.ExtendedMysqlBaseDao;
 import com.hotelpal.service.basic.mysql.TableNames;
 import com.hotelpal.service.common.po.AdminUserPO;
 import com.hotelpal.service.common.so.AdminUserSO;
+import com.hotelpal.service.common.utils.StringUtils;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class AdminUserDao extends ExtendedMysqlBaseDao<AdminUserSO, AdminUserPO> {
@@ -43,12 +48,24 @@ public class AdminUserDao extends ExtendedMysqlBaseDao<AdminUserSO, AdminUserPO>
 	public AdminUserPO getByName(String user) {
 		String sql = "SELECT " + this.getColumnAlias("") +
 				" FROM " + TABLE_NAME + " WHERE deleted='N' AND `user`=?";
-		List<AdminUserPO> list = dao.query(sql, new Object[]{user}, new RowMapperImpl(AdminUserPO.class));
+		List<AdminUserPO> list = dao.query(sql, new Object[]{user}, new RowMapperImpl<>(AdminUserPO.class));
 		return !list.isEmpty()? list.get(0) : null;
 	}
 
-	public List<String> getAllAuth() {
-		String sql = "select auth from " + TABLE_NAME + " WHERE deleted='N'";
-		return dao.queryForList(sql, String.class);
+	public List<AdminUserPO> getAllAdminAuth() {
+		String sql = StringUtils.format("select u.*, group_concat(distinct r.id) resourceId"
+				+ " from {} u"
+				+ " inner join {} g on find_in_set(g.id, u.resourceGroups)"
+				+ " inner join {} r on FIND_IN_SET(r.id, g.groupResources)"
+				+ " group by u.id", TABLE_NAME, TableNames.TABLE_RESOURCE_GROUP, TableNames.TABLE_RESOURCE);
+		return dao.query(sql, (rs, rowNum) -> {
+			AdminUserPO user = this.mapPO(rs, "u");
+			user.setAuth(null);
+			String grantedResourceIdStr = rs.getString("resourceId");
+			if (!StringUtils.isNullEmpty(grantedResourceIdStr)) {
+				user.setGrantedResourceIds(Arrays.stream(grantedResourceIdStr.split(",")).mapToInt(Integer::parseInt).boxed().collect(Collectors.toSet()));
+			}
+			return user;
+		});
 	}
 }

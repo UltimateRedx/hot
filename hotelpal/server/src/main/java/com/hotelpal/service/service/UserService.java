@@ -384,6 +384,12 @@ public class UserService {
 		}
 		PurchaseLogPO po = purchaseLogDao.getByOrderNo(orderTradeNo);
 		if (po == null) {
+			// 检查是否已经购买课程
+			boolean purchased = purchaseLogDao.recordExists(CourseType.valueOf(orderPO.getCourseType()), orderPO.getCourseId(), orderPO.getDomainId());
+			if (purchased) {
+				logger.warn("用户{}已经购买{}课程{}， 此次接口调用将忽略", orderPO.getDomainId(), orderPO.getCourseType(), orderPO.getCourseId());
+				return;
+			}
 			po = new PurchaseLogPO();
 			po.setCourseId(orderPO.getCourseId());
 			po.setOrderTradeNo(orderTradeNo);
@@ -405,7 +411,7 @@ public class UserService {
 	/**
 	 * 方法内的方法需要都可以重复调用
 	 */
-	public void afterPay(OrderPO orderPO) {
+	void afterPay(OrderPO orderPO) {
 		if (CourseType.LIVE.toString().equalsIgnoreCase(orderPO.getCourseType())) {
 			liveUserService.afterPaid(orderPO.getCourseId(), orderPO.getOrderPrice());
 		}

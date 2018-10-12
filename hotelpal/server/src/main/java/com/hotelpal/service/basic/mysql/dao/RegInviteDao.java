@@ -72,7 +72,7 @@ public class RegInviteDao extends DomainMysqlBaseDao<RegInviteSO, RegInvitePO> {
 	public List<RegInvitePO> getListByBatch(String batch) {
 		String sql = "SELECT " + this.getTableColumnString() +
 				" FROM " + TABLE_NAME + " WHERE domainId=? and `batch`=?  ";
-		return dao.query(sql, new Object[]{SecurityContextHolder.getUserDomainId(), batch}, new RowMapperImpl(RegInvitePO.class));
+		return dao.query(sql, new Object[]{SecurityContextHolder.getUserDomainId(), batch}, new RowMapperImpl<>(RegInvitePO.class));
 	}
 	
 	public String getLatestBatch() {

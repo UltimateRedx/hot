@@ -41,7 +41,7 @@ public class WXUserInfoDao extends MysqlBaseDao<WXUserInfoSO, WXUserInfoPO> {
 	public WXUserInfoPO getByOpenId(String openId) {
 		String sql = "SELECT " + this.getTableColumnString() + " FROM " + TABLE_NAME +
 				" WHERE openId=? ";
-		List<WXUserInfoPO> list = dao.query(sql, new Object[]{openId}, new RowMapperImpl(WXUserInfoPO.class));
+		List<WXUserInfoPO> list = dao.query(sql, new Object[]{openId}, new RowMapperImpl<>(WXUserInfoPO.class));
 		if (list.size() > 0) return list.get(0);
 		return null;
 	}

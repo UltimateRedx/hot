@@ -38,7 +38,7 @@ public class SysPropertyDao extends MysqlBaseDao<UserCouponSO, SysPropertyPO> {
 
 	public SysPropertyPO getByName(String name) {
 		String sql = "select " + getTableColumnString() + " from " + TABLE_NAME + " where name=?";
-		List<SysPropertyPO> poList = dao.query(sql, new Object[]{name}, new RowMapperImpl(SysPropertyPO.class));
+		List<SysPropertyPO> poList = dao.query(sql, new Object[]{name}, new RowMapperImpl<>(SysPropertyPO.class));
 		return poList.isEmpty() ? null : poList.get(0);
 	}
 

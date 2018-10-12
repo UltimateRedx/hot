@@ -76,8 +76,8 @@ public class PurchaseLogDao extends DomainMysqlBaseDao<PurchaseLogSO, PurchaseLo
 
 	public PurchaseLogPO getByOrderNo(String orderNo) {
 		String sql = "SELECT " + getTableColumnString() + " FROM " + TABLE_NAME + " WHERE orderTradeNo=?";
-		List<PurchaseLogPO> resList = dao.query(sql, new Object[]{orderNo}, new RowMapperImpl(PurchaseLogPO.class));
-		if (resList.size() > 0) {
+		List<PurchaseLogPO> resList = dao.query(sql, new Object[]{orderNo}, new RowMapperImpl<>(PurchaseLogPO.class));
+		if (!resList.isEmpty()) {
 			return resList.get(0);
 		}
 		return null;

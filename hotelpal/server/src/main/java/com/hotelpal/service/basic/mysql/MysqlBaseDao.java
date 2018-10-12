@@ -29,9 +29,14 @@ import java.util.Date;
 public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends BaseDao<S, P> {
 
 	/********************************SQL syntax********************************************************************************/
-	protected static final String AND = " AND ";
-	protected static final String OR = " OR ";
-	protected static final String CLASS = "class";
+	protected static final String B_AND_B = " AND ";
+	protected static final String B_OR_B = " OR ";
+	private static final String CLASS = "class";
+	protected static final String B_SELECT_B = " SELECT ";
+	protected static final String B_FROM_B = " FROM ";
+	protected static final String B_WHERE_B = " WHERE 1=1 ";
+	protected static final String DOMAIN_ID = "domainId";
+
 
 
 
@@ -42,8 +47,8 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	
 	/*********************************************PUBLIC METHODS****************************************************************************************/
 	public List<P> getAll() {
-		String sql = "select " + getTableColumnString() + " from " + getTableName();
-		return dao.query(sql, new Object[]{}, new RowMapperImpl(getPOClass()));
+		String sql = B_SELECT_B + getTableColumnString() + B_FROM_B + getTableName();
+		return dao.query(sql, new Object[]{}, new RowMapperImpl<>(getPOClass()));
 	}
 	public void create(P po) {
 		this.fillCreateInfo(po);
@@ -67,7 +72,8 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		List<String> subList = columnList.subList(1, columnList.size());
 		String pre = " INSERT INTO " + getTableName() + " (" + String.join(",", subList) + ") VALUES (";
 		StringBuilder buff = new StringBuilder();
-		int size = subList.size(), i = 0;
+		int size = subList.size();
+		int i = 0;
 		while(i++ < size) {
 			buff.append(",?");
 		}
@@ -89,15 +95,15 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	public void update(P po) {
 		this.fillUpdateInfo(po);
 		this.dao.update(this.getUpdateSQL(), preparedStatement -> {
-			int index = setPreparedStatementParams(preparedStatement, po, new HashSet<>(Arrays.asList("id", "createTime","domainId")));
+			int index = setPreparedStatementParams(preparedStatement, po, new HashSet<>(Arrays.asList("id", "createTime",DOMAIN_ID)));
 			preparedStatement.setInt(index++, po.getId());
 		});
 	}
 	public P getById(Integer id) {
 		if (id == null) return null;
 		String sql = getGetByIdSQL();
-		List<P> list =  dao.query(sql, new Object[]{id}, new RowMapperImpl(getPOClass()));
-		if (list != null && list.size() > 0) {
+		List<P> list =  dao.query(sql, new Object[]{id}, new RowMapperImpl<>(getPOClass()));
+		if (list != null && !list.isEmpty()) {
 			return list.get(0);
 		} else {
 			return null;
@@ -105,7 +111,7 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	}
 	public P getOne(S so) {
 		List<P> list = this.getList(so);
-		if (list.size() == 0) return null;
+		if (list.isEmpty()) return null;
 		return list.get(0);
 	}
 	public void delete(Integer id) {
@@ -118,19 +124,19 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		for (int i = 0, j = idList.size(); i < j; i++) {
 			buff.append(",?");
 		}
-		String sql = "SELECT " + getTableColumnString() + " FROM `" + getTableName() +
+		String sql = B_SELECT_B + getTableColumnString() + B_FROM_B + "`" + getTableName() +
 				"` WHERE `ID` IN (" + buff.deleteCharAt(0).toString() + ")";
-		return dao.query(sql, new RowMapperImpl(getPOClass()), idList.toArray());
+		return dao.query(sql, new RowMapperImpl<>(getPOClass()), idList.toArray());
 	}
 	public List<P> getList(S so) {
 		StringBuilder buff = new StringBuilder();
 		List<Object> params = new ArrayList<>();
 		searchSO(buff, params, so, "");
-		String pre = "SELECT " + getTableColumnString() + " FROM `" + getTableName() + "` WHERE 1=1 ";
+		String pre = B_SELECT_B + getTableColumnString() + B_FROM_B + "`" + getTableName() + "`" +B_WHERE_B;
 		StringBuilder sql = new StringBuilder();
 		searchSuffix(buff, params, so, null);
 		sql.append(pre).append(buff);
-		return dao.query(sql.toString(), new RowMapperImpl(getPOClass()), params.toArray());
+		return dao.query(sql.toString(), new RowMapperImpl<>(getPOClass()), params.toArray());
 	}
 
 	public List<P> getNonPageList(S so) {
@@ -138,7 +144,7 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		List<Object> params = new ArrayList<>();
 		searchSO(buff, params, so, "");
 		String pre = "SELECT " + getTableColumnString() + " FROM `" + getTableName() + "` WHERE 1=1 ";
-		return dao.query(pre + buff, new RowMapperImpl(getPOClass()), params.toArray());
+		return dao.query(pre + buff, new RowMapperImpl<>(getPOClass()), params.toArray());
 	}
 
 	public Integer count(S so) {
@@ -164,7 +170,7 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 			Map<String, Integer> columnMap = getTableColumnMap();
 			for (PropertyDescriptor pd : descriptors) {
 				String fieldName = pd.getName();
-				if (fieldName.equalsIgnoreCase(CLASS) || fieldName.equalsIgnoreCase("domainId") || !columnMap.containsKey(fieldName)) continue;
+				if (fieldName.equalsIgnoreCase(CLASS) || fieldName.equalsIgnoreCase(DOMAIN_ID) || !columnMap.containsKey(fieldName)) continue;
 				Object value = pd.getReadMethod().invoke(so);
 				StringUtils.addSQLCondition(buff, params, fieldName, value, alias);
 			}
@@ -195,7 +201,6 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	protected String getTableColumnString() {
 		return "`" + String.join("`,`", getTableColumnList()) + "`";
 	}
-	//protected String getTableColumnSubString(List<String> columnList, Integer offset, Integer end) {return "`" + String.join("`,`", columnList.subList(offset, end)) + "`";}
 	protected String getGetByIdSQL() {
 		return "SELECT " + getTableColumnString() + " FROM `" + getTableName() + "` WHERE ID=?";
 	}
@@ -206,23 +211,23 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	protected void searchCommonSO(StringBuilder buff, List<Object> params, S so, String baseAlias) {
 		String alias = ValidationUtils.isNotNullEmpty(baseAlias) ? " `" + baseAlias + "`." : "";
 		if (so.getCreateTimeFrom() != null) {
-			buff.append(" AND ").append(alias).append("`createTime` >= ? ");
+			buff.append(B_AND_B).append(alias).append("`createTime` >= ? ");
 			params.add(so.getCreateTimeFrom());
 		}
 		if (so.getCreateTimeTo() != null) {
-			buff.append(" AND ").append(alias).append("`createTime` < ? ");
+			buff.append(B_AND_B).append(alias).append("`createTime` < ? ");
 			params.add(so.getCreateTimeTo());
 		}
 		if (so.getUpdateTimeFrom() != null) {
-			buff.append(" AND ").append(alias).append("`updateTime` >= ? ");
+			buff.append(B_AND_B).append(alias).append("`updateTime` >= ? ");
 			params.add(so.getUpdateTimeFrom());
 		}
 		if (so.getUpdateTimeTo() != null) {
-			buff.append(" AND ").append(alias).append("`updateTime` < ? ");
+			buff.append(B_AND_B).append(alias).append("`updateTime` < ? ");
 			params.add(so.getUpdateTimeTo());
 		}
 		if (ArrayUtils.isNotNullEmpty(so.getIdList())) {
-			buff.append(" AND ").append(alias).append("`id` IN (");
+			buff.append(B_AND_B).append(alias).append("`id` IN (");
 			StringBuilder sub = new StringBuilder();
 			for (Integer id : so.getIdList()) {
 				sub.append(",?");
@@ -276,27 +281,37 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	/**
 	 * 仅供DAO的实现类使用
 	 */
-	protected class RowMapperImpl implements RowMapper<P>{
-		Class<P> clazz;
+	protected class RowMapperImpl<Q> implements RowMapper<Q>{
+		Class<Q> clazz;
+		List<String> columnList;
 		Map<String, DBMapMO> map = new HashMap<>();
-		public RowMapperImpl(Class<P> clazz) {
+		public RowMapperImpl(Class<Q> clazz) {
+			this.clazz = clazz;
+			columnList = getTableColumnList();
+			this.dismantleClass();
+		}
+		public RowMapperImpl(Class<Q> clazz, List<String> columnList) {
+			this.clazz = clazz;
+			this.columnList = columnList;
+			this.dismantleClass();
+		}
+		private void dismantleClass() {
 			PropertyDescriptor[] descriptors = BeanUtils.getPropertyDescriptors(clazz);
 			for (PropertyDescriptor pd : descriptors) {
 				String fieldName = pd.getName();
-				if (fieldName.equalsIgnoreCase("class")) continue;
+				if (fieldName.equalsIgnoreCase(CLASS)) continue;
 				map.put(fieldName.toUpperCase(), new DBMapMO(pd.getPropertyType(), pd.getWriteMethod()));
 			}
-			this.clazz = clazz;
 		}
+
 		@Override
-		public P mapRow(ResultSet rs, int rowNum) throws SQLException {
-			P po;
+		public Q mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Q po;
 			try {
 				po = this.clazz.newInstance();
 			} catch(InstantiationException | IllegalAccessException e) {
 				throw new ServiceException(e);
 			}
-			List<String> columnList = getTableColumnList();
 			int index = 1;
 			for (String column : columnList) {
 				String up = column.toUpperCase();
@@ -328,7 +343,7 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		PropertyDescriptor[] descriptors = BeanUtils.getPropertyDescriptors(getPOClass());
 		for (PropertyDescriptor pd : descriptors) {
 			String fieldName = pd.getName();
-			if (fieldName.equalsIgnoreCase("class")) continue;
+			if (fieldName.equalsIgnoreCase(CLASS)) continue;
 			map.put(fieldName, new DBMapMO(pd.getPropertyType(), pd.getWriteMethod()));
 		}
 		String alias = StringUtils.isNullEmpty(baseAlias) ? "" : baseAlias + ".";
@@ -362,9 +377,7 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		List<String> columns = getTableColumnList();
 		StringBuilder buff = new StringBuilder();
 		for (String column : columns) {
-			if (column.equalsIgnoreCase("createTime")) continue;
-			if(column.equalsIgnoreCase("id")) continue;
-			if (column.equalsIgnoreCase("domainId")) continue;
+			if (column.equalsIgnoreCase("createTime") || column.equalsIgnoreCase("id") || column.equalsIgnoreCase(DOMAIN_ID)) continue;
 			buff.append(",`").append(column).append("`=?");
 		}
 		return pre + buff.toString().replaceFirst(",", "") + " WHERE ID=?";
@@ -380,7 +393,7 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		try {
 			for (PropertyDescriptor pd : descriptors) {
 				String fieldName = pd.getName();
-				if (fieldName.equalsIgnoreCase("class")) continue;
+				if (fieldName.equalsIgnoreCase(CLASS)) continue;
 				Object value = pd.getReadMethod().invoke(po);
 				valueMap.put(fieldName, value);
 			}

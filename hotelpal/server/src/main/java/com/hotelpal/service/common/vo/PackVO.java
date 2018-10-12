@@ -5,7 +5,16 @@ import com.hotelpal.service.common.so.BaseSO;
 import java.util.List;
 
 public class PackVO<T> {
-private Boolean success = Boolean.TRUE;
+
+	public PackVO() {}
+	public PackVO(T vo) {
+		this.setVo(vo);
+	}
+	public PackVO(List<T> voList) {
+		this.setVoList(voList);
+	}
+
+	private Boolean success = Boolean.TRUE;
 	
 	private List<String> messages;
  

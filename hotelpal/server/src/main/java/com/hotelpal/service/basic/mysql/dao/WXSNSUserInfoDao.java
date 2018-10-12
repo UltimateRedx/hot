@@ -40,7 +40,7 @@ public class WXSNSUserInfoDao extends MysqlBaseDao<WXSNSUserInfoSO, WXSNSUserInf
 	
 	public WXSNSUserInfoPO getByOpenId(String openId) {
 		String sql = "SELECT " + getTableColumnString() + " FROM " + TABLE_NAME + " WHERE openId = ?";
-		List<WXSNSUserInfoPO> list = dao.query(sql, new Object[]{openId}, new RowMapperImpl(WXSNSUserInfoPO.class));
+		List<WXSNSUserInfoPO> list = dao.query(sql, new Object[]{openId}, new RowMapperImpl<>(WXSNSUserInfoPO.class));
 		return list.size() > 0 ? list.get(0) : null;
 	}
 }

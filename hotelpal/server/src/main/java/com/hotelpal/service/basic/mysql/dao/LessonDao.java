@@ -92,7 +92,7 @@ public class LessonDao extends ExtendedMysqlBaseDao<LessonSO, LessonPO> {
 				" INNER JOIN " + courseDao.getTableName() + " c on lesson.courseId=c.id " +
 				" WHERE c.deleted='N' AND lesson.deleted='N' AND lesson.onSale='Y' AND type=? " +
 				" AND DATE(lesson.publishDate)=DATE(SYSDATE()) ";
-		List<LessonPO> res = dao.query(sql, new Object[]{LessonType.NORMAL.toString()}, new RowMapperImpl(LessonPO.class));
+		List<LessonPO> res = dao.query(sql, new Object[]{LessonType.NORMAL.toString()}, new RowMapperImpl<>(LessonPO.class));
 		for (LessonPO lesson : res) {
 			LessonContentPO content = lessonContentDao.getById(lesson.getContentId());
 			if (content != null) {

@@ -130,7 +130,7 @@ public class LiveCourseDao extends ExtendedMysqlBaseDao<LiveCourseSO, LiveCourse
 		if (id == null) return null;
 		String sql = getGetByIdSQL();
 		LiveCoursePO po;
-		List<LiveCoursePO> list =  dao.query(sql, new Object[]{id}, new RowMapperImpl(LiveCoursePO.class));
+		List<LiveCoursePO> list =  dao.query(sql, new Object[]{id}, new RowMapperImpl<>(LiveCoursePO.class));
 		if (list != null && list.size() > 0) {
 			po = list.get(0);
 		} else {
@@ -159,7 +159,7 @@ public class LiveCourseDao extends ExtendedMysqlBaseDao<LiveCourseSO, LiveCourse
 	public List<LiveCoursePO> getOpeningCourse() {
 		String sql = "SELECT " + this.getTableColumnString() + " FROM " + TABLE_NAME +
 				" WHERE deleted=? AND openTime<=DATE_ADD(SYSDATE(),INTERVAL 1 HOUR) ";
-		return dao.query(sql, new Object[]{BoolStatus.N.toString()}, new RowMapperImpl(LiveCoursePO.class));
+		return dao.query(sql, new Object[]{BoolStatus.N.toString()}, new RowMapperImpl<>(LiveCoursePO.class));
 	}
 
 	public List<Integer> getTableIds() {

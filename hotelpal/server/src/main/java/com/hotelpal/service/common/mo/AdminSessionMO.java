@@ -13,6 +13,7 @@ public class AdminSessionMO implements Serializable {
 	private static final long serialVersionUID = 7450619379285783534L;
 	private String user;
 	private Date loginTime;
+	private Set<String> menuSet;
 	private transient List<ResourceGroupPO> resourceGroupList;
 	private Set<String> grantedResources;
 	private transient Map<Integer, ResourceGroupPO> grantedResourceMap;
@@ -47,5 +48,11 @@ public class AdminSessionMO implements Serializable {
 	public void setGrantedResourceMap(
 			Map<Integer, ResourceGroupPO> grantedResourceMap) {
 		this.grantedResourceMap = grantedResourceMap;
+	}
+	public Set<String> getMenuSet() {
+		return menuSet;
+	}
+	public void setMenuSet(Set<String> menuSet) {
+		this.menuSet = menuSet;
 	}
 }

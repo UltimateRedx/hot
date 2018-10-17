@@ -5,11 +5,8 @@ import com.hotelpal.service.basic.mysql.TableNames;
 import com.hotelpal.service.common.po.AdminUserPO;
 import com.hotelpal.service.common.so.AdminUserSO;
 import com.hotelpal.service.common.utils.StringUtils;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +18,7 @@ public class AdminUserDao extends ExtendedMysqlBaseDao<AdminUserSO, AdminUserPO>
 	
 	private static final String TABLE_NAME = TableNames.TABLE_ADMIN_USER;
 	private static final List<String> TABLE_COLUMNS_LIST = new ArrayList<>(Arrays.asList(("id,createTime,updateTime," +
-			"deleted,user,auth,resourceGroups").split(",")));
+			"deleted,user,name,auth,resourceGroups").split(",")));
 	private static final Map<String, Integer> TABLE_COLUMN_MAP = tableListToMap(TABLE_COLUMNS_LIST);
 	
 	@Override

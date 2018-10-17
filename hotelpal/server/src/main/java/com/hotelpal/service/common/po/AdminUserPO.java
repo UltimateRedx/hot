@@ -13,6 +13,7 @@ public class AdminUserPO extends ExtendedBasePO {
 
 	private String user;
 	private String auth;
+	private String name;
 	private String resourceGroups;
 	private Set<ResourcePO> grantedResources;
 	private Set<Integer> grantedResourceIds;
@@ -59,5 +60,11 @@ public class AdminUserPO extends ExtendedBasePO {
 	}
 	public void setGrantedResourceIds(Set<Integer> grantedResourceIds) {
 		this.grantedResourceIds = grantedResourceIds;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 }

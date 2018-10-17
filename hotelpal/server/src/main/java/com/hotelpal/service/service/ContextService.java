@@ -77,6 +77,13 @@ public class ContextService {
 		AdminSessionMO mo = new AdminSessionMO();
 		mo.setUser(user);
 		mo.setLoginTime(new Date());
+		updateSessionResource(mo);
+		session.setAttribute(ADMIN_SESSION_ATTRIBUTE_NAME, mo);
+		return mo.getMenuSet();
+	}
+
+	public void updateSessionResource(AdminSessionMO mo) {
+		AdminUserPO adminUser = adminUserDao.getByName(mo.getUser());
 		Set<Integer> resourceGroups = adminUser.getResourceGroupsSet();
 		if (resourceGroups.isEmpty()) {
 			throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
@@ -94,8 +101,7 @@ public class ContextService {
 			}
 		}
 		mo.setGrantedResources(accessableResourceStrings);
-		session.setAttribute(ADMIN_SESSION_ATTRIBUTE_NAME, mo);
-		return menuSet;
+		mo.setMenuSet(menuSet);
 	}
 	
 	public void adminLogout(HttpSession session) {

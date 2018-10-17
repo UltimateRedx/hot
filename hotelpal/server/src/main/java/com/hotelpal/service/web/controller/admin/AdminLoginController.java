@@ -1,5 +1,6 @@
 package com.hotelpal.service.web.controller.admin;
 
+import com.hotelpal.service.common.enums.BoolStatus;
 import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.mo.AdminSessionMO;
 import com.hotelpal.service.common.utils.StringUtils;
@@ -76,8 +77,25 @@ public class AdminLoginController extends BaseController{
 
 	@RequestMapping(value = "/admin/authorizeMenu")
 	@ResponseBody
-	public PackVO authorizeMenu(Integer uid, String menu) {
-		adminService.authorizeMenu(uid, menu);
+	public PackVO authorizeMenu(Integer uid, String menu, @RequestParam(required = false, defaultValue = "Y") String authorize) {
+		if (BoolStatus.Y.toString().equalsIgnoreCase(authorize))
+			adminService.authorizeMenu(uid, menu);
+		else
+			adminService.withdrawMenu(uid, menu);
+		return new PackVO();
+	}
+
+	@RequestMapping(value = "/admin/deleteUser")
+	@ResponseBody
+	public PackVO deleteUser(Integer uid) {
+		adminService.deleteAdminUser(uid);
+		return new PackVO();
+	}
+
+	@RequestMapping(value = "/admin/createAdminUser")
+	@ResponseBody
+	public PackVO createAdminUser(String user, String name) {
+		adminService.createAdminUser(user, name);
 		return new PackVO();
 	}
 }

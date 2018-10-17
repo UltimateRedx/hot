@@ -83,7 +83,7 @@ public class ResourceGroupDao extends MysqlBaseDao<ResourceGroupSO, ResourceGrou
 
 	public ResourceGroupPO getByGroupName(String name) {
 		String sql = StringUtils.format("select * from {} where groupName=?", TABLE_NAME);
-		List<ResourceGroupPO> list = dao.queryForList(sql, ResourceGroupPO.class);
+		List<ResourceGroupPO> list = dao.query(sql, new Object[]{name}, new RowMapperImpl<>(ResourceGroupPO.class));
 		return list.isEmpty() ? null : list.get(0);
 	}
 }

@@ -4,10 +4,12 @@ import com.hotelpal.service.common.context.SecurityContext;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.exception.ServiceException;
 import com.hotelpal.service.common.mo.AdminSessionMO;
+import com.hotelpal.service.service.ContextService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -15,6 +17,8 @@ import javax.servlet.http.HttpSession;
 public class AdminInterceptor extends HandlerInterceptorAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(AdminInterceptor.class);
 	private static final String WEBAPP = "/hotelpal";
+	@Resource
+	private ContextService contextService;
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -29,6 +33,7 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
 		if (mo == null) {
 			throw new ServiceException(ServiceException.ADMIN_USER_NO_INFO);
 		}
+		contextService.updateSessionResource(mo);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Admin access, user: {}, granted resources: {}", mo.getUser(), mo.getGrantedResources());
 		}

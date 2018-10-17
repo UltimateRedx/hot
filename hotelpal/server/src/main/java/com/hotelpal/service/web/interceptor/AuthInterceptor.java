@@ -1,5 +1,6 @@
 package com.hotelpal.service.web.interceptor;
 
+import com.alibaba.fastjson.JSON;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.utils.StringUtils;
 import com.hotelpal.service.service.CommonService;
@@ -82,7 +83,12 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 		for (String path : excludeLoggingPath) {
 			if (request.getRequestURI().contains(path)) return;
 		}
-		logger.info("Request URL: {}?{};\tChain handle time: {}", request.getRequestURI(), request.getQueryString(), (new Date().getTime() - map.get(request.getSession().getId())));
+		if(logger.isInfoEnabled())
+			logger.info("Request URL: {}?{}?{};\tChain handle time: {}",
+					request.getRequestURI(),
+					request.getQueryString(),
+					JSON.toJSONString(request.getParameterMap()),
+					(new Date().getTime() - map.get(request.getSession().getId())));
 	}
 
 	private static final Set<String> excludeLoggingPath = new HashSet<>(Collections.singletonList("/user/recordListenPos"));

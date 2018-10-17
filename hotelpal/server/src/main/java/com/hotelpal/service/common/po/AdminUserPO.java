@@ -5,7 +5,7 @@ import com.hotelpal.service.common.po.security.ResourcePO;
 import com.hotelpal.service.common.utils.StringUtils;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,7 @@ public class AdminUserPO extends ExtendedBasePO {
 	}
 	public Set<Integer> getResourceGroupsSet() {
 		if (StringUtils.isNullEmpty(resourceGroups)) {
-			return Collections.emptySet();
+			return new HashSet<>();
 		}
 		return Arrays.stream(resourceGroups.split(",")).map(Integer::parseInt).collect(Collectors.toSet());
 	}

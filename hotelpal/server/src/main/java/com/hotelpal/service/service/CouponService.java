@@ -8,6 +8,7 @@ import com.hotelpal.service.common.context.CommonParams;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.enums.*;
 import com.hotelpal.service.common.exception.ServiceException;
+import com.hotelpal.service.common.mo.ValuePair;
 import com.hotelpal.service.common.po.*;
 import com.hotelpal.service.common.so.SysCouponSO;
 import com.hotelpal.service.common.so.UserCouponSO;
@@ -45,12 +46,13 @@ public class CouponService {
 	public List<SysCouponPO> getSysCoupon(SysCouponSO so) {
 		List<SysCouponPO> resList = sysCouponDao.getList(so);
 		List<Integer> sysCouponIdList = resList.stream().map(BasePO::getId).collect(Collectors.toList());
-		Map<Integer, Integer> spentMap = userCouponDao.getSysCouponSpent(sysCouponIdList);
+		Map<Integer, ValuePair<Integer, Integer>> spentMap = userCouponDao.getSysCouponSpent(sysCouponIdList);
 		for (SysCouponPO coupon : resList) {
 			String link = SYS_COUPON_LINK.replaceFirst("@nonce", DigestUtils.sha1Hex(coupon.getId() + COUPON_SERVER_SUFFIX))
 					.replaceFirst("@sysCouponId", String.valueOf(coupon.getId()));
 			coupon.setLink(link);
-			coupon.setSpent(spentMap.get(coupon.getId()));
+			coupon.setSpent(spentMap.get(coupon.getId()).getName());
+			coupon.setUsed(spentMap.get(coupon.getId()).getValue());
 		}
 		so.setTotalCount(sysCouponDao.count(so));
 		return resList;

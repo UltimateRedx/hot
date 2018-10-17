@@ -5,6 +5,7 @@ import com.hotelpal.service.basic.mysql.TableNames;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.enums.BoolStatus;
 import com.hotelpal.service.common.enums.CouponType;
+import com.hotelpal.service.common.mo.ValuePair;
 import com.hotelpal.service.common.po.SysCouponPO;
 import com.hotelpal.service.common.po.UserCouponPO;
 import com.hotelpal.service.common.po.UserPO;
@@ -165,20 +166,21 @@ public class UserCouponDao extends DomainMysqlBaseDao<UserCouponSO, UserCouponPO
 			BoolStatus.N.toString()}, Integer.class);
 	}
 
-	public Map<Integer, Integer> getSysCouponSpent(List<Integer> sysCouponIdList) {
+	public Map<Integer, ValuePair<Integer, Integer>> getSysCouponSpent(List<Integer> sysCouponIdList) {
 		if (ArrayUtils.isNullEmpty(sysCouponIdList)) {
 			return Collections.emptyMap();
 		}
 		String[] arr = new String[sysCouponIdList.size()];
 		Arrays.fill(arr, "?");
-		String sql = "SELECT sysCouponId, count(*) from " + TABLE_NAME + " where sysCouponId in(" +
+		String sql = "SELECT sysCouponId, count(*), count(if(used='Y', 1, null)) from " + TABLE_NAME + " where sysCouponId in(" +
 				String.join(",", arr) + ") group by sysCouponId";
-		Map<Integer, Integer> resMap = new HashMap<>();
+		Map<Integer, ValuePair<Integer, Integer>> resMap = new HashMap<>();
 		for (Integer id : sysCouponIdList) {
-			resMap.put(id, 0);
+			resMap.put(id, new ValuePair<>(0, 0));
 		}
 		dao.query(sql, sysCouponIdList.toArray(), rch -> {
-			resMap.put(rch.getInt(1), rch.getInt(2));
+			resMap.get(rch.getInt(1)).setName(rch.getInt(2));
+			resMap.get(rch.getInt(1)).setValue(rch.getInt(3));
 		});
 		return resMap;
 	}

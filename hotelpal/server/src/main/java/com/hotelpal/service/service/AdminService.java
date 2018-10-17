@@ -35,7 +35,10 @@ public class AdminService {
 		List<AdminUserPO> allAdmin = adminUserDao.getAllAdminAuth();
 		for (AdminUserPO po : allAdmin) {
 			Set<Integer> grantedResourceIds = po.getGrantedResourceIds();
-			po.setGrantedResources(grantedResourceIds.stream().map(resourceMap::get).collect(Collectors.toSet()));
+			if (!grantedResourceIds.isEmpty())
+				po.setGrantedResources(grantedResourceIds.stream().map(resourceMap::get).collect(Collectors.toSet()));
+			else
+				po.setGrantedResources(Collections.emptySet());
 		}
 		return allAdmin;
 	}

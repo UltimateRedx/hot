@@ -26,6 +26,7 @@ public class SysCouponPO extends ExtendedBasePO{
 	private String acquired = BoolStatus.N.toString();
 	//已经使用多少
 	private Integer spent;
+	private Integer used;
 	
 	public String getType() {
 		return type;
@@ -110,5 +111,11 @@ public class SysCouponPO extends ExtendedBasePO{
 	}
 	public void setSpent(Integer spent) {
 		this.spent = spent;
+	}
+	public Integer getUsed() {
+		return used;
+	}
+	public void setUsed(Integer used) {
+		this.used = used;
 	}
 }

@@ -3,6 +3,7 @@ package com.hotelpal.service.common.utils;
 import com.hotelpal.service.common.exception.ServiceException;
 import org.dom4j.*;
 import org.dom4j.io.SAXReader;
+import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public class XMLUtils {
+
+	private XMLUtils(){}
 	
 	public static Document mapToXML(final Map<String, Object> map) {
 			DocumentFactory documentFactory = DocumentFactory.getInstance();
@@ -30,14 +33,14 @@ public class XMLUtils {
 
 	public static Map<String, String> listMapContent(InputStream is) {
 		try {
-			return listMapContent(new SAXReader().read(is));
+			return listMapContent(getReader().read(is));
 		} catch (Exception e) {
 			throw new ServiceException(e);
 		}
 	}
 	public static Map<String, String> listMapContent(String xml) {
 		try {
-			return listMapContent(new SAXReader().read(new ByteArrayInputStream(xml.getBytes())));
+			return listMapContent(getReader().read(new ByteArrayInputStream(xml.getBytes())));
 		} catch (Exception e) {
 			throw new ServiceException(e);
 		}
@@ -52,5 +55,11 @@ public class XMLUtils {
 			res.put(element.getName(), element.getText());
 		}
 		return res;
+	}
+
+	public static SAXReader getReader() throws SAXException {
+		SAXReader reader = new SAXReader();
+		reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return reader;
 	}
 }

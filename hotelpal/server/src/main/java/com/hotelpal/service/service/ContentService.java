@@ -14,6 +14,7 @@ import com.hotelpal.service.common.so.OrderSO;
 import com.hotelpal.service.common.so.PurchaseLogSO;
 import com.hotelpal.service.common.utils.DateUtils;
 import com.hotelpal.service.common.utils.RandomUtils;
+import com.hotelpal.service.common.utils.XMLUtils;
 import com.hotelpal.service.common.vo.DailySalesVO;
 import com.hotelpal.service.common.vo.PurchaseVO;
 import com.hotelpal.service.common.vo.StatisticsVO;
@@ -118,7 +119,7 @@ public class ContentService {
 	}
 
 	public void receiveUpdateWxPayResult(InputStream is) throws Exception{
-		SAXReader reader = new SAXReader();
+		SAXReader reader = XMLUtils.getReader();
 		Document document = reader.read(is);
 		Element root = document.getRootElement();
 		List list = root.elements();

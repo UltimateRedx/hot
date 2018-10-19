@@ -529,7 +529,7 @@ public class MsgPushService {
 		}
 	}
 	
-	private static class CourseOpeningTrigger extends Thread{
+	private static class CourseOpeningTrigger implements Runnable {
 		private MsgPushService service;
 		private Integer courseId;
 		CourseOpeningTrigger(MsgPushService service, Integer courseId) {
@@ -543,7 +543,7 @@ public class MsgPushService {
 		}
 	}
 	
-	private static class InviteRemainderTrigger extends Thread{
+	private static class InviteRemainderTrigger implements Runnable{
 		private MsgPushService service;
 		private Integer courseId;
 		InviteRemainderTrigger(MsgPushService service, Integer courseId) {

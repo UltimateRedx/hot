@@ -195,7 +195,7 @@ public class LiveUserService {
 			int nickMarginTop = (int)((blockMarginTop + 24) * rate);
 			baseGraph.setColor(new Color(0x999999));
 			baseGraph.setFont(new Font("微软雅黑", Font.PLAIN, 24));
-			baseGraph.drawString(user.getTitle(), nickMarginLeft, nickMarginTop);
+			baseGraph.drawString(user.getNick(), nickMarginLeft, nickMarginTop);
 
 			int constantMarginTop = (int)((blockMarginTop + 24 + 6 + 30) * rate);
 			baseGraph.setColor(new Color(0x666666));

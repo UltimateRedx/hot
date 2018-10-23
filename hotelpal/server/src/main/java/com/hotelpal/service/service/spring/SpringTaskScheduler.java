@@ -30,7 +30,6 @@ public class SpringTaskScheduler {
 	 * 按照uid强制刷新任务
 	 */
 	public void add(String uid, Runnable runnable, Date date) {
-		taskScheduler.setThreadNamePrefix("springTaskScheduler");
 		if (SCHEDULER.containsKey(uid)) {
 			ScheduledFuture future = SCHEDULER.get(uid);
 			boolean canceled = future.cancel(true);

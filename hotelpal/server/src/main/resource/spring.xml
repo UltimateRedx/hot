@@ -21,15 +21,5 @@
 	<context:component-scan base-package="com.hotelpal.service.basic"/>
 	<context:component-scan base-package="com.hotelpal.service.service"/>
 	<context:component-scan base-package="com.hotelpal.service.web"/>
-	<!--<bean id="poolTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
-		<!--&lt;!&ndash; 线程池维护线程的最少数量 &ndash;&gt;-->
-		<!--<property name="corePoolSize" value="2" />-->
-		<!--&lt;!&ndash; 允许的空闲时间 &ndash;&gt;-->
-		<!--<property name="keepAliveSeconds" value="120" />-->
-		<!--&lt;!&ndash; 线程池维护线程的最大数量 &ndash;&gt;-->
-		<!--<property name="maxPoolSize" value="100" />-->
-		<!--&lt;!&ndash; 缓存队列 &ndash;&gt;-->
-		<!--<property name="queueCapacity" value="20" />-->
-	<!--</bean>-->
 
 </beans>

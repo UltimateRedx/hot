@@ -52,7 +52,7 @@ public class StartupTrigger {
 	/**
 	 * 上架的直播课程重新开启websocket
 	 */
-	public void startLiveService() {
+	private void startLiveService() {
 		LiveCourseSO so = new LiveCourseSO();
 		so.setPageSize(Integer.MAX_VALUE);
 		List<LiveCoursePO> courseList = liveCourseDao.getList(so);

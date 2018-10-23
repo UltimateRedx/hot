@@ -36,11 +36,12 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class MsgPushService {
-	private static final Logger LOGGER = LoggerFactory.getLogger(MsgPushService.class);
+	private static final Logger logger = LoggerFactory.getLogger(MsgPushService.class);
 	private static final String DOMAIN_LINK = PropertyHolder.getProperty("DOMAIN_NAME_HTTP");
 	private static final String COURSE_LINK = PropertyHolder.getProperty("content.course.course.link");
 	private static final String LESSON_LINK = PropertyHolder.getProperty("content.course.course.lesson.link");
@@ -116,7 +117,7 @@ public class MsgPushService {
 			}
 			pool.shutdown();
 		} catch (Exception e) {
-			LOGGER.error("pushCourseOpenMsg exception...", e);
+			logger.error("pushCourseOpenMsg exception...", e);
 		}
 	}
 	
@@ -162,7 +163,7 @@ public class MsgPushService {
 			}
 			pool.shutdown();
 		}catch (Exception e) {
-			LOGGER.error("pushLessonPublishMsg exception...", e);
+			logger.error("pushLessonPublishMsg exception...", e);
 		}
 	}
 	
@@ -186,7 +187,7 @@ public class MsgPushService {
 					"点击查看课时:" + lesson.getTitle()
 			);
 		}catch (Exception e) {
-			LOGGER.error("pushCommentRepliedMsg exception...", e);
+			logger.error("pushCommentRepliedMsg exception...", e);
 		}
 	}
 
@@ -200,6 +201,9 @@ public class MsgPushService {
 		List<UserPO> enrolledUserList = userRelaDao.getPageList(so);
 		String courseTitle = course.getTitle();
 		for (UserPO user : enrolledUserList) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("pushingLiveCourseOpenNotification, domainId={}", user.getDomainId());
+			}
 			pushLiveCourseOpenNotification(LIVE_COURSE_LINK.replaceFirst("@liveCourseId", String.valueOf(liveCourseId)),
 					user.getOpenId(), user.getNick(), courseTitle, DateUtils.getHHMMString(course.getOpenTime()));
 		}
@@ -220,7 +224,7 @@ public class MsgPushService {
 						courseTitle, date,
 						"目前您已获得" + map.get("count") + "位好友的支持，还需获得" + require + "位好友助力支持，请准时参加哦，不见不散！");
 			} catch (Exception e) {
-				LOGGER.error("pushLiveCourseOpeningMsg error...", e);
+				logger.error("pushLiveCourseOpeningMsg error...", e);
 			}
 		}
 	}
@@ -254,7 +258,7 @@ public class MsgPushService {
 					String date = ex.get(Calendar.YEAR) + "年" + (ex.get(Calendar.MONTH) + 1) + "月" + ex.get(Calendar.DATE) + "日 ";
 					pushCouponExpireNotification(userCoupon.getUser().getOpenId(), userCoupon.getName(), date);
 				}catch (Exception e) {
-					LOGGER.error("pushCouponExpireNotification error... ", e);
+					logger.error("pushCouponExpireNotification error... ", e);
 				}
 			}
 //		}
@@ -312,7 +316,7 @@ public class MsgPushService {
 							"您好，您订阅课程已全部更新完毕", course.getTitle(), introduce,
 							speaker.getNick() + speaker.getTitle(), openTime, "记得来听课，不要错过哦！");
 				}catch (Exception e) {
-					LOGGER.error("pushRemindLearnMsg error...", e);
+					logger.error("pushRemindLearnMsg error...", e);
 				}
 			}
 		}
@@ -473,7 +477,7 @@ public class MsgPushService {
 					wxService.renewAccessToken();
 					continue;
 				}
-				LOGGER.error("连接微信失败(推送消息)：" + res);
+				logger.error("连接微信失败(推送消息)：{}", res);
 				throw new ServiceException(ServiceException.WX_COMMUNICATION_FAILED);
 			} else {
 				return;
@@ -491,7 +495,9 @@ public class MsgPushService {
 	public void loadOrUpdateLiveCourseOpeningTrigger(Integer courseId) {
 		if (!startLiveCourseScheduler) return;
 		LiveCoursePO course = liveCourseDao.getById(courseId);
-		if (BoolStatus.N.toString().equalsIgnoreCase(course.getDeleted()) && BoolStatus.Y.toString().equalsIgnoreCase(course.getPublish())
+		if (BoolStatus.N.toString().equalsIgnoreCase(course.getDeleted())
+				// 正式环境添加？
+//				&& BoolStatus.Y.toString().equalsIgnoreCase(course.getPublish())
 				&& LiveCourseStatus.ENROLLING.toString().equalsIgnoreCase(course.getStatus())
 				&& course.getOpenTime() != null && course.getOpenTime().after(new Date())) {
 			try {
@@ -502,7 +508,7 @@ public class MsgPushService {
 				noticeTime.add(Calendar.HOUR, -1);
 				springTaskScheduler.add(uid, new CourseOpeningTrigger(this, courseId), noticeTime.getTime());
 			} catch(Exception e){
-				LOGGER.error("已报名的添加开课通知 Exception", e);
+				logger.error("已报名的添加开课通知 Exception", e);
 			}
 			
 			try {
@@ -524,21 +530,26 @@ public class MsgPushService {
 					springTaskScheduler.add(uid, new InviteRemainderTrigger(this, courseId), finalNoticeTime.getTime());
 				}
 			} catch(Exception e){
-				LOGGER.error("未完成邀请的 Exception", e);
+				logger.error("未完成邀请的 Exception", e);
 			}
 		}
 	}
 	
+	private static final AtomicInteger courseOpenSequence = new AtomicInteger();
 	private static class CourseOpeningTrigger implements Runnable {
 		private MsgPushService service;
 		private Integer courseId;
+		private Integer sequence;
 		CourseOpeningTrigger(MsgPushService service, Integer courseId) {
 			this.service = service;
 			this.courseId = courseId;
+			this.sequence = courseOpenSequence.getAndIncrement();
 		}
 		
 		@Override
 		public void run() {
+			if (logger.isDebugEnabled())
+				logger.debug("pushingLiveCourseOpeningMsg..., seq={}", sequence);
 			service.pushLiveCourseOpeningMsg(this.courseId);
 		}
 	}
@@ -553,7 +564,7 @@ public class MsgPushService {
 		
 		@Override
 		public void run() {
-			LOGGER.info("pushInviteRemainedMsg task running...");
+			logger.info("pushInviteRemainedMsg task running...");
 			service.pushInviteRemainedMsg(this.courseId);
 		}
 	}

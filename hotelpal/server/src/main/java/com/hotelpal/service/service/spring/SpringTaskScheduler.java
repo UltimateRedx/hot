@@ -33,14 +33,17 @@ public class SpringTaskScheduler {
 		taskScheduler.setThreadNamePrefix("springTaskScheduler");
 		if (SCHEDULER.containsKey(uid)) {
 			ScheduledFuture future = SCHEDULER.get(uid);
-			future.cancel(true);
+			boolean canceled = future.cancel(true);
+			if (!canceled) {
+				logger.warn("Failed trying to cancel schedule: {}", uid);
+			}
 			future = taskScheduler.schedule(runnable, date);
 			SCHEDULER.put(uid, future);
-			logger.info("Canceled and renewed task: " + uid);
+			logger.info("Canceled and renewed task: {}", uid);
 		} else {
 			ScheduledFuture future = taskScheduler.schedule(runnable, date);
 			SCHEDULER.put(uid, future);
-			logger.info("Put task:" + uid);
+			logger.info("Put task: {}", uid);
 		}
 	}
 

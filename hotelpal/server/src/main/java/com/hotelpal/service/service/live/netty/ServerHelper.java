@@ -445,6 +445,12 @@ public class ServerHelper {
 		@Override
 		public void run() {
 			while (true) {
+				if (Thread.currentThread().isInterrupted()) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Interrupted MessageWorker. Exiting...");
+					}
+					return;
+				}
 				if (logger.isDebugEnabled()) {
 					logger.debug("Message worker while loop... Course published: {}", courseEnvMap.get(courseId).published);
 				}
@@ -551,11 +557,8 @@ public class ServerHelper {
 						}
 						env.LOCK.lock();
 						env.EMPTY.await();
-					}catch (Exception e) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Something is wrong...", e);
-						}
-						return;
+					} catch (InterruptedException ie) {
+						Thread.currentThread().interrupt();
 					}finally {
 						env.LOCK.unlock();
 					}

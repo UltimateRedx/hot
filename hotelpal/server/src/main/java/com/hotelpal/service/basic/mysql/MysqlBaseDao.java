@@ -186,7 +186,6 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 	//字段列
 	protected abstract List<String> getTableColumnList();
 	//也存储字段列，供校验使用，查找是否存在相应列
-	protected abstract Map<String, Integer> getTableColumnMap();
 	protected abstract void searchNonColumnField(StringBuilder buff, List<Object> params, S so, String alias);
 	
 	
@@ -359,6 +358,11 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		}
 		return po;
 	}
+
+	protected Map<String, Integer> getTableColumnMap() {
+		return tableListToMap(getTableColumnList());
+	};
+
 	/*********************************************PRIVATE METHODS****************************************************************************************/
 	private void setCreateParams(PreparedStatement preparedStatement, P po) throws SQLException {
 		setPreparedStatementParams(preparedStatement, po, new HashSet<>());

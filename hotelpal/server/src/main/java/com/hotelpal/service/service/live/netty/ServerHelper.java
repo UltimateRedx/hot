@@ -15,7 +15,6 @@ import com.hotelpal.service.common.so.live.OnlineLogSO;
 import com.hotelpal.service.common.vo.LiveChatMessageVO;
 import com.hotelpal.service.service.ContextService;
 import com.hotelpal.service.service.UserService;
-import com.hotelpal.service.service.live.LiveChatService;
 import com.hotelpal.service.service.live.LiveContentService;
 import com.hotelpal.service.service.live.LiveCourseService;
 import com.hotelpal.service.service.live.LiveStatisticsService;
@@ -26,7 +25,6 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.dozer.DozerBeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
@@ -47,7 +45,6 @@ public class ServerHelper {
 
 	@Resource
 	private DozerBeanMapper dozerBeanMapper;
-	private UserService userService;
 	private SysPropertyDao sysPropertyDao;
 	private LiveCourseDao liveCourseDao;
 	private ContextService contextService;
@@ -69,9 +66,8 @@ public class ServerHelper {
 
 	public void init() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("ServerHelper init method... Self injection: {}", serverHelper.toString());
+			logger.debug("ServerHelper init method... Self injection: {}", serverHelper);
 		}
-		userService = SpringApplicationContext.applicationContext.getBean(UserService.class);
 		sysPropertyDao = SpringApplicationContext.applicationContext.getBean(SysPropertyDao.class);
 		liveCourseDao = SpringApplicationContext.applicationContext.getBean(LiveCourseDao.class);
 		contextService = SpringApplicationContext.applicationContext.getBean(ContextService.class);

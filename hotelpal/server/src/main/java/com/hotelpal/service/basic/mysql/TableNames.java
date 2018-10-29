@@ -39,6 +39,7 @@ public class TableNames {
 	public static final String TABLE_LIVE_CHAT_LOG = TABLE_PREFIX + "live_chat_log";
 	public static final String TABLE_ASSISTANT_MESSAGE = TABLE_PREFIX + "assistant_message";
 	public static final String TABLE_STATISTICS = TABLE_PREFIX + "statistics";
+	public static final String TABLE_STATISTICS_MORE = TABLE_PREFIX + "statistics_more";
 	public static final String TABLE_ONLINE_LOG = TABLE_PREFIX + "online_log";
 	public static final String TABLE_ONLINE_SUM = TABLE_PREFIX + "online_sum";
 	public static final String TABLE_LIVE_COURSE_IMAGE = TABLE_PREFIX + "live_course_image";

@@ -2,6 +2,7 @@ package com.hotelpal.service.basic.mysql.dao;
 
 import com.hotelpal.service.basic.mysql.MysqlBaseDao;
 import com.hotelpal.service.basic.mysql.TableNames;
+import com.hotelpal.service.common.enums.CourseType;
 import com.hotelpal.service.common.po.UserPO;
 import com.hotelpal.service.common.po.UserRelaPO;
 import com.hotelpal.service.common.so.UserRelaSO;
@@ -277,5 +278,24 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 	public List<String> getAllOpenId() {
 		String sql = "select openId from " + TABLE_NAME ;
 		return dao.queryForList(sql, String.class);
+	}
+
+	/**
+	 * 获取所有没有购买某个课程的注册用户
+	 */
+	public List<UserPO> getUserByNonPurchase(Integer courseId) {
+		String sql = StringUtils.format("select u.openId,u.nick"
+				+ " from {} rela "
+				+ " inner join {} u on rela.userId=u.id "
+				+ " where rela.phone is not null "
+				+ "  and rela.openId is not null "
+				+ "  and rela.domainId not in (select distinct domainId from {} where classify=? and courseId=?) ",
+				TABLE_NAME, TableNames.TABLE_USER, TableNames.TABLE_PURCHASE_LOG);
+		return dao.query(sql, new Object[]{ CourseType.NORMAL.toString(), courseId}, (rs, index) -> {
+			UserPO user = new UserPO();
+			user.setOpenId(rs.getString(1));
+			user.setNick(rs.getString(2));
+			return user;
+		});
 	}
 }

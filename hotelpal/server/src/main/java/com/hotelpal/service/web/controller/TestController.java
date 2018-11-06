@@ -5,16 +5,15 @@ import com.hotelpal.service.service.UserService;
 import com.hotelpal.service.service.parterner.wx.MsgPushService;
 import com.hotelpal.service.service.parterner.wx.WXService;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 public class TestController {
 	@Resource
 	private UserService userService;
@@ -29,9 +28,8 @@ public class TestController {
 
 
 	@RequestMapping(value = "/test")
-	@ResponseBody
 	public String test() {
-		msgPushService.pushCouponExpireNotification("oyH7Q0c0d92cblJsJ0n8LyBtwets", "名称", "今天");
+//		msgPushService.pushCouponExpireNotification("oyH7Q0c0d92cblJsJ0n8LyBtwets", "名称", "今天")
 		return "Done...";
 	}
 
@@ -68,5 +66,11 @@ public class TestController {
 			for (int i = 0; i < left; i++)
 				dao.update(sql, en.getKey(), "CARD");
 		}
+	}
+
+	/**分发优惠券并发送消息提醒
+	 */
+	public String runTask2(){
+		return "";
 	}
 }

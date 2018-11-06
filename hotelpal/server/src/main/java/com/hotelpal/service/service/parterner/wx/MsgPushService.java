@@ -55,6 +55,7 @@ public class MsgPushService {
 //	private static final String TEMPLATE_COUPON_EXPIRE_ID = "kDNApnUEqxj6gltkNTybYOsJmevBTNwyF6Q5ez_dXcE";
 	private static final String TEMPLATE_COUPON_EXPIRE_ID = "YSM7iPrSKtuienmYIqZ0Nmbcanox8h8Fsi975O6qh-I";
 	private static final String TEMPLATE_RECOMMEND_ID = "_9aFAu8XARqdkHBqGJKVVx2bd6N6YMCZ3ZWC1icRZ9E";
+	private static final String TEMPLATE_任务过期提醒 = "devgKeMeT4N6IwUHI-wWPIoqH4G3UsemfyIsk-W7ppQ";
 	private static final String NOTIFICATION_PUSH_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=";
 	private static final String COLOR_RED = "#f8474d";
 	
@@ -463,6 +464,23 @@ public class MsgPushService {
 		pushNotification(jsonStr);
 	}
 
+	/**
+	 * 任务过期提醒
+	 * {{first.DATA}}
+	 * 任务名称：{{keyword1.DATA}}
+	 * 截止时间：{{keyword2.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public void pushOverdueTaskNotification(String openId, String title, String name, String deadline, String remark, String url) {
+		WXMsgPushMO request = WXMsgPushMO.New();
+		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_任务过期提醒).setUrl(url)
+				.add("first", title)
+				.add("keyword1", name)
+				.add("keyword2", deadline)
+				.add("remark", remark)
+				.build();
+		pushNotification(jsonStr);
+	}
 
 	private void pushNotification(String body) {
 		Integer maxRetryTimes = 3;

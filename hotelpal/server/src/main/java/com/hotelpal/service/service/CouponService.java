@@ -1,9 +1,6 @@
 package com.hotelpal.service.service;
 
-import com.hotelpal.service.basic.mysql.dao.CourseDao;
-import com.hotelpal.service.basic.mysql.dao.RegInviteDao;
-import com.hotelpal.service.basic.mysql.dao.SysCouponDao;
-import com.hotelpal.service.basic.mysql.dao.UserCouponDao;
+import com.hotelpal.service.basic.mysql.dao.*;
 import com.hotelpal.service.common.context.CommonParams;
 import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.enums.*;
@@ -37,6 +34,8 @@ public class CouponService {
 	private UserCouponDao userCouponDao;
 	@Resource
 	private RegInviteDao regInviteDao;
+	@Resource
+	private UserRelaDao userRelaDao;
 	@Resource
 	private CourseDao courseDao;
 	private static final String SYS_COUPON_LINK = PropertyHolder.getProperty("content.course.coupon.link");
@@ -139,7 +138,7 @@ public class CouponService {
 		cardSo.setValidityFrom(new Date());
 		List<UserCouponPO> cardCouponList = userCouponDao.getList(cardSo);
 		Date latestValidity;
-		if (cardCouponList.size() > 0) {
+		if (!cardCouponList.isEmpty()) {
 			card.setExists(BoolStatus.Y.toString());
 			card.setLeftTimes(cardCouponList.size());
 			latestValidity = cardCouponList.get(0).getValidity();
@@ -288,4 +287,14 @@ public class CouponService {
 		coupon.setAcquired(count > 0 ? BoolStatus.Y.toString() : BoolStatus.N.toString());
 		return coupon;
 	}
+
+	/**
+	 * 临时工作，对于没有购买葛健课程的注册用户(填写了手机号的)，分发优惠券并发送提醒
+	 */
+	public void gejianTask() {
+		List<UserPO> userList = userRelaDao.getUserByNonPurchase(27);
+
+	}
+
+
 }

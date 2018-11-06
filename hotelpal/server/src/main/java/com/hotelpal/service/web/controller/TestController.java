@@ -1,6 +1,7 @@
 package com.hotelpal.service.web.controller;
 
 import com.hotelpal.service.service.ContentService;
+import com.hotelpal.service.service.CouponService;
 import com.hotelpal.service.service.UserService;
 import com.hotelpal.service.service.parterner.wx.MsgPushService;
 import com.hotelpal.service.service.parterner.wx.WXService;
@@ -25,11 +26,14 @@ public class TestController {
 	private WXService wxService;
 	@Resource
 	private MsgPushService msgPushService;
+	@Resource
+	private CouponService couponService;
 
 
 	@RequestMapping(value = "/test")
 	public String test() {
 //		msgPushService.pushCouponExpireNotification("oyH7Q0c0d92cblJsJ0n8LyBtwets", "名称", "今天")
+		runTask2();
 		return "Done...";
 	}
 
@@ -71,6 +75,7 @@ public class TestController {
 	/**分发优惠券并发送消息提醒
 	 */
 	public String runTask2(){
+		couponService.gejianTask();
 		return "";
 	}
 }

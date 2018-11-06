@@ -13,6 +13,7 @@ import com.hotelpal.service.common.utils.ArrayUtils;
 import com.hotelpal.service.common.utils.DateUtils;
 import com.hotelpal.service.common.vo.RegInviteVO;
 import com.hotelpal.service.common.vo.UserCouponVO;
+import com.hotelpal.service.service.parterner.wx.MsgPushService;
 import com.hotelpal.service.web.handler.PropertyHolder;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dozer.DozerBeanMapper;
@@ -38,6 +39,10 @@ public class CouponService {
 	private UserRelaDao userRelaDao;
 	@Resource
 	private CourseDao courseDao;
+	@Resource
+	private MsgPushService msgPushService;
+	@Resource
+	private UserDao userDao;
 	private static final String SYS_COUPON_LINK = PropertyHolder.getProperty("content.course.coupon.link");
 	private static final String COUPON_SERVER_SUFFIX = "s78trAZK2fNGJic6";
 
@@ -292,8 +297,29 @@ public class CouponService {
 	 * 临时工作，对于没有购买葛健课程的注册用户(填写了手机号的)，分发优惠券并发送提醒
 	 */
 	public void gejianTask() {
-		List<UserPO> userList = userRelaDao.getUserByNonPurchase(27);
+		SecurityContextHolder.loginSuperDomain();
+//		List<UserPO> userList = userRelaDao.getUserByNonPurchase(27);
 
+		List<UserPO> userList = userDao.getByDomainIdList(Collections.singletonList(267));
+
+		String title = "葛健老师想和你做好朋友\n" +
+				"\n" +
+				"送你一份知识红包，已发送到你的账户";
+		SysCouponPO sysCoupon = sysCouponDao.getById(82);
+		String dateString = DateUtils.getDateString(sysCoupon.getValidity());
+		for (UserPO user : userList) {
+			SecurityContextHolder.setTargetDomain(267);
+			UserCouponPO coupon = new UserCouponPO();
+			coupon.setUsed(BoolStatus.N.toString());
+			coupon.setType(sysCoupon.getType());
+			coupon.setValue(sysCoupon.getValue());
+			coupon.setSysCouponId(sysCoupon.getId());
+			coupon.setValidity(sysCoupon.getValidity());
+			userCouponDao.create(coupon);
+			msgPushService.pushOverdueTaskNotification(user.getOpenId(), title, "用100元知识券学酒万公式", dateString,
+					"时间不等人，点击详情快来使用吧！",
+					"https://hotelpal.cn/coupon");
+		}
 	}
 
 

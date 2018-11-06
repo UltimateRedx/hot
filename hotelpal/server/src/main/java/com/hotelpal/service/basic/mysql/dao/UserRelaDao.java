@@ -284,7 +284,7 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 	 * 获取所有没有购买某个课程的注册用户
 	 */
 	public List<UserPO> getUserByNonPurchase(Integer courseId) {
-		String sql = StringUtils.format("select u.openId,u.nick"
+		String sql = StringUtils.format("select u.openId,u.nick, rela.domainId"
 				+ " from {} rela "
 				+ " inner join {} u on rela.userId=u.id "
 				+ " where rela.phone is not null "
@@ -295,6 +295,7 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 			UserPO user = new UserPO();
 			user.setOpenId(rs.getString(1));
 			user.setNick(rs.getString(2));
+			user.setDomainId(rs.getInt(3));
 			return user;
 		});
 	}

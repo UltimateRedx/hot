@@ -471,13 +471,14 @@ public class MsgPushService {
 	 * 截止时间：{{keyword2.DATA}}
 	 * {{remark.DATA}}
 	 */
+	private static final String T_COLOR_BLUE = "#222B66";
 	public void pushOverdueTaskNotification(String openId, String title, String name, String deadline, String remark, String url) {
 		WXMsgPushMO request = WXMsgPushMO.New();
 		String jsonStr = request.setTouser(openId).setTemplate_id(TEMPLATE_任务过期提醒).setUrl(url)
-				.add("first", title)
-				.add("keyword1", name)
-				.add("keyword2", deadline)
-				.add("remark", remark)
+				.add("first", title, T_COLOR_BLUE)
+				.add("keyword1", name, T_COLOR_BLUE)
+				.add("keyword2", deadline, T_COLOR_BLUE)
+				.add("remark", remark, T_COLOR_BLUE)
 				.build();
 		pushNotification(jsonStr);
 	}

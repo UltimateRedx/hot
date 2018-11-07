@@ -11,12 +11,15 @@ import com.hotelpal.service.common.so.SysCouponSO;
 import com.hotelpal.service.common.so.UserCouponSO;
 import com.hotelpal.service.common.utils.ArrayUtils;
 import com.hotelpal.service.common.utils.DateUtils;
+import com.hotelpal.service.common.utils.StringUtils;
 import com.hotelpal.service.common.vo.RegInviteVO;
 import com.hotelpal.service.common.vo.UserCouponVO;
 import com.hotelpal.service.service.parterner.wx.MsgPushService;
 import com.hotelpal.service.web.handler.PropertyHolder;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dozer.DozerBeanMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 @Component
 @Transactional
 public class CouponService {
+	private static final Logger logger = LoggerFactory.getLogger(CouponService.class);
 	@Resource
 	private SysCouponDao sysCouponDao;
 	@Resource
@@ -296,11 +300,14 @@ public class CouponService {
 	/**
 	 * 临时工作，对于没有购买葛健课程的注册用户(填写了手机号的)，分发优惠券并发送提醒
 	 */
-	public void gejianTask() {
+	public void gejianTask(String key) {
 		SecurityContextHolder.loginSuperDomain();
-//		List<UserPO> userList = userRelaDao.getUserByNonPurchase(27);
-
-		List<UserPO> userList = userDao.getByDomainIdList(Collections.singletonList(267));
+		List<UserPO> userList = Collections.emptyList();
+		 if ("ALL".equalsIgnoreCase(key)){
+			userList = userRelaDao.getUserByNonPurchase(27);
+		} else if (!StringUtils.isNullEmpty(key)) {
+			userList = userDao.getByDomainIdList(Arrays.stream(key.split(",")).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList()));
+		}
 
 		String title = "葛健老师想和你做好朋友\n" +
 				"\n" +
@@ -308,17 +315,21 @@ public class CouponService {
 		SysCouponPO sysCoupon = sysCouponDao.getById(82);
 		String dateString = DateUtils.getDateString(sysCoupon.getValidity());
 		for (UserPO user : userList) {
-			SecurityContextHolder.setTargetDomain(267);
-			UserCouponPO coupon = new UserCouponPO();
-			coupon.setUsed(BoolStatus.N.toString());
-			coupon.setType(sysCoupon.getType());
-			coupon.setValue(sysCoupon.getValue());
-			coupon.setSysCouponId(sysCoupon.getId());
-			coupon.setValidity(sysCoupon.getValidity());
-			userCouponDao.create(coupon);
-			msgPushService.pushOverdueTaskNotification(user.getOpenId(), title, "用100元知识券学酒万公式", dateString,
-					"时间不等人，点击详情快来使用吧！",
-					"https://hotelpal.cn/coupon");
+			try {
+				SecurityContextHolder.setTargetDomain(user.getDomainId());
+				UserCouponPO coupon = new UserCouponPO();
+				coupon.setUsed(BoolStatus.N.toString());
+				coupon.setType(sysCoupon.getType());
+				coupon.setValue(sysCoupon.getValue());
+				coupon.setSysCouponId(sysCoupon.getId());
+				coupon.setValidity(sysCoupon.getValidity());
+				userCouponDao.create(coupon);
+				msgPushService.pushOverdueTaskNotification(user.getOpenId(), title, "用100元知识券学酒万公式", dateString,
+						"时间不等人，点击详情快来使用吧！",
+						"https://hotelpal.cn/coupon");
+			}catch (Exception e) {
+				logger.error("create or pushNotification failed. domainId=" + user.getDomainId(), e);
+			}
 		}
 	}
 

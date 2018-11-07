@@ -31,9 +31,9 @@ public class TestController {
 
 
 	@RequestMapping(value = "/test")
-	public String test() {
+	public String test(String key) {
 //		msgPushService.pushCouponExpireNotification("oyH7Q0c0d92cblJsJ0n8LyBtwets", "名称", "今天")
-		runTask2();
+		runTask2(key);
 		return "Done...";
 	}
 
@@ -74,8 +74,8 @@ public class TestController {
 
 	/**分发优惠券并发送消息提醒
 	 */
-	public String runTask2(){
-		couponService.gejianTask();
+	public String runTask2(String key){
+		couponService.gejianTask(key);
 		return "";
 	}
 }

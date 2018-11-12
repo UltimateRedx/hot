@@ -22,6 +22,7 @@ public class SysCouponPO extends ExtendedBasePO{
 	
 	//Extra
 	private List<String> applyToCourseTitle;
+	private List<CoursePO> applyToCoursePO;
 	private String link;
 	private String acquired = BoolStatus.N.toString();
 	//已经使用多少
@@ -117,5 +118,11 @@ public class SysCouponPO extends ExtendedBasePO{
 	}
 	public void setUsed(Integer used) {
 		this.used = used;
+	}
+	public List<CoursePO> getApplyToCoursePO() {
+		return applyToCoursePO;
+	}
+	public void setApplyToCoursePO(List<CoursePO> applyToCoursePO) {
+		this.applyToCoursePO = applyToCoursePO;
 	}
 }

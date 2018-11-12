@@ -5,7 +5,10 @@ import com.hotelpal.service.common.dto.BaseDTO;
 import com.hotelpal.service.common.dto.response.CourseListResponse;
 import com.hotelpal.service.common.dto.response.CourseResponse;
 import com.hotelpal.service.common.po.BannerPO;
+import com.hotelpal.service.common.po.CoursePO;
+import com.hotelpal.service.common.vo.PackVO;
 import com.hotelpal.service.service.ContentService;
+import com.hotelpal.service.service.CourseService;
 import com.hotelpal.service.service.StatisticsService;
 import com.hotelpal.service.service.converter.ServiceConverter;
 import org.springframework.stereotype.Controller;
@@ -28,6 +31,8 @@ public class CourseController extends BaseController{
 	private ContentService contentService;
 	@Resource
 	private StatisticsService statisticsService;
+	@Resource
+	private CourseService courseService;
 	/**
 	 * 获取课程列表
 	 */
@@ -58,5 +63,13 @@ public class CourseController extends BaseController{
 		return new BaseDTO<>(map);
 	}
 
+	/**
+	 * 没有买过的，销售额在1W以上，销售量在300以上的课程
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/getRecommendCourse")
+	public PackVO getRecommendCourse() {
+		return new PackVO<>(courseService.getRecommendCourse());
+	}
 
 }

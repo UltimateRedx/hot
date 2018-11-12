@@ -289,6 +289,7 @@ public class CouponService {
 			List<Integer> courseIdList = Arrays.stream(coupon.getApplyToCourse().split(",")).map(Integer::parseInt).collect(Collectors.toList());
 			List<String> titleList = courseDao.getTitleListByIdList(courseIdList);
 			coupon.setApplyToCourseTitle(titleList);
+			coupon.setApplyToCoursePO(courseDao.getByIdList(courseIdList));
 		}
 		UserCouponSO so = new UserCouponSO();
 		so.setSysCouponId(sysCouponId);

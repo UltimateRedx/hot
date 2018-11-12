@@ -239,4 +239,24 @@ public class PurchaseLogDao extends DomainMysqlBaseDao<PurchaseLogSO, PurchaseLo
 		});
 		return res;
 	}
+
+
+	/**
+	 * 销量300以上，销售额1W以上
+	 */
+	public List<Integer> getHotCourseList() {
+		String sql = StringUtils.format(
+				"select courseId from (" +
+						" select courseId, sum(PAYMENT) sum, count(distinct domainId) count " +
+						" from {} " +
+						" where classify=? " +
+						" GROUP BY courseId" +
+						" ) t where sum > ? and count > ?", TABLE_NAME);
+		return dao.queryForList(sql, new Object[]{CourseType.NORMAL.toString(), 10000 * 100, 300}, Integer.class);
+	}
+
+	public Set<Integer> getAllPurchasedCourseId() {
+		String sql = StringUtils.format("select distinct courseId from {} where domainId=?", TABLE_NAME);
+		return new HashSet<>(dao.queryForList(sql, new Object[]{SecurityContextHolder.getUserDomainId()}, Integer.class));
+	}
 }

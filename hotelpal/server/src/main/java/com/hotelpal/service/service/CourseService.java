@@ -14,6 +14,8 @@ import com.hotelpal.service.common.utils.DateUtils;
 import com.hotelpal.service.common.utils.StringUtils;
 import com.hotelpal.service.common.vo.StatisticsCourseVO;
 import org.dozer.DozerBeanMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ import java.util.*;
 @Component
 @Transactional
 public class CourseService {
+	private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
 	@Resource
 	private CourseDao courseDao;
 	@Resource
@@ -143,5 +146,22 @@ public class CourseService {
 		PurchaseLogSO so = new PurchaseLogSO();
 		so.setCourseId(courseId);
 		return purchaseLogDao.count(so) > 0;
+	}
+
+	public CoursePO getRecommendCourse() {
+		List<Integer> hotCourseIdList = purchaseLogDao.getHotCourseList();
+		if(logger.isDebugEnabled()) {
+			logger.debug("Hot courseId: {}", hotCourseIdList);
+		}
+		Set<Integer> purchasedCourseId = purchaseLogDao.getAllPurchasedCourseId();
+		if (logger.isDebugEnabled()) {
+			logger.debug("purchased: {}", purchasedCourseId);
+		}
+		for (Integer courseId : hotCourseIdList) {
+			if (!purchasedCourseId.contains(courseId)) {
+				return courseDao.getById(courseId);
+			}
+		}
+		return null;
 	}
 }

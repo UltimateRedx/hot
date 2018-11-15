@@ -1,6 +1,8 @@
 package com.hotelpal.service.service;
 
 import com.hotelpal.service.basic.mysql.dao.*;
+import com.hotelpal.service.common.context.SecurityContext;
+import com.hotelpal.service.common.context.SecurityContextHolder;
 import com.hotelpal.service.common.enums.BoolStatus;
 import com.hotelpal.service.common.enums.CourseType;
 import com.hotelpal.service.common.exception.ServiceException;
@@ -159,7 +161,10 @@ public class CourseService {
 		}
 		for (Integer courseId : hotCourseIdList) {
 			if (!purchasedCourseId.contains(courseId)) {
-				return courseDao.getById(courseId);
+				CoursePO course =  courseDao.getById(courseId);
+				course.setPurchased(purchaseLogDao.recordExists(CourseType.NORMAL, course.getId(), SecurityContextHolder.getUserDomainId()));
+				course.setSpeaker(speakerDao.getById(course.getSpeakerId()));
+				return course;
 			}
 		}
 		return null;

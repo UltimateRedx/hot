@@ -47,6 +47,10 @@ public class CouponService {
 	private MsgPushService msgPushService;
 	@Resource
 	private UserDao userDao;
+	@Resource
+	private SpeakerDao speakerDao;
+	@Resource
+	private PurchaseLogDao purchaseLogDao;
 	private static final String SYS_COUPON_LINK = PropertyHolder.getProperty("content.course.coupon.link");
 	private static final String COUPON_SERVER_SUFFIX = "s78trAZK2fNGJic6";
 
@@ -289,7 +293,20 @@ public class CouponService {
 			List<Integer> courseIdList = Arrays.stream(coupon.getApplyToCourse().split(",")).map(Integer::parseInt).collect(Collectors.toList());
 			List<String> titleList = courseDao.getTitleListByIdList(courseIdList);
 			coupon.setApplyToCourseTitle(titleList);
-			coupon.setApplyToCoursePO(courseDao.getByIdList(courseIdList));
+			List<CoursePO> courseList = courseDao.getByIdList(courseIdList);
+			List<Integer> speakerIdList = courseList.stream().mapToInt(CoursePO::getSpeakerId).boxed().collect(Collectors.toList());
+			List<SpeakerPO> speakerList = speakerDao.getByIdList(speakerIdList);
+			Map<Integer, SpeakerPO> speakerMap = new HashMap<>();
+			for (SpeakerPO sp : speakerList) {
+				speakerMap.put(sp.getId(), sp);
+			}
+			Set<Integer> purchasedCourseId = purchaseLogDao.getAllPurchasedCourseId();
+
+			for (CoursePO course : courseList) {
+				course.setSpeaker(speakerMap.get(course.getSpeakerId()));
+				course.setPurchased(purchasedCourseId.contains(course.getId()));
+			}
+			coupon.setApplyToCoursePO(courseList);
 		}
 		UserCouponSO so = new UserCouponSO();
 		so.setSysCouponId(sysCouponId);

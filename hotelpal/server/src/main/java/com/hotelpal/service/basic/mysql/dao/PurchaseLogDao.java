@@ -256,7 +256,7 @@ public class PurchaseLogDao extends DomainMysqlBaseDao<PurchaseLogSO, PurchaseLo
 	}
 
 	public Set<Integer> getAllPurchasedCourseId() {
-		String sql = StringUtils.format("select distinct courseId from {} where domainId=?", TABLE_NAME);
-		return new HashSet<>(dao.queryForList(sql, new Object[]{SecurityContextHolder.getUserDomainId()}, Integer.class));
+		String sql = StringUtils.format("select distinct courseId from {} where domainId=? and classify=?", TABLE_NAME);
+		return new HashSet<>(dao.queryForList(sql, new Object[]{SecurityContextHolder.getUserDomainId(), CourseType.NORMAL.toString()}, Integer.class));
 	}
 }

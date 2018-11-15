@@ -29,6 +29,7 @@ public class CoursePO extends ExtendedBasePO{
 	private SpeakerPO speaker;
 	private List<String> tagList;
 	private CourseContentPO courseContent;
+	private Boolean purchased;
 	
 	public String getStatus() {
 		return status;
@@ -119,5 +120,11 @@ public class CoursePO extends ExtendedBasePO{
 	}
 	public void setCourseContent(CourseContentPO courseContent) {
 		this.courseContent = courseContent;
+	}
+	public Boolean getPurchased() {
+		return purchased;
+	}
+	public void setPurchased(Boolean purchased) {
+		this.purchased = purchased;
 	}
 }

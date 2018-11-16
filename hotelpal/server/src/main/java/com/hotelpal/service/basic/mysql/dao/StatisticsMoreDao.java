@@ -61,7 +61,8 @@ public class StatisticsMoreDao extends MysqlBaseDao<StatisticsMoreSO, Statistics
 		for (Map.Entry<Integer, Set<Integer>> en : data.entrySet()) {
 			for (Integer domainId : en.getValue()) {
 				List<Integer> param = new ArrayList<>(2);
-				param.add(en.getKey(), domainId);
+				param.add(en.getKey());
+				param.add(domainId);
 				params.add(param);
 			}
 		}
@@ -77,7 +78,7 @@ public class StatisticsMoreDao extends MysqlBaseDao<StatisticsMoreSO, Statistics
 
 			@Override
 			public int getBatchSize() {
-				return size;
+				return params.size();
 			}
 		});
 	}

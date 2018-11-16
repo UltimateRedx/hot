@@ -739,7 +739,7 @@ public class UserService {
 		so.setOrderBy("phone");
 		List<UserRelaPO> relaList = userRelaDao.getNonPageList(so);
 		List<Integer> uidList = relaList.stream().map(UserRelaPO::getUserId).collect(Collectors.toList());
-		List<UserPO> userList = userDao.getByDomainIdList(uidList);
+		List<UserPO> userList = userDao.getByIdList(uidList);
 		Map<Integer, UserPO> map = new HashMap<>();
 		for (UserPO u : userList) {
 			map.put(u.getId(), u);

@@ -748,6 +748,7 @@ public class UserService {
 		for (UserRelaPO rela : relaList) {
 			UserPO user = map.get(rela.getUserId());
 			user.setPhone(rela.getPhone());
+			user.setDomainId(rela.getDomainId());
 			resList.add(user);
 		}
 		return resList;

@@ -404,7 +404,14 @@ public class ServiceConverter {
 		if (LessonType.NORMAL.toString().equalsIgnoreCase(lesson.getType()) && N.equalsIgnoreCase(lesson.getFree())) {
 			boolean purchased = purchaseLogDao.recordExists(CourseType.NORMAL, lesson.getCourseId(), SecurityContextHolder.getUserDomainId());
 			if (!purchased) {
-				throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
+				//有没有红包
+				RedPacketSO freeByRedPacketSO = new RedPacketSO();
+				freeByRedPacketSO.setLessonId(lessonId);
+				freeByRedPacketSO.setType(RedPacketType.RECEIVER.toString());
+				boolean freeByRedPacket = redPacketDao.count(freeByRedPacketSO) > 0;
+				if (!freeByRedPacket) {
+					throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
+				}
 			}
 		}
 		CoursePO course = courseDao.getById(lesson.getCourseId());
@@ -451,7 +458,7 @@ public class ServiceConverter {
 		rso.setType(RedPacketType.SENDER.toString());
 		rso.setLessonId(lessonId);
 		if (LessonType.SELF.toString().equalsIgnoreCase(lesson.getType()) ||
-				LessonType.NORMAL.toString().equalsIgnoreCase(lesson.getType()) && course.getPrice() >= 600 * 100) {
+				LessonType.NORMAL.toString().equalsIgnoreCase(lesson.getType()) && course.getPrice() >= 300 * 100) {
 			res.setRedPacketRemained(0);
 		} else {
 			RedPacketPO rp = redPacketDao.getOne(rso);

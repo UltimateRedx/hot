@@ -84,11 +84,14 @@ public class PurchaseLogDao extends DomainMysqlBaseDao<PurchaseLogSO, PurchaseLo
 	}
 
 	public List<String> getPurchasedNormalCourseUserOpenId(Integer courseId) {
-		String sql = "select rela.openId " +
+		String sql = "select distinct rela.openId " +
 				" from " + TABLE_NAME + " pl " +
 				" left join " + userRelaDao.getTableName() + " rela on pl.domainId=rela.domainId " +
 				" left join " + userDao.getTableName() + " u on rela.userId = u.id " +
-				" where pl.classify=? and pl.courseId=? and date(u.lastLoginTime)=? ";
+				" left join " + TableNames.TABLE_LESSON + "lesson on pl.courseId = lesson.courseId and lesson.deleted<>'Y' and lesson.onSale='Y' " +
+				" left join " + TableNames.TABLE_LISTEN_LOG + " ll on ll.lessonId = lesson.id and pl.domainId=ll.domainId " +
+				" where pl.classify=? and pl.courseId=? and date(u.lastLoginTime)=? " +
+				" AND ll.recordLen<lesson.audioLen/2 ";
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, -7);
 		return dao.queryForList(sql, new Object[]{CourseType.NORMAL.toString(), courseId, DateUtils.getDateString(cal)}, String.class);

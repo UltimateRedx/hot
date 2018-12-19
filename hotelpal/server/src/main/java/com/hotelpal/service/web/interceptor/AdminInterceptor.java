@@ -27,24 +27,24 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
 		if (logger.isInfoEnabled())
 			logger.info("Request URL: {}?{}?{}", request.getRequestURI(), request.getQueryString(), JSON.toJSONString(request.getParameterMap()));
 		
-//		HttpSession session = request.getSession(false);
-//		if (session == null) {
-//			throw new ServiceException(ServiceException.ADMIN_NO_SESSION_EXISTS);
-//		}
-//		AdminSessionMO mo = (AdminSessionMO) session.getAttribute("adminLoginInfo");
-//		if (mo == null) {
-//			throw new ServiceException(ServiceException.ADMIN_USER_NO_INFO);
-//		}
-//		contextService.updateSessionResource(mo);
-//		if (logger.isDebugEnabled()) {
-//			logger.debug("Admin access, user: {}, granted resources: {}", mo.getUser(), mo.getGrantedResources());
-//		}
-//		String uri = request.getRequestURI();
-//		String resource = uri.substring(uri.indexOf(WEBAPP) + WEBAPP.length());
-//		boolean accessable = AuthManager.resourceAccessable(mo, resource);
-//		if (!accessable) {
-//			throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
-//		}
+		HttpSession session = request.getSession(false);
+		if (session == null) {
+			throw new ServiceException(ServiceException.ADMIN_NO_SESSION_EXISTS);
+		}
+		AdminSessionMO mo = (AdminSessionMO) session.getAttribute("adminLoginInfo");
+		if (mo == null) {
+			throw new ServiceException(ServiceException.ADMIN_USER_NO_INFO);
+		}
+		contextService.updateSessionResource(mo);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Admin access, user: {}, granted resources: {}", mo.getUser(), mo.getGrantedResources());
+		}
+		String uri = request.getRequestURI();
+		String resource = uri.substring(uri.indexOf(WEBAPP) + WEBAPP.length());
+		boolean accessable = AuthManager.resourceAccessable(mo, resource);
+		if (!accessable) {
+			throw new ServiceException(ServiceException.COMMON_ILLEGAL_ACCESS);
+		}
 		
 		SecurityContext context = new SecurityContext();
 		context.setDomainId(0);

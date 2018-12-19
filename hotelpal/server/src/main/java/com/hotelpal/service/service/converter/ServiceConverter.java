@@ -187,6 +187,7 @@ public class ServiceConverter {
 			if (po.getPublishedLessonCount() == 0) {
 				res.setMsg("暂无课时");
 			} else {
+				//  每个课程中已听多少/下节课发布时间等的描述
 				LessonSO lso = new LessonSO();
 				lso.setCourseId(po.getId());
 				lso.setPageSize(null);
@@ -203,13 +204,16 @@ public class ServiceConverter {
 				
 				ListenLogPO llllog = null;
 				Date lastListenTime = new Date(0L);
-				
+
+				//找到最近听课的一条记录
 				for (ListenLogPO p : llList) {
 					if (p.getUpdateTime().after(lastListenTime)) {
 						lastListenTime.setTime(p.getUpdateTime().getTime());
 						llllog = p;
 					}
 				}
+
+				//最近听的课。这里可以改善
 				LessonPO lll = null;
 				if (llllog != null) {
 					for (LessonPO l : lessonList) {
@@ -267,7 +271,7 @@ public class ServiceConverter {
 		so.setLimit(limit);
 		so.setOrderBy(orderBy);
 		so.setOrder(order);
-		so.setPublish(Y.toString());
+		so.setPublish(Y);
 		List<CoursePO> courseList = courseService.getCourseList(so, false);
 		List<CourseResponse> resCourseList = new ArrayList<>(courseList.size());
 		for (CoursePO c : courseList) {

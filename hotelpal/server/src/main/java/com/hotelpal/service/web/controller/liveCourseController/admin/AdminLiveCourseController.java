@@ -1,7 +1,6 @@
 package com.hotelpal.service.web.controller.liveCourseController.admin;
 
 import com.hotelpal.service.common.exception.ServiceException;
-import com.hotelpal.service.common.po.live.LiveCoursePO;
 import com.hotelpal.service.common.so.live.LiveCourseSO;
 import com.hotelpal.service.common.vo.AdminLiveCourseVO;
 import com.hotelpal.service.common.vo.LiveCourseCurveVO;

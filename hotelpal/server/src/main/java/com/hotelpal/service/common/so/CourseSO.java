@@ -1,5 +1,6 @@
 package com.hotelpal.service.common.so;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,7 @@ public class CourseSO extends ExtendedBaseSO{
 	private Date openTime;
 	private String publish;
 	
-	private Integer price;
+	private BigDecimal price;
 	private Integer courseOrder;
 	
 	//course_content moved here.
@@ -64,9 +65,6 @@ public class CourseSO extends ExtendedBaseSO{
 	public void setPublish(String publish) {
 		this.publish = publish;
 	}
-	public Integer getPrice() {
-		return price;
-	}
 	public Integer getCourseOrder() {
 		return courseOrder;
 	}
@@ -97,9 +95,6 @@ public class CourseSO extends ExtendedBaseSO{
 	public void setTagList(List<String> tagList) {
 		this.tagList = tagList;
 	}
-	public void setPrice(Integer price) {
-		this.price = price;
-	}
 	public String getIntroduce() {
 		return introduce;
 	}
@@ -123,5 +118,11 @@ public class CourseSO extends ExtendedBaseSO{
 	}
 	public void setSubscribe(String subscribe) {
 		this.subscribe = subscribe;
+	}
+	public BigDecimal getPrice() {
+		return price;
+	}
+	public void setPrice(BigDecimal price) {
+		this.price = price;
 	}
 }

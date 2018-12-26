@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Component
@@ -102,8 +103,9 @@ public class CourseService {
 		}
 		return po;
 	}
-	
+	private static final BigDecimal ONE_HUNDRED = BigDecimal.TEN.multiply(BigDecimal.TEN);
 	public void updateCourse(CourseSO so) {
+		so.setPrice(so.getPrice().multiply(ONE_HUNDRED));
 		boolean update = so.getId() != null;
 		if (!update) {
 			CourseContentPO content = new CourseContentPO();

@@ -2,6 +2,7 @@ package com.hotelpal.service.common.so.live;
 
 import com.hotelpal.service.common.so.ExtendedBaseSO;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -9,7 +10,7 @@ public class LiveCourseSO extends ExtendedBaseSO {
 	private String title;
 	private String subTitle;
 	private Date openTime;
-	private Integer price;
+	private BigDecimal price;
 	private Integer inviteRequire;
 	private String bannerImg;
 	private String inviteImg;
@@ -54,12 +55,6 @@ public class LiveCourseSO extends ExtendedBaseSO {
 	}
 	public void setOpenTime(Date openTime) {
 		this.openTime = openTime;
-	}
-	public Integer getPrice() {
-		return price;
-	}
-	public void setPrice(Integer price) {
-		this.price = price;
 	}
 	public Integer getInviteRequire() {
 		return inviteRequire;
@@ -138,5 +133,11 @@ public class LiveCourseSO extends ExtendedBaseSO {
 	}
 	public void setRelaCourseCouponImg(String relaCourseCouponImg) {
 		this.relaCourseCouponImg = relaCourseCouponImg;
+	}
+	public BigDecimal getPrice() {
+		return price;
+	}
+	public void setPrice(BigDecimal price) {
+		this.price = price;
 	}
 }

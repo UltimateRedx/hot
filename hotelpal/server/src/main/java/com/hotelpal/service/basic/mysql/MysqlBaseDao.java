@@ -22,6 +22,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import javax.annotation.Resource;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -421,6 +422,8 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 					preparedStatement.setString(index++, (String) value);
 				else if (value instanceof Date)
 					preparedStatement.setString(index++, DateUtils.getDateTimeString((Date) value));
+				else if (value instanceof BigDecimal)
+					preparedStatement.setBigDecimal(index++, (BigDecimal) value);
 			}
 		}
 		return index;

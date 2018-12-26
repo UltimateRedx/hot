@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -147,8 +148,11 @@ public class LiveCourseService {
 		CacheService.removeValue(CacheService.KEY_LIVE_COURSE_INVITE_IMG + course.getId());
 		getImgCache(course.getId());
 	}
+
+	private static final BigDecimal ONE_HUNDRED = BigDecimal.TEN.multiply(BigDecimal.TEN);
 	@Transactional
 	public LiveCoursePO doUpdateLiveCourse(LiveCourseSO so) {
+		so.setPrice(Optional.ofNullable(so.getPrice()).orElse(BigDecimal.ZERO).multiply(ONE_HUNDRED));
 		boolean create = false;
 		if(so.getId() == null) create = true;
 		LiveCoursePO course = liveCourseDao.getById(so.getId());

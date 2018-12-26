@@ -1,11 +1,12 @@
 package com.hotelpal.service.common.so;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 public class SysCouponSO extends ExtendedBaseSO{
 	private String name;
-	private Integer value;
+	private BigDecimal value;
 	private Integer total;
 	private String validityType;
 	private Date validity;
@@ -13,7 +14,7 @@ public class SysCouponSO extends ExtendedBaseSO{
 	//ALL,PARTICULAR
 	private String apply;
 	//逗号分隔的
-	private Integer applyToPrice;
+	private BigDecimal applyToPrice;
 	private List<Integer> applyToCourse;
 	
 	public String getName() {
@@ -21,12 +22,6 @@ public class SysCouponSO extends ExtendedBaseSO{
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public Integer getValue() {
-		return value;
-	}
-	public void setValue(Integer value) {
-		this.value = value;
 	}
 	public Date getValidity() {
 		return validity;
@@ -64,10 +59,16 @@ public class SysCouponSO extends ExtendedBaseSO{
 	public void setValidityType(String validityType) {
 		this.validityType = validityType;
 	}
-	public Integer getApplyToPrice() {
+	public BigDecimal getValue() {
+		return value;
+	}
+	public void setValue(BigDecimal value) {
+		this.value = value;
+	}
+	public BigDecimal getApplyToPrice() {
 		return applyToPrice;
 	}
-	public void setApplyToPrice(Integer applyToPrice) {
+	public void setApplyToPrice(BigDecimal applyToPrice) {
 		this.applyToPrice = applyToPrice;
 	}
 }

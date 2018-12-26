@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class CouponService {
 	private static final Logger logger = LoggerFactory.getLogger(CouponService.class);
+	private static final BigDecimal ONE_HUNDRED = BigDecimal.TEN.multiply(BigDecimal.TEN);
 	@Resource
 	private SysCouponDao sysCouponDao;
 	@Resource
@@ -73,7 +75,7 @@ public class CouponService {
 	public void updateSysCoupon(SysCouponSO so) {
 		if (so.getId() == null) {
 			SysCouponPO po = dozerBeanMapper.map(so, SysCouponPO.class);
-			po.setValue(so.getValue());
+			po.setValue(Optional.ofNullable(so.getValue()).orElse(BigDecimal.ZERO).multiply(ONE_HUNDRED).intValue());
 			po.setType(CouponType.COURSE.toString());
 			if (ArrayUtils.isNotNullEmpty(so.getApplyToCourse())) {
 				po.setApplyToCourse(String.join(",", so.getApplyToCourse().stream().map(String::valueOf).collect(Collectors.toList())));
@@ -84,13 +86,13 @@ public class CouponService {
 			sysCouponDao.create(po);
 		} else {
 			SysCouponPO po = sysCouponDao.getById(so.getId());
-			po.setValue(so.getValue());
+			po.setValue(Optional.ofNullable(so.getValue()).orElse(BigDecimal.ZERO).multiply(ONE_HUNDRED).intValue());
 			if (ArrayUtils.isNotNullEmpty(so.getApplyToCourse())) {
 				po.setApplyToCourse(String.join(",", so.getApplyToCourse().stream().map(String::valueOf).collect(Collectors.toList())));
 			} else {
 				po.setApplyToCourse(null);
 			}
-			po.setApplyToPrice(so.getApplyToPrice());
+			po.setApplyToPrice(Optional.ofNullable(so.getApplyToPrice()).orElse(BigDecimal.ZERO).multiply(ONE_HUNDRED).intValue());
 			setCouponTimeToMax(po, so);
 			sysCouponDao.update(po);
 		}

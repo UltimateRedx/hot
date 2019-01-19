@@ -276,7 +276,7 @@ public class UserRelaDao extends MysqlBaseDao<UserRelaSO, UserRelaPO> {
 	}
 
 	public List<String> getAllOpenId() {
-		String sql = "select openId from " + TABLE_NAME ;
+		String sql = "select openId from " + TABLE_NAME + " where openId is not null";
 		return dao.queryForList(sql, String.class);
 	}
 

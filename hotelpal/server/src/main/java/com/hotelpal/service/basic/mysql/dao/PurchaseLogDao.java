@@ -198,6 +198,10 @@ public class PurchaseLogDao extends DomainMysqlBaseDao<PurchaseLogSO, PurchaseLo
 			params.add(so.getSearchValue());
 			params.add(so.getSearchValue());
 		}
+		if (!StringUtils.isNullEmpty(so.getSearchValueCourse())) {
+			buff.append(" AND c.title like concat('%', ?, '%') ");
+			params.add(so.getSearchValueCourse());
+		}
 		String commonSql = StringUtils.format(" from {} pl" +
 						" inner join {} rela on pl.domainId=rela.domainId" +
 						" inner join {} u on rela.userId=u.id" +

@@ -11,6 +11,7 @@ import com.hotelpal.service.common.po.extra.PurchasedCoursePO;
 import com.hotelpal.service.common.so.*;
 import com.hotelpal.service.common.utils.*;
 import com.hotelpal.service.common.vo.CommentVO;
+import com.hotelpal.service.common.vo.UserListenLogUnit;
 import com.hotelpal.service.common.vo.UserVO;
 import com.hotelpal.service.common.vo.WxUserInfo;
 import com.hotelpal.service.service.live.LiveUserService;
@@ -30,6 +31,9 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Redx
+ */
 @Component
 @Transactional
 public class UserService {
@@ -753,5 +757,33 @@ public class UserService {
 		}
 		return resList;
 	}
-	
+
+	/**用户的听课记录，用于用户信息页面展示*/
+	public UserListenLogUnit getUserListenLog (Integer domainId){
+		SecurityContextHolder.setTargetDomain(domainId);
+		UserListenLogUnit res = new UserListenLogUnit();
+		List<ListenLogPO> poList = listenLogDao.getNonPageList(new ListenLogSO());
+		if (poList.isEmpty()) {
+			return res;
+		}
+		List<Integer> lessonIds = poList.stream().map(ListenLogPO::getLessonId).collect(Collectors.toList());
+		List<LessonPO> lessonList = lessonDao.getByIdList(lessonIds);
+		List<Integer> courseIds = lessonList.stream().map(LessonPO::getCourseId).collect(Collectors.toList());
+		List<CoursePO> courseList = courseDao.getByIdList(courseIds);
+
+		Map<Integer, LessonPO> lessonMap = new HashMap<>();
+		for (LessonPO lesson : lessonList) {
+			lessonMap.put(lesson.getId(), lesson);
+		}
+
+		Map<Integer, CoursePO> courseMap = new HashMap<>();
+		for (CoursePO course : courseList) {
+			courseMap.put(course.getId(), course);
+		}
+
+		res.setListenLogs(poList);
+		res.setLessonMap(lessonMap);
+		res.setCourseMap(courseMap);
+		return res;
+	}
 }

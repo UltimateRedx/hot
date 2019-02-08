@@ -11,6 +11,8 @@ public class PurchaseLogSO extends DomainBaseSO {
 	private Date purchaseDateFrom;
 	private Date purchaseDateTo;
 	private String searchValue;
+	/** 课程名称搜索*/
+	private String searchValueCourse;
 
 	public Integer getCourseId() {
 		return courseId;
@@ -47,5 +49,11 @@ public class PurchaseLogSO extends DomainBaseSO {
 	}
 	public void setSearchValue(String searchValue) {
 		this.searchValue = searchValue;
+	}
+	public String getSearchValueCourse() {
+		return searchValueCourse;
+	}
+	public void setSearchValueCourse(String searchValueCourse) {
+		this.searchValueCourse = searchValueCourse;
 	}
 }

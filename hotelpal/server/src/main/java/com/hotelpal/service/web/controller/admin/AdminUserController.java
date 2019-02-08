@@ -5,6 +5,7 @@ import com.hotelpal.service.common.vo.PackVO;
 import com.hotelpal.service.common.vo.WxUserInfo;
 import com.hotelpal.service.service.UserService;
 import com.hotelpal.service.service.parterner.wx.WXService;
+import com.hotelpal.service.web.controller.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,7 @@ import javax.annotation.Resource;
 
 @Controller
 @RequestMapping(value = "/admin/user")
-public class AdminUserController {
+public class AdminUserController extends BaseController {
 	@Resource
 	private UserService userService;
 	@Resource
@@ -35,4 +36,11 @@ public class AdminUserController {
 		wxService.updateUserInfo(domainId);
 		return new PackVO();
 	}
+
+	@RequestMapping(value = "/getUserListenLog")
+	@ResponseBody
+	public PackVO getUserListenLog(Integer domainId) {
+		return new PackVO<>(userService.getUserListenLog(domainId));
+	}
+
 }

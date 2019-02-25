@@ -266,6 +266,13 @@ public class CouponService {
 		if (collected) {
 			throw new ServiceException(ServiceException.COUPON_OBTAINED);
 		}
+		//优惠券过期校验
+		if ((CouponValidityType.FIXED.toString().equals(sysCoupon.getType())
+				|| CouponValidityType.FIXED_DAY.toString().equals(sysCoupon.getType()))
+				&& new Date().after(sysCoupon.getValidity())) {
+			throw new ServiceException(ServiceException.COUPON_EXPIRED);
+		}
+
 		Integer totalUsed = userCouponDao.countBySysCouponId(couponId);
 		if (sysCoupon.getTotal() != null && sysCoupon.getTotal() > 0 && sysCoupon.getTotal() <= totalUsed) {
 			throw new ServiceException(ServiceException.COUPON_DEPLETION);

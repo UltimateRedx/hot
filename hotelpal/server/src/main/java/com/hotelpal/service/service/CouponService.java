@@ -82,6 +82,7 @@ public class CouponService {
 			} else {
 				po.setApplyToCourse(null);
 			}
+			po.setApplyToPrice(Optional.ofNullable(so.getApplyToPrice()).orElse(BigDecimal.ZERO).multiply(ONE_HUNDRED).intValue());
 			setCouponTimeToMax(po, so);
 			sysCouponDao.create(po);
 		} else {

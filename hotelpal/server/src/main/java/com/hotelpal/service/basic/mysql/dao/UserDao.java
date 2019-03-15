@@ -104,7 +104,7 @@ public class UserDao extends MysqlBaseDao<UserSO, UserPO> {
 				" from {} rela " +
 				" inner join {} u on rela.userId = u.id " +
 				" left join {} pl on pl.domainId=rela.domainId " +
-				" where 1=1 " +
+				" where 1=1 AND rela.openId is not null" +
 				buff.toString() +
 				" group by rela.domainId", TableNames.TABLE_USER_RELA, TABLE_NAME, TableNames.TABLE_PURCHASE_LOG) +
 				where.toString();

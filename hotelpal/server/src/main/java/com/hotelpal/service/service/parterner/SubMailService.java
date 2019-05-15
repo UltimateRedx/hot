@@ -42,9 +42,29 @@ public class SubMailService {
 		paramMap.put("signature", APP_KEY);
 		params.setRequestEntity(StringUtils.formUrl(paramMap));
 		String res = HttpPostUtils.postMap(params);
-		Map<String, Object> resMap = JSON.parseObject(res, HashMap.class);
-		if (String.valueOf(resMap.get("status")).equalsIgnoreCase("error")) {
-			throw new ServiceException(ServiceException.SUB_MAIL_SEND_FAILED);
+		class Response{
+			private String status;
+			private String msg;
+
+			public String getStatus() {
+				return status;
+			}
+
+			public void setStatus(String status) {
+				this.status = status;
+			}
+
+			public String getMsg() {
+				return msg;
+			}
+
+			public void setMsg(String msg) {
+				this.msg = msg;
+			}
+		}
+		Response resObj = JSON.parseObject(res, Response.class);
+		if (!resObj.status.equalsIgnoreCase("success")) {
+			throw new ServiceException(resObj.msg);
 		}
 		//return void if succeed.
 	}

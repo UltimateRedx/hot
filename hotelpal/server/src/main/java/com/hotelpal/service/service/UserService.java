@@ -15,6 +15,7 @@ import com.hotelpal.service.common.vo.UserListenLogUnit;
 import com.hotelpal.service.common.vo.UserVO;
 import com.hotelpal.service.common.vo.WxUserInfo;
 import com.hotelpal.service.service.live.LiveUserService;
+import com.hotelpal.service.service.parterner.AliService;
 import com.hotelpal.service.service.parterner.SubMailService;
 import com.hotelpal.service.service.parterner.wx.WXService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -668,9 +669,9 @@ public class UserService {
 		PhoneCodeSO so = new PhoneCodeSO();
 		so.setPhone(phone);
 		List<PhoneCodePO> poList = phoneCodeDao.getList(so);
-		if (poList.size() == 0) {
+		if (poList.isEmpty()) {
 			String captcha = RandomStringUtils.random(4, false, true);
-			SubMailService.sendCaptcha(phone, captcha);
+			trySendCaptcha(phone, captcha);
 			PhoneCodePO po = new PhoneCodePO();
 			po.setCode(captcha);
 			po.setPhone(phone);
@@ -678,13 +679,25 @@ public class UserService {
 		} else {
 			PhoneCodePO po = poList.get(0);
 			Date updateTime = po.getUpdateTime();
-			if (new Date().getTime() - updateTime.getTime() < CommonParams.CAPTCHA_TIME_INTERVAL) {
+			if (System.currentTimeMillis() - updateTime.getTime() < CommonParams.CAPTCHA_TIME_INTERVAL) {
 				throw new ServiceException(ServiceException.CODE_REQUIRED_TOO_FREQUENCY);
 			} else {
 				String captcha = RandomStringUtils.random(4, false, true);
-				SubMailService.sendCaptcha(phone, captcha);
+				trySendCaptcha(phone, captcha);
 				po.setCode(captcha);
 				phoneCodeDao.update(po);
+			}
+		}
+	}
+	private void trySendCaptcha(String phone, String captcha) {
+		try {
+			SubMailService.sendCaptcha(phone, captcha);
+		} catch (Exception e){
+			logger.warn("subMail 短信发送失败：{}, try ali....", e.getMessage());
+			try {
+				AliService.sendSms(phone, captcha);
+			} catch (Exception ee) {
+				logger.warn("阿里短信发送失败 {}", ee.getMessage());
 			}
 		}
 	}

@@ -10,7 +10,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 
 import java.io.UnsupportedEncodingException;
 
-public class HttpPostUtils extends HttpUtils{
+public class HttpPostUtils extends AbstractHttpUtils{
 	private HttpPostUtils() {}
 	public static String postMap(HttpParams params) {
 		fillProtocol(params);

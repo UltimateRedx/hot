@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-public class HttpGetUtils extends HttpUtils{
+public class HttpGetUtils extends AbstractHttpUtils{
 	private HttpGetUtils(){}
 	private static final Logger logger = LoggerFactory.getLogger(HttpGetUtils.class);
 	public static String executeGet(HttpParams params) {

@@ -1,6 +1,7 @@
 package com.hotelpal.service.common.mo;
 
-import org.apache.http.NameValuePair;
+
+import org.apache.commons.httpclient.NameValuePair;
 
 import java.util.List;
 

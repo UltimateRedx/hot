@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends BaseDao<S, P> {
 
@@ -121,12 +122,12 @@ public abstract class MysqlBaseDao<S extends BaseSO, P extends BasePO> extends B
 		dao.update(sql, id);
 	}
 	public List<P> getByIdList(List<Integer> idList) {
-		StringBuilder buff = new StringBuilder();
-		for (int i = 0, j = idList.size(); i < j; i++) {
-			buff.append(",?");
+		if (idList == null || idList.isEmpty()) {
+			return Collections.emptyList();
 		}
+		String str = idList.stream().map(i -> "?").collect(Collectors.joining(","));
 		String sql = B_SELECT_B + getTableColumnString() + B_FROM_B + "`" + getTableName() +
-				"` WHERE `ID` IN (" + buff.deleteCharAt(0).toString() + ")";
+				"` WHERE `ID` IN (" + str + ")";
 		return dao.query(sql, new RowMapperImpl<>(getPOClass()), idList.toArray());
 	}
 	public List<P> getList(S so) {

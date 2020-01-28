@@ -40,19 +40,19 @@
 		<!--</filter>-->
 	<!--</appender>-->
 
-	<appender name="infoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${catalina.base}/logs/server.log</file>
-		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<pattern>&#9;%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%t]%n%C{32}:%line -&gt; %msg%n</pattern>
-			<charset class="java.nio.charset.Charset">UTF-8</charset>
-		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${catalina.base}/logs/hotelpal/server.log.%d{yyyy-MM-dd}.zip</fileNamePattern>
-		</rollingPolicy>
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
-			<level>INFO</level>
-		</filter>
-	</appender>
+<!--	<appender name="infoAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--		<file>${catalina.base}/logs/server.log</file>-->
+<!--		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+<!--			<pattern>&#9;%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%t]%n%C{32}:%line -&gt; %msg%n</pattern>-->
+<!--			<charset class="java.nio.charset.Charset">UTF-8</charset>-->
+<!--		</encoder>-->
+<!--		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--			<fileNamePattern>${catalina.base}/logs/hotelpal/server.log.%d{yyyy-MM-dd}.zip</fileNamePattern>-->
+<!--		</rollingPolicy>-->
+<!--		<filter class="ch.qos.logback.classic.filter.LevelFilter">-->
+<!--			<level>INFO</level>-->
+<!--		</filter>-->
+<!--	</appender>-->
 
 	<!--<appender name="criticalAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
 		<!--<file>${catalina.base}/logs/critical.log</file>-->

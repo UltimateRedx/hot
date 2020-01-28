@@ -8,14 +8,18 @@ import java.awt.*;
 public class RunOnceTasks {
 	private static final Logger logger = LoggerFactory.getLogger(RunOnceTasks.class);
 	public static void run() {
-		new RunOnceTasks().taskFonts();
+//		new RunOnceTasks().taskFonts();
 	}
 	private void taskFonts() {
-		GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		logger.info("===============================Here are all available fonts in the system.==================");
-		for (String name : e.getAvailableFontFamilyNames()) {
-			logger.info(name);
-		}
-		logger.info("============================================================================================");
+	    try{
+		    GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		    logger.info("===============================Here are all available fonts in the system.==================");
+            for (String name : e.getAvailableFontFamilyNames()) {
+                logger.info(name);
+            }
+            logger.info("============================================================================================");
+        } catch (Exception ex) {
+	        logger.warn("", ex);
+        }
 	}
 }
